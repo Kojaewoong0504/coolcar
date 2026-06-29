@@ -151,7 +151,7 @@ export default function HomePage() {
         </div>
         <p className="eyebrow">퇴근길 쾌적칸 추천</p>
         <h1>노선도 말고,<br />어디 탈지만.</h1>
-        <p>더위, 추위, 혼잡도를 합쳐 지금 가장 쾌적한 칸을 골라드려요.</p>
+        <p>더위, 추위, 혼잡도를 합쳐 쾌적할 가능성이 높은 칸을 골라드려요.</p>
         <div className="hero-stats"><span><b>30초</b>입력 완료</span><span><b>무료</b>추천 가능</span><span><b>3초</b>결론 확인</span></div>
       </section>
 

@@ -7,8 +7,16 @@ export type ProviderResult = { cars: CarComfort[]; sourceMeta: SourceMeta; fallb
 export interface CongestionProvider { name: string; supports(request: RecommendRequest): boolean; getCars(request: RecommendRequest): Promise<ProviderResult>; }
 
 const weakAcCars: Record<string, number[]> = {
-  '1호선': [4, 7], '2호선': [4, 7], '3호선': [4, 7], '4호선': [4, 7], '5호선': [4, 7],
-  '6호선': [4, 7], '7호선': [4, 7], '8호선': [3, 4], '9호선': [4, 5], '신분당선': [3, 4],
+  // 서울교통공사 공개 안내 기반 정적 규칙. 노선/운영기관별로 달라질 수 있어
+  // 화면에서는 "약냉방칸 정보와 시간대 패턴 기준" 수준으로만 설명한다.
+  '1호선': [4, 7],
+  '2호선': [],
+  '3호선': [4, 7],
+  '4호선': [4, 7],
+  '5호선': [4, 5],
+  '6호선': [4, 5],
+  '7호선': [4, 5],
+  '8호선': [3, 4],
 };
 
 function lineCarCount(line: string) { return line === '9호선' || line === '신분당선' ? 6 : 10; }
@@ -140,7 +148,11 @@ export class EstimatedCongestionProvider implements CongestionProvider {
 }
 
 export async function resolveProvider(request: RecommendRequest): Promise<ProviderResult> {
-  const providers: CongestionProvider[] = [new TmapCongestionProvider(), new EstimatedCongestionProvider()];
+  // SK/TMAP 무료 한도는 제품 트래픽에 사실상 사용할 수 없으므로 기본 경로에서 제외한다.
+  // 명시적으로 COOLCAR_ENABLE_TMAP_PROVIDER=true를 둔 운영/진단 환경에서만 보강 provider로 사용한다.
+  const providers: CongestionProvider[] = process.env.COOLCAR_ENABLE_TMAP_PROVIDER === 'true'
+    ? [new TmapCongestionProvider(), new EstimatedCongestionProvider()]
+    : [new EstimatedCongestionProvider()];
   const provider = providers.find((p) => p.supports(request)) ?? new EstimatedCongestionProvider();
   try { return await provider.getCars(request); } catch { return provider instanceof TmapCongestionProvider ? statisticalFallback(request) : new EstimatedCongestionProvider().getCars(request); }
 }

@@ -195,6 +195,7 @@ export default function ResultPage() {
         <h1>{result.recommendedCar.label}</h1>
         <p className="score">{result.request.originStation} → {result.request.destinationStation || '목적지'} · {comfortCopy(result)}</p>
         <p className="source-message">{friendlyReason(result, needsTransfer)}</p>
+        <p className="microcopy">실시간 온도 측정이 아니라 공공·정적 규칙, 시간대 패턴, 이용자 제보를 바탕으로 한 참고용 추천이에요.</p>
         <div className="train-map" aria-label="지하철 칸별 추천 위치">
           <div className="train-map-head">
             <span>칸 위치 보기</span>
@@ -227,7 +228,7 @@ export default function ResultPage() {
       <section className="card result-why-card">
         <div className="section-title">왜 여기인가요?</div>
         <ul className="reasons">
-          <li>{friendlyReason(result, needsTransfer)}</li>
+          {result.reasons.map((reason) => <li key={reason}>{reason}</li>)}
           {result.recommendedCar.isWeakAc && <li>약냉방칸이라 추위를 많이 타는 사람에게 더 편할 수 있어요.</li>}
           {result.avoidCars.length > 0 && <li>피하면 좋은 위치: {result.avoidCars.map((car) => car.label).join(', ')}</li>}
         </ul>
