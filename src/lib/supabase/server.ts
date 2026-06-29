@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
+import { normalizeSupabaseUser } from '../auth/profile';
 import { getSupabasePublishableKey, getSupabaseUrl } from '../supabase';
 
 export async function createSupabaseServerClient() {
@@ -30,4 +31,9 @@ export async function getCurrentUser() {
   const { data, error } = await supabase.auth.getUser();
   if (error) return null;
   return data.user ?? null;
+}
+
+export async function getCurrentAuthProfile() {
+  const user = await getCurrentUser();
+  return user ? normalizeSupabaseUser(user) : null;
 }

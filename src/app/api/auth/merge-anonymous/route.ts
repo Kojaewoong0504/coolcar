@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { normalizeSupabaseUser } from '@/lib/auth/profile';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/supabase/server';
 
@@ -17,6 +18,15 @@ export async function POST(request: Request) {
   if (!supabase) return NextResponse.json({ error: { code: 'SUPABASE_NOT_CONFIGURED', message: '서버 저장소가 설정되지 않았어요.' } }, { status: 500 });
 
   const anonymousId = parsed.data.anonymousId;
+  const profile = normalizeSupabaseUser(user);
+  const { error: profileError } = await supabase.from('user_profiles').upsert({
+    id: user.id,
+    display_name: profile.displayName,
+    avatar_url: profile.avatarUrl,
+    updated_at: new Date().toISOString(),
+  });
+  if (profileError) return NextResponse.json({ error: { code: 'PROFILE_SYNC_FAILED', message: '프로필 정보를 연결하지 못했어요.' } }, { status: 500 });
+
   const tables = ['saved_routes', 'recommendation_events', 'feedback_events'] as const;
   const updated: Record<string, number | null> = {};
 
