@@ -204,6 +204,18 @@ export async function runTmapDiagnosticProbe(input: TmapProbeInput = {}): Promis
     });
   }
 
+  if (!config.liveEnabled && !input.force) {
+    return makeRecord({
+      ...base,
+      ok: false,
+      code: 'LIVE_DISABLED',
+      message: humanMessage('LIVE_DISABLED'),
+      cacheHit: false,
+      cacheTtlSeconds: Number(process.env.TMAP_CACHE_TTL_SECONDS ?? 21600),
+      durationMs: Date.now() - started,
+    });
+  }
+
   const cacheTtlSeconds = Number(process.env.TMAP_CACHE_TTL_SECONDS ?? 21600);
   const cacheKey = `tmap:congestion:stat-car:v2:${stationCode}:${params.dow}:${params.hh}`;
   if (!input.force) {
@@ -221,18 +233,6 @@ export async function runTmapDiagnosticProbe(input: TmapProbeInput = {}): Promis
         congestionCars: cached,
       });
     }
-  }
-
-  if (!config.liveEnabled && !input.force) {
-    return makeRecord({
-      ...base,
-      ok: false,
-      code: 'LIVE_DISABLED',
-      message: humanMessage('LIVE_DISABLED'),
-      cacheHit: false,
-      cacheTtlSeconds,
-      durationMs: Date.now() - started,
-    });
   }
 
   return coalesce(`probe:${cacheKey}`, async () => {

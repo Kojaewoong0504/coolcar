@@ -64,7 +64,8 @@ export default function HomePage() {
     if (nextDestinationLine) setDestinationLine(nextDestinationLine);
     if (nextDirection) setDirection(nextDirection);
     if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
-  }, []);
+    router.prefetch('/result?loading=1');
+  }, [router]);
 
   useEffect(() => {
     if (!pickerTarget) {
@@ -135,12 +136,19 @@ export default function HomePage() {
   return (
     <main className="shell with-tabbar">
       <header className="topbar app-topbar">
-        <div className="logo"><span className="logo-mark">🧊</span><span>시원칸</span></div>
+        <div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" /><span>시원칸</span></div>
         <UserProfilePill />
       </header>
 
       <section className="hero-card home-hero">
         <div className="hero-orb" aria-hidden="true" />
+        <div className="brand-hero">
+          <img className="brand-app-icon" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />
+          <div>
+            <p className="brand-name">시원칸</p>
+            <p className="brand-subtitle">지하철 쾌적칸 추천 앱</p>
+          </div>
+        </div>
         <p className="eyebrow">퇴근길 쾌적칸 추천</p>
         <h1>노선도 말고,<br />어디 탈지만.</h1>
         <p>더위, 추위, 혼잡도를 합쳐 지금 가장 쾌적한 칸을 골라드려요.</p>
@@ -152,7 +160,7 @@ export default function HomePage() {
         <div className="segmented-pills" role="group" aria-label="추천 성향">
           {comfortOptions.map((option) => (
             <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} onClick={() => setComfortType(option.value)}>
-              <span>{option.emoji}</span><b>{option.label}</b><small>{option.desc}</small>
+              <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
             </button>
           ))}
         </div>
@@ -162,21 +170,22 @@ export default function HomePage() {
             <span className="route-label">출발</span>
             <span className="route-value">{originStation}</span>
             <span className="route-badge">{line}</span>
+            <span className="chevron" aria-hidden="true">›</span>
           </button>
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('destination')} aria-label="도착역 선택">
             <span className="route-label">도착</span>
             <span className="route-value">{destinationStation || '목적지 선택'}</span>
             <span className="route-badge subtle">변경</span>
+            <span className="chevron" aria-hidden="true">›</span>
           </button>
           <p className="route-helper">노선은 출발역 선택 시 자동으로 맞춰져요. 방향은 다음 단계에서 경로 기반 자동 계산으로 바꿀 예정이에요.</p>
         </div>
 
         <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
         {error && <p className="error">{error}</p>}
-        <button className="primary sticky-cta" type="button" onClick={() => void runRecommendation()} disabled={loading}>{loading ? '지금 탈 칸을 고르고 있어요…' : '지금 추천받기'}</button>
+        <button className="primary sticky-cta" type="button" onClick={() => void runRecommendation()} disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />지금 탈 칸을 고르고 있어요…</> : <>지금 추천받기 <span aria-hidden="true">→</span></>}</button>
       </form>
 
-      {loading && <section className="card skeleton"><h2>칸별 쾌적도를 계산 중이에요</h2><div /></section>}
 
       {pickerTarget && (
         <div className="station-picker-backdrop" role="presentation" onClick={() => setPickerTarget(null)}>

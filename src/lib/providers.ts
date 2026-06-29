@@ -88,7 +88,7 @@ export class TmapCongestionProvider implements CongestionProvider {
     });
 
     if (!diagnostic.ok || !diagnostic.congestionCars) {
-      await logProviderDiagnosticEvent(diagnostic);
+      void logProviderDiagnosticEvent(diagnostic);
       if (diagnostic.code === 'LIVE_DISABLED') {
         return {
           cars: generateCars(request, 'estimated'),
@@ -113,7 +113,7 @@ export class TmapCongestionProvider implements CongestionProvider {
       return statisticalFallback(request, safeReason);
     }
 
-    await logProviderDiagnosticEvent(diagnostic);
+    void logProviderDiagnosticEvent(diagnostic);
     return {
       cars: applyTmapCrowding(generateCars(request, 'statistical'), diagnostic.congestionCars),
       fallbackUsed: false,

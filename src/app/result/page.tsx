@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { RecommendRequest, RecommendationResponse } from '@/lib/types';
 
@@ -39,12 +39,15 @@ export default function ResultPage() {
   const [stored, setStored] = useState<StoredResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [feedbackState, setFeedbackState] = useState<'idle' | 'sent' | 'mock' | 'error'>('idle');
-  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'mock' | 'error'>('idle');
+  const [feedbackState, setFeedbackState] = useState<'idle' | 'pending' | 'sent' | 'mock' | 'error'>('idle');
+  const [saveState, setSaveState] = useState<'idle' | 'pending' | 'saved' | 'mock' | 'error'>('idle');
+  const recommendationStarted = useRef(false);
 
   useEffect(() => {
     const pendingRaw = window.sessionStorage.getItem('coolcar_pending_recommendation');
     if (pendingRaw) {
+      if (recommendationStarted.current) return;
+      recommendationStarted.current = true;
       try {
         const pending = JSON.parse(pendingRaw) as PendingRecommendation;
         fetch('/api/recommend', {
@@ -58,6 +61,7 @@ export default function ResultPage() {
             const nextStored = { result: json as RecommendationResponse, context: pending.context };
             window.sessionStorage.setItem('coolcar_last_result', JSON.stringify(nextStored));
             window.sessionStorage.removeItem('coolcar_pending_recommendation');
+            window.history.replaceState(null, '', '/result');
             setStored(nextStored);
           })
           .catch((caught) => setError(caught instanceof Error ? caught.message : '추천 중 문제가 생겼어요.'))
@@ -133,7 +137,8 @@ export default function ResultPage() {
   const anonymousId = getAnonymousId();
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
-    setFeedbackState('idle');
+    if (feedbackState === 'pending') return;
+    setFeedbackState('pending');
     const response = await fetch('/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -153,7 +158,8 @@ export default function ResultPage() {
   }
 
   async function saveRoute() {
-    setSaveState('idle');
+    if (saveState === 'pending' || saveState === 'saved') return;
+    setSaveState('pending');
     const response = await fetch('/api/routes/saved', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -191,7 +197,7 @@ export default function ResultPage() {
         <p className="source-message">{friendlyReason(result, needsTransfer)}</p>
         {needsTransfer && <p className="transfer-note">환승역 구조를 더 정확히 붙이면, 다음 버전에서는 환승 게이트와 가까운 칸을 우선 추천할 수 있어요.</p>}
         <div className="result-actions">
-          <button type="button" onClick={() => void saveRoute()}>루틴 저장하기</button>
+          <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>{saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}</button>
           <Link href={backHref}>다시 추천</Link>
         </div>
         {saveState === 'saved' && <p className="ok">퇴근 루틴에 저장했어요.</p>}
@@ -212,12 +218,13 @@ export default function ResultPage() {
         <div className="section-title">방금 추천 어땠어요?</div>
         <p className="microcopy">한 번만 눌러주면 다음 추천이 더 좋아져요.</p>
         <div className="feedback-buttons">
-          <button onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
-          <button onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
-          <button onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
-          <button onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
-          <button onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
         </div>
+        {feedbackState === 'pending' && <p className="microcopy">반영 중이에요…</p>}
         {feedbackState === 'sent' && <p className="ok">다음 추천에 반영했어요.</p>}
         {feedbackState === 'mock' && <p className="ok">피드백을 받았어요.</p>}
         {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}

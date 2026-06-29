@@ -13,9 +13,11 @@ export async function POST(request: Request) {
 
   const data = await recommend(parsed.data);
   const supabase = getSupabaseAdmin();
-  const user = await getCurrentUser();
 
   if (!supabase) return NextResponse.json({ ...data, persisted: false });
+
+  // 익명 사용자는 anonymousId가 owner이므로 Supabase Auth 조회를 생략해 critical path를 줄인다.
+  const user = parsed.data.anonymousId ? null : await getCurrentUser();
 
   const { data: inserted, error } = await supabase
     .from('recommendation_events')

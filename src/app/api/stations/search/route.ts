@@ -14,6 +14,13 @@ export async function GET(request: Request) {
   const limitParam = Number(searchParams.get('limit') ?? '20');
   const limit = Math.min(Math.max(Number.isFinite(limitParam) ? limitParam : 20, 1), 50);
 
+  // 사용자 입력 자동완성은 500ms 미만 체감이 우선이다.
+  // 넓은 static master를 즉시 반환하고, DB는 향후 관리/검증 배치에서 보강한다.
+  const staticStations = searchStations(q, { line, limit });
+  if (staticStations.length > 0) {
+    return NextResponse.json({ stations: staticStations, source: 'STATIC_MASTER' });
+  }
+
   const supabase = await createSupabaseServerClient();
   if (supabase) {
     const normalized = normalizeStationName(q);
@@ -40,5 +47,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ stations: searchStations(q, { line, limit }), source: 'STATIC_MASTER' });
+  return NextResponse.json({ stations: [], source: 'STATIC_MASTER' });
 }
