@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { resolveProvider } from './providers';
+import { buildRouteGuidance } from './routeGuidance';
 import { getSupabaseAdmin } from './supabase';
 import type { CarComfort, RecommendRequest, RecommendationResponse } from './types';
 
@@ -168,6 +169,7 @@ export async function recommend(request: RecommendRequest): Promise<Recommendati
     avoidCars,
     cars: scored.sort((a, b) => a.carNo - b.carNo),
     reasons: reasons(recommendedCar, request, providerResult.fallbackUsed, feedback),
+    routeGuidance: buildRouteGuidance(request, recommendedCar),
     sourceMeta: {
       ...providerResult.sourceMeta,
       confidence: feedback.count >= 3 ? 'MEDIUM' : providerResult.sourceMeta.confidence,

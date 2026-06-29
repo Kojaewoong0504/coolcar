@@ -6,12 +6,14 @@ export type RecommendRequest = {
   line: string;
   originStation: string;
   destinationStation?: string;
+  destinationLine?: string;
   direction?: string;
   comfortType: ComfortType;
   targetTime?: string;
   waitToleranceMin?: 0 | 3 | 5 | 10;
   avoidPrioritySeatArea?: boolean;
   anonymousId?: string;
+  transferStations?: string[];
 };
 
 export type CarComfort = {
@@ -46,7 +48,32 @@ export type RecommendationResponse = {
   avoidCars: CarComfort[];
   cars: CarComfort[];
   reasons: string[];
+  routeGuidance: RouteGuidance;
   sourceMeta: SourceMeta;
   fallbackUsed: boolean;
   safetyNotice: string;
+};
+
+export type RouteGuidanceStatus = 'direct' | 'transfer_ready' | 'needs_route' | 'limited';
+
+export type RouteLegGuidance = {
+  legNo: number;
+  fromStation: string;
+  toStation: string;
+  line: string;
+  direction?: string;
+  goal: 'FINAL_EXIT' | 'NEXT_TRANSFER' | 'BOARD_AFTER_TRANSFER';
+  status: 'available' | 'needs_data' | 'needs_direction' | 'needs_route';
+  recommendedCarNo?: number;
+  recommendedDoorNo?: number;
+  positionLabel: string;
+  facility?: string;
+  message: string;
+};
+
+export type RouteGuidance = {
+  status: RouteGuidanceStatus;
+  summary: string;
+  disclaimer: string;
+  legs: RouteLegGuidance[];
 };

@@ -39,6 +39,7 @@ export default function HomePage() {
   const [destinationStation, setDestinationStation] = useState('홍대입구역');
   const [destinationLine, setDestinationLine] = useState('2호선');
   const [direction, setDirection] = useState('내선');
+  const [transferStationsInput, setTransferStationsInput] = useState('');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,8 @@ export default function HomePage() {
     if (nextDestination) setDestinationStation(nextDestination);
     if (nextDestinationLine) setDestinationLine(nextDestinationLine);
     if (nextDirection) setDirection(nextDirection);
+    const nextTransfers = params.get('transferStations');
+    if (nextTransfers) setTransferStationsInput(nextTransfers);
     if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
     router.prefetch('/result?loading=1');
   }, [router]);
@@ -102,7 +105,8 @@ export default function HomePage() {
       return;
     }
 
-    const request = { line, originStation, destinationStation, direction, comfortType, waitToleranceMin: 3, avoidPrioritySeatArea, anonymousId };
+    const transferStations = transferStationsInput.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 5);
+    const request = { line, originStation, destinationStation, destinationLine, direction, comfortType, waitToleranceMin: 3, avoidPrioritySeatArea, anonymousId, transferStations };
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({ request, context: { destinationLine } }));
     setLoading(true);
     router.push('/result?loading=1');
@@ -180,6 +184,12 @@ export default function HomePage() {
           </button>
           <p className="route-helper">노선은 출발역 선택 시 자동으로 맞춰져요. 방향은 다음 단계에서 경로 기반 자동 계산으로 바꿀 예정이에요.</p>
         </div>
+
+        <label className="field optional-transfer-field">
+          <span>환승역이 있다면 입력</span>
+          <input value={transferStationsInput} onChange={(event) => setTransferStationsInput(event.target.value)} placeholder="예: 교대역, 고속터미널역" />
+          <small>지도앱에서 확인한 환승역을 쉼표로 입력하면 구간별 위치 안내로 나눠 보여드려요.</small>
+        </label>
 
         <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
         {error && <p className="error">{error}</p>}

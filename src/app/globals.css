@@ -189,4 +189,17 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .station-result-list b { font-size:17px; letter-spacing:-.04em; }
 .station-result-list small { color:var(--muted); margin-top:3px; }
 .station-result-list em { font-style:normal; border-radius:999px; padding:7px 9px; background:#ecfeff; color:#0369a1; font-size:12px; font-weight:950; }
-@media (max-width: 360px) { h1 { font-size: 34px; } .route-options, .source-grid { grid-template-columns: 1fr; } .cars { gap: 6px; } .car { min-height: 72px; border-radius: 15px; } .profile-name { display:none; } .line-chip-grid { grid-template-columns: repeat(3, 1fr); } }
+.optional-transfer-field small { display:block; margin-top:6px; color:var(--muted); font-size:12px; line-height:1.45; }
+.route-guidance-card { display:grid; gap:12px; }
+.route-leg-list { display:grid; gap:10px; }
+.route-leg-card { border:1px solid var(--border); background:#f8fdff; border-radius:20px; padding:14px; display:grid; gap:9px; }
+.route-leg-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.route-leg-head span { border-radius:999px; background:#ecfeff; color:#0369a1; padding:6px 9px; font-size:12px; font-weight:950; white-space:nowrap; }
+.route-leg-head b { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; letter-spacing:-.03em; }
+.route-leg-meta { margin:0; color:var(--muted); font-size:13px; font-weight:850; }
+.door-tip { border-radius:18px; padding:12px; display:grid; gap:4px; }
+.door-tip span { font-size:12px; font-weight:950; color:var(--muted); }
+.door-tip strong { font-size:18px; letter-spacing:-.04em; }
+.door-tip.available { background:#e0f2fe; color:#075985; }
+.door-tip.pending { background:#fff7ed; color:#9a3412; }
+@media (max-width: 360px) { h1 { font-size: 34px; } .route-options, .source-grid { grid-template-columns: 1fr; } .cars { gap: 6px; } .car { min-height: 72px; border-radius: 15px; } .profile-name { display:none; } .line-chip-grid { grid-template-columns: repeat(3, 1fr); } .route-leg-head { align-items:flex-start; flex-direction:column; } .route-leg-head b { white-space:normal; } }

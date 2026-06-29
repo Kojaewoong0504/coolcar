@@ -7,12 +7,14 @@ export const recommendRequestSchema = z.object({
   line: z.string().min(1, '노선을 선택해 주세요.'),
   originStation: z.string().min(1, '출발역을 입력해 주세요.'),
   destinationStation: z.string().optional(),
+  destinationLine: z.string().optional(),
   direction: z.string().optional(),
   comfortType: comfortTypeSchema.default('BALANCED'),
   targetTime: z.string().datetime({ offset: true }).optional(),
   waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
   avoidPrioritySeatArea: z.boolean().default(true),
   anonymousId: z.string().uuid().optional(),
+  transferStations: z.array(z.string().min(1)).max(5).optional(),
 });
 
 export const feedbackSchema = z.object({

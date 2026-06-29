@@ -97,6 +97,7 @@ export default function ResultPage() {
       destinationLine: stored.context?.destinationLine ?? '',
       comfortType: request.comfortType,
       direction: request.direction ?? '',
+      transferStations: request.transferStations?.join(', ') ?? '',
     });
     return `/?${params.toString()}`;
   }, [stored]);
@@ -232,6 +233,28 @@ export default function ResultPage() {
           {result.recommendedCar.isWeakAc && <li>약냉방칸이라 추위를 많이 타는 사람에게 더 편할 수 있어요.</li>}
           {result.avoidCars.length > 0 && <li>피하면 좋은 위치: {result.avoidCars.map((car) => car.label).join(', ')}</li>}
         </ul>
+      </section>
+
+      <section className="card route-guidance-card">
+        <div className="section-title">구간별 위치 안내</div>
+        <p className="microcopy">{result.routeGuidance.summary}</p>
+        <div className="route-leg-list">
+          {result.routeGuidance.legs.map((leg) => (
+            <article className="route-leg-card" key={`${leg.legNo}-${leg.fromStation}-${leg.toStation}`}>
+              <div className="route-leg-head">
+                <span>{leg.legNo}구간</span>
+                <b>{leg.fromStation} → {leg.toStation}</b>
+              </div>
+              <p className="route-leg-meta">{leg.line}{leg.direction ? ` · ${leg.direction}` : ''}</p>
+              <div className={leg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
+                <span>{leg.status === 'available' ? '추천 위치' : leg.status === 'needs_route' ? '경로 확인 필요' : '참고 위치'}</span>
+                <strong>{leg.recommendedDoorNo ? `${leg.recommendedCarNo}번째 칸 ${leg.recommendedDoorNo}번 문` : leg.positionLabel}</strong>
+              </div>
+              <p className="microcopy">{leg.message}</p>
+            </article>
+          ))}
+        </div>
+        <p className="microcopy">{result.routeGuidance.disclaimer}</p>
       </section>
 
       <section className="card feedback">
