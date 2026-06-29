@@ -247,8 +247,8 @@ export default function ResultPage() {
               </div>
               <p className="route-leg-meta">{leg.line}{leg.direction ? ` · ${leg.direction}` : ''}</p>
               <div className={leg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
-                <span>{leg.status === 'available' ? '추천 위치' : leg.status === 'needs_route' ? '경로 확인 필요' : '참고 위치'}</span>
-                <strong>{leg.recommendedDoorNo ? `${leg.recommendedCarNo}번째 칸 ${leg.recommendedDoorNo}번 문` : leg.positionLabel}</strong>
+                <span>{leg.status === 'available' ? '추천 위치' : leg.status === 'needs_direction' ? '방향 확인 필요' : leg.status === 'needs_route' ? '경로 확인 필요' : '참고 위치'}</span>
+                <strong>{leg.recommendedDoorNo ? `${leg.recommendedCarNo}번째 칸 · ${leg.recommendedDoorNo}번 문 근처` : leg.positionLabel}</strong>
               </div>
               <p className="microcopy">{leg.message}</p>
             </article>
