@@ -195,6 +195,25 @@ export default function ResultPage() {
         <h1>{result.recommendedCar.label}</h1>
         <p className="score">{result.request.originStation} → {result.request.destinationStation || '목적지'} · {comfortCopy(result)}</p>
         <p className="source-message">{friendlyReason(result, needsTransfer)}</p>
+        <div className="train-map" aria-label="지하철 칸별 추천 위치">
+          <div className="train-map-head">
+            <span>칸 위치 보기</span>
+            <small>파란 칸으로 가면 돼요</small>
+          </div>
+          <div className="cars result-cars">
+            {result.cars.map((car) => {
+              const isBest = car.carNo === result.recommendedCar.carNo;
+              const isAvoid = result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
+              return (
+                <div key={car.carNo} className={isBest ? 'car best' : isAvoid ? 'car avoid' : 'car'} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAvoid ? ' 피하면 좋아요' : ''}`}>
+                  {isBest && <span className="best-badge">추천</span>}
+                  <strong>{car.carNo}</strong>
+                  <em>{isBest ? '여기' : isAvoid ? '피하기' : car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙'}</em>
+                </div>
+              );
+            })}
+          </div>
+        </div>
         {needsTransfer && <p className="transfer-note">환승역 구조를 더 정확히 붙이면, 다음 버전에서는 환승 게이트와 가까운 칸을 우선 추천할 수 있어요.</p>}
         <div className="result-actions">
           <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>{saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}</button>
