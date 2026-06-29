@@ -55,7 +55,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [feedbackState, setFeedbackState] = useState<'idle' | 'sent' | 'mock' | 'error'>('idle');
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'mock' | 'error'>('idle');
-  const [originHits, setOriginHits] = useState<StationHit[]>([]);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const [pickerQuery, setPickerQuery] = useState('');
   const [pickerLine, setPickerLine] = useState(line);
@@ -79,17 +78,6 @@ export default function HomePage() {
     if (nextDirection) setDirection(nextDirection);
     if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
   }, []);
-
-  useEffect(() => {
-    const q = originStation.trim();
-    if (q.length < 1) return setOriginHits([]);
-    const controller = new AbortController();
-    fetch(`/api/stations/search?q=${encodeURIComponent(q)}&limit=4`, { signal: controller.signal })
-      .then((r) => r.json())
-      .then((j) => setOriginHits((j.stations ?? []).slice(0, 4)))
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [originStation]);
 
   useEffect(() => {
     if (!pickerTarget) {
@@ -232,13 +220,7 @@ export default function HomePage() {
             <span className="route-value">{destinationStation || '목적지 선택'}</span>
             <span className="route-badge subtle">변경</span>
           </button>
-          <div className="route-options">
-            <label>노선<select value={line} onChange={(e) => setLine(e.target.value)}>{lines.map((l) => <option key={l}>{l}</option>)}</select></label>
-            <label>방향<input value={direction} onChange={(e) => setDirection(e.target.value)} placeholder="내선, 광교행" /></label>
-          </div>
-          <div className="quick-stations" aria-label="빠른 역 선택">
-            {originHits.slice(0, 3).map((hit) => <button key={`${hit.name}-${hit.line}`} type="button" onClick={() => { setOriginStation(hit.name); setLine(hit.line); }}>{hit.name} · {hit.line}</button>)}
-          </div>
+          <p className="route-helper">노선은 출발역 선택 시 자동으로 맞춰져요. 방향은 다음 단계에서 경로 기반 자동 계산으로 바꿀 예정이에요.</p>
         </div>
 
         <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
