@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import type { ComfortType, RecommendationResponse } from '@/lib/types';
 
@@ -231,7 +232,7 @@ export default function HomePage() {
             <ul className="reasons">{result.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
             <p className="avoid">피하면 좋은 칸: {result.avoidCars.map((c) => c.label).join(', ')}</p>
             <p className="notice">{result.safetyNotice}</p>
-            <p className="source-detail"><a href="/data-source">데이터 기준 보기</a></p>
+            <p className="source-detail"><Link href="/data-source">데이터 기준 보기</Link></p>
           </article>
 
           <article className="card feedback">
@@ -251,7 +252,7 @@ export default function HomePage() {
         </section>
       )}
 
-      <nav className="tabbar"><a className="active" href="/">홈</a><a href="/saved">저장</a><a href="/data-source">데이터</a><a href="/settings">설정</a></nav>
+      <nav className="tabbar"><Link className="active" href="/">홈</Link><Link href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
     </main>
   );
 }

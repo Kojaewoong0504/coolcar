@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import type { NormalizedAuthProfile } from '@/lib/auth/profile';
@@ -82,7 +83,7 @@ export default function SavedPage() {
     <main className="shell with-tabbar">
       <header className="topbar">
         <div className="logo"><span className="logo-mark">🧊</span>저장 루틴</div>
-        <UserProfilePill />
+        <UserProfilePill profile={auth?.profile ?? null} loaded={!loading} />
       </header>
 
       <section className="hero-card compact saved-hero">
@@ -99,7 +100,7 @@ export default function SavedPage() {
         <section className="card empty">
           <h2>아직 저장한 루틴이 없어요</h2>
           <p>홈에서 추천을 받은 뒤 “이 경로 저장”을 누르면 다음부터 여기서 바로 추천받을 수 있어요.</p>
-          <a className="primary link-button" href="/">첫 루틴 추천받기</a>
+          <Link className="primary link-button" href="/">첫 루틴 추천받기</Link>
         </section>
       )}
 
@@ -128,7 +129,7 @@ export default function SavedPage() {
               </div>
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
               <p className="saved-route-meta">{route.line} · {route.direction ?? '방향 선택 전'} · {comfortLabel(route.comfort_type)} 기준</p>
-              <a className="primary" href={`/?${params.toString()}`}>지금 추천받기</a>
+              <Link className="primary" href={`/?${params.toString()}`}>지금 추천받기</Link>
             </article>
           );
         })}
@@ -138,7 +139,7 @@ export default function SavedPage() {
         <section className="card login-nudge">
           <h2>다른 기기에서도 보려면</h2>
           <p>Google 또는 Kakao로 5초 만에 연결하고 저장 루틴을 이어서 볼 수 있어요.</p>
-          <a className="ghost" href="/login?next=/saved">로그인하고 루틴 연결하기</a>
+          <Link className="ghost" href="/login?next=/saved">로그인하고 루틴 연결하기</Link>
         </section>
       )}
 
@@ -151,7 +152,7 @@ export default function SavedPage() {
         </section>
       )}
 
-      <nav className="tabbar"><a href="/">홈</a><a className="active" href="/saved">저장</a><a href="/data-source">데이터</a><a href="/settings">설정</a></nav>
+      <nav className="tabbar"><Link href="/">홈</Link><Link className="active" href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
     </main>
   );
 }

@@ -27,6 +27,37 @@ function safeHttpsUrl(value: unknown): string | null {
   }
 }
 
+function recordValue(source: unknown, path: string): unknown {
+  if (!source || typeof source !== 'object') return null;
+  let current: unknown = source;
+  for (const key of path.split('.')) {
+    if (!current || typeof current !== 'object' || !(key in current)) return null;
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+const avatarPaths = [
+  'avatar_url',
+  'picture',
+  'profile_image_url',
+  'profile_image',
+  'thumbnail_image_url',
+  'thumbnail_image',
+  'properties.profile_image',
+  'properties.thumbnail_image',
+  'kakao_account.profile.profile_image_url',
+  'kakao_account.profile.thumbnail_image_url',
+];
+
+function avatarFrom(source: unknown) {
+  for (const path of avatarPaths) {
+    const avatar = safeHttpsUrl(recordValue(source, path));
+    if (avatar) return avatar;
+  }
+  return null;
+}
+
 function normalizeProvider(value: unknown): AuthProvider {
   const raw = stringValue(value)?.toLowerCase();
   if (raw === 'google' || raw === 'kakao' || raw === 'apple' || raw === 'email') return raw;
@@ -62,12 +93,7 @@ export function normalizeSupabaseUser(user: User): NormalizedAuthProfile {
     identities.map((data) => stringValue(data.name) ?? stringValue(data.full_name) ?? stringValue(data.nickname)).find(Boolean) ??
     email?.split('@')[0] ??
     '로그인 사용자';
-  const avatarUrl =
-    safeHttpsUrl(metadata.avatar_url) ??
-    safeHttpsUrl(metadata.picture) ??
-    safeHttpsUrl(metadata.profile_image) ??
-    identities.map((data) => safeHttpsUrl(data.avatar_url) ?? safeHttpsUrl(data.picture) ?? safeHttpsUrl(data.profile_image)).find(Boolean) ??
-    null;
+  const avatarUrl = avatarFrom(metadata) ?? identities.map((data) => avatarFrom(data)).find(Boolean) ?? null;
 
   return {
     userId: user.id,

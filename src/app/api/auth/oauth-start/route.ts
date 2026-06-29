@@ -12,6 +12,15 @@ function safeNext(value?: string) {
   return value;
 }
 
+const kakaoScopes = 'profile_nickname profile_image account_email';
+const googleScopes = 'email profile';
+
+function providerScopes(provider: z.infer<typeof schema>['provider']) {
+  if (provider === 'kakao') return kakaoScopes;
+  if (provider === 'google') return googleScopes;
+  return undefined;
+}
+
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const parsed = schema.safeParse(json);
@@ -31,6 +40,7 @@ export async function POST(request: Request) {
     options: {
       redirectTo,
       skipBrowserRedirect: true,
+      scopes: providerScopes(parsed.data.provider),
     },
   });
 
