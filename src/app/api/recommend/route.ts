@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     .from('recommendation_events')
     .insert({
       user_id: user?.id ?? null,
-      anonymous_id: parsed.data.anonymousId ?? null,
+      anonymous_id: user ? null : parsed.data.anonymousId ?? null,
       line: parsed.data.line,
       station: parsed.data.originStation,
       destination_station: parsed.data.destinationStation ?? null,

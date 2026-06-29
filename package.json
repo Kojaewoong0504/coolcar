@@ -9,6 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:api": "tsx scripts/smoke-api.ts",
+    "test:pwa": "tsx scripts/smoke-pwa.ts",
+    "test:toss": "tsx scripts/smoke-toss-adapter.ts",
+    "test:auth-linkage": "tsx scripts/smoke-auth-linkage.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
   },
   "dependencies": {

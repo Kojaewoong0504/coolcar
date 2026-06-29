@@ -27,8 +27,15 @@ export async function POST(request: Request) {
 
   let recommendationEventId: string | null = parsed.data.recommendationId ?? null;
   if (recommendationEventId) {
-    const { data: existing } = await supabase.from('recommendation_events').select('id').eq('id', recommendationEventId).maybeSingle();
-    if (!existing?.id) recommendationEventId = null;
+    const { data: existing } = await supabase
+      .from('recommendation_events')
+      .select('id,user_id,anonymous_id')
+      .eq('id', recommendationEventId)
+      .maybeSingle();
+    const sameOwner = user
+      ? existing?.user_id === user.id
+      : Boolean(parsed.data.anonymousId && existing?.anonymous_id === parsed.data.anonymousId);
+    if (!existing?.id || !sameOwner) recommendationEventId = null;
   }
 
   const { error } = await supabase.from('feedback_events').insert({

@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   const { data: anonStats } = await supabase.from('anonymous_preference_stats').select('*').eq('anonymous_id', anonymousId).maybeSingle();
   if (anonStats) {
     const { data: current } = await supabase.from('user_preference_stats').select('*').eq('user_id', user.id).maybeSingle();
-    await supabase.from('user_preference_stats').upsert({
+    const { error: statsError } = await supabase.from('user_preference_stats').upsert({
       user_id: user.id,
       hot_sensitivity_score: Number(current?.hot_sensitivity_score ?? 0) + Number(anonStats.hot_sensitivity_score ?? 0),
       cold_sensitivity_score: Number(current?.cold_sensitivity_score ?? 0) + Number(anonStats.cold_sensitivity_score ?? 0),
@@ -55,6 +55,19 @@ export async function POST(request: Request) {
       sample_count: Number(current?.sample_count ?? 0) + Number(anonStats.sample_count ?? 0),
       updated_at: new Date().toISOString(),
     });
+    if (statsError) return NextResponse.json({ error: { code: 'PREFERENCE_MERGE_FAILED', message: '선호도 병합에 실패했어요.' } }, { status: 500 });
+    await supabase.from('anonymous_preference_stats').delete().eq('anonymous_id', anonymousId);
+  }
+
+  const { data: defaults } = await supabase
+    .from('saved_routes')
+    .select('id,created_at')
+    .eq('user_id', user.id)
+    .eq('is_default', true)
+    .order('created_at', { ascending: false });
+  if ((defaults?.length ?? 0) > 1) {
+    const [, ...duplicates] = defaults ?? [];
+    await supabase.from('saved_routes').update({ is_default: false }).in('id', duplicates.map((row) => row.id));
   }
 
   return NextResponse.json({ ok: true, merged: updated, preferenceMerged: Boolean(anonStats) });
