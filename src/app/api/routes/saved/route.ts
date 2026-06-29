@@ -1,0 +1,72 @@
+import { NextResponse } from 'next/server';
+import { savedRouteSchema } from '@/lib/validation';
+import { getSupabaseAdmin } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/supabase/server';
+
+function requireSupabase() {
+  const supabase = getSupabaseAdmin();
+  if (!supabase) return null;
+  return supabase;
+}
+
+export async function GET(request: Request) {
+  const supabase = requireSupabase();
+  if (!supabase) return NextResponse.json({ routes: [], persisted: false });
+
+  const { searchParams } = new URL(request.url);
+  const anonymousId = searchParams.get('anonymousId');
+  const user = await getCurrentUser();
+  if (!user && !anonymousId) return NextResponse.json({ routes: [], persisted: true, message: '로그인 전에는 anonymousId 기준으로만 저장 경로를 조회해요.' });
+
+  let query = supabase
+    .from('saved_routes')
+    .select('id,label,origin_station,destination_station,line,direction,comfort_type,commute_type,is_default,created_at')
+    .order('is_default', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  query = user ? query.eq('user_id', user.id) : query.eq('anonymous_id', anonymousId);
+  const { data, error } = await query;
+
+  if (error) return NextResponse.json({ error: { code: 'SAVED_ROUTES_READ_FAILED', message: '저장 경로를 불러오지 못했어요.' } }, { status: 500 });
+  return NextResponse.json({ routes: data ?? [], persisted: true });
+}
+
+export async function POST(request: Request) {
+  const json = await request.json().catch(() => null);
+  const parsed = savedRouteSchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json({ error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? '저장할 경로를 확인해 주세요.' } }, { status: 400 });
+  }
+
+  const supabase = requireSupabase();
+  if (!supabase) return NextResponse.json({ ok: true, persisted: false, route: null, message: 'MVP 목업 모드로 경로 저장 요청을 받았어요.' });
+  const user = await getCurrentUser();
+  if (!user && !parsed.data.anonymousId) return NextResponse.json({ error: { code: 'AUTH_REQUIRED', message: '로그인 또는 익명 ID가 있어야 경로를 저장할 수 있어요.' } }, { status: 401 });
+
+  if (parsed.data.isDefault) {
+    let clear = supabase.from('saved_routes').update({ is_default: false });
+    clear = user ? clear.eq('user_id', user.id) : clear.eq('anonymous_id', parsed.data.anonymousId ?? '');
+    await clear;
+  }
+
+  const { data, error } = await supabase
+    .from('saved_routes')
+    .insert({
+      user_id: user?.id ?? null,
+      anonymous_id: user ? null : parsed.data.anonymousId,
+      label: parsed.data.label ?? `${parsed.data.originStation} → ${parsed.data.destinationStation ?? '목적지 미정'}`,
+      origin_station: parsed.data.originStation,
+      destination_station: parsed.data.destinationStation ?? null,
+      line: parsed.data.line,
+      direction: parsed.data.direction ?? null,
+      comfort_type: parsed.data.comfortType,
+      commute_type: parsed.data.commuteType,
+      is_default: parsed.data.isDefault,
+    })
+    .select('id,label,origin_station,destination_station,line,direction,comfort_type,commute_type,is_default,created_at')
+    .single();
+
+  if (error) return NextResponse.json({ error: { code: 'SAVED_ROUTE_SAVE_FAILED', message: '경로 저장에 실패했어요.' } }, { status: 500 });
+  return NextResponse.json({ ok: true, persisted: true, route: data });
+}
