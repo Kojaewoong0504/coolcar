@@ -42,6 +42,29 @@ export async function POST(request: Request) {
       if (existing?.id) break;
       await sleep(80);
     }
+    if (!existing?.id) {
+      const { data: created } = await supabase
+        .from('recommendation_events')
+        .upsert({
+          id: recommendationEventId,
+          user_id: user?.id ?? null,
+          anonymous_id: user ? null : parsed.data.anonymousId ?? null,
+          line: parsed.data.line,
+          station: parsed.data.station,
+          direction: parsed.data.direction ?? null,
+          target_time: new Date().toISOString(),
+          comfort_type: 'BALANCED',
+          recommended_car_no: parsed.data.carNo,
+          source_provider: 'FeedbackRecovery',
+          source_type: 'USER_FEEDBACK',
+          confidence: 'LOW',
+          request_payload: parsed.data,
+          response_payload: {},
+        })
+        .select('id,user_id,anonymous_id')
+        .maybeSingle();
+      existing = created;
+    }
     const sameOwner = user
       ? existing?.user_id === user.id
       : Boolean(parsed.data.anonymousId && existing?.anonymous_id === parsed.data.anonymousId);

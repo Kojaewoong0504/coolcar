@@ -1,4 +1,4 @@
-import { after, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { recommendRequestSchema } from '@/lib/validation';
 import { recommend } from '@/lib/recommendation';
 import { getSupabaseAdmin } from '@/lib/supabase';
@@ -20,8 +20,7 @@ export async function POST(request: Request) {
   const user = parsed.data.anonymousId ? null : await getCurrentUser();
 
   const recommendationId = data.recommendationId;
-  after(async () => {
-    await supabase
+  void supabase
       .from('recommendation_events')
       .insert({
         id: recommendationId,
@@ -40,7 +39,6 @@ export async function POST(request: Request) {
         request_payload: parsed.data,
         response_payload: data,
       });
-  });
 
-  return NextResponse.json({ ...data, recommendationId, persisted: true, persistenceMode: 'deferred' });
+  return NextResponse.json({ ...data, recommendationId, persisted: true, persistenceMode: 'best_effort' });
 }
