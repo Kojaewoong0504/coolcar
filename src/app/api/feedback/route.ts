@@ -12,6 +12,10 @@ function statsDelta(feedbackType: string, temperatureFeel?: string, crowdingFeel
   };
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const parsed = feedbackSchema.safeParse(json);
@@ -27,11 +31,17 @@ export async function POST(request: Request) {
 
   let recommendationEventId: string | null = parsed.data.recommendationId ?? null;
   if (recommendationEventId) {
-    const { data: existing } = await supabase
-      .from('recommendation_events')
-      .select('id,user_id,anonymous_id')
-      .eq('id', recommendationEventId)
-      .maybeSingle();
+    let existing: { id: string; user_id: string | null; anonymous_id: string | null } | null = null;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const result = await supabase
+        .from('recommendation_events')
+        .select('id,user_id,anonymous_id')
+        .eq('id', recommendationEventId)
+        .maybeSingle();
+      existing = result.data;
+      if (existing?.id) break;
+      await sleep(80);
+    }
     const sameOwner = user
       ? existing?.user_id === user.id
       : Boolean(parsed.data.anonymousId && existing?.anonymous_id === parsed.data.anonymousId);
