@@ -1,11 +1,12 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import { SUPPORTED_LINES } from '@/lib/stations';
 import type { Station } from '@/lib/stations';
-import type { ComfortType, RecommendationResponse } from '@/lib/types';
+import type { ComfortType } from '@/lib/types';
 
 const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: string }[] = [
   { label: '더위형', value: 'HOT_SENSITIVE', desc: '시원한 칸 우선', emoji: '🧊' },
@@ -18,20 +19,7 @@ const lines = [...SUPPORTED_LINES];
 type StationHit = Pick<Station, 'name' | 'line' | 'operator'>;
 type PickerTarget = 'origin' | 'destination' | null;
 
-function sourceLabel(type: string) {
-  return type === 'REALTIME_CAR' ? '실측' : type === 'STATISTICAL_CAR' ? '통계' : type === 'USER_FEEDBACK' ? '커뮤니티' : '추정';
-}
-function confidenceLabel(confidence: string) {
-  return confidence === 'HIGH' ? '신뢰도 높음' : confidence === 'MEDIUM' ? '신뢰도 보통' : '신뢰도 낮음';
-}
-function sourceTone(result: RecommendationResponse) {
-  if (result.sourceMeta.confidence === 'LOW') return '실시간 칸별 데이터가 부족해 시간대 패턴으로 참고 추천했어요.';
-  if (result.fallbackUsed) return '캐시·통계 기반으로 계산했어요. 실제 열차 상황과 다를 수 있어요.';
-  return '공식 통계와 냉방 규칙을 함께 반영했어요.';
-}
-function comfortLabel(value: ComfortType) {
-  return comfortOptions.find((option) => option.value === value)?.label ?? '내 기준';
-}
+
 function getAnonymousId() {
   if (typeof window === 'undefined') return undefined;
   const key = 'coolcar_anonymous_id';
@@ -43,25 +31,22 @@ function getAnonymousId() {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [anonymousId, setAnonymousId] = useState<string>();
   const [comfortType, setComfortType] = useState<ComfortType>('HOT_SENSITIVE');
   const [line, setLine] = useState('2호선');
   const [originStation, setOriginStation] = useState('강남역');
   const [destinationStation, setDestinationStation] = useState('홍대입구역');
+  const [destinationLine, setDestinationLine] = useState('2호선');
   const [direction, setDirection] = useState('내선');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
-  const [result, setResult] = useState<RecommendationResponse | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feedbackState, setFeedbackState] = useState<'idle' | 'sent' | 'mock' | 'error'>('idle');
-  const [saveState, setSaveState] = useState<'idle' | 'saved' | 'mock' | 'error'>('idle');
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const [pickerQuery, setPickerQuery] = useState('');
   const [pickerLine, setPickerLine] = useState(line);
   const [pickerStations, setPickerStations] = useState<StationHit[]>([]);
   const [pickerLoading, setPickerLoading] = useState(false);
-
-  const selectedComfort = useMemo(() => comfortOptions.find((o) => o.value === comfortType), [comfortType]);
 
   useEffect(() => {
     (window as Window & { coolcarHydrated?: boolean }).coolcarHydrated = true;
@@ -70,11 +55,13 @@ export default function HomePage() {
     const nextLine = params.get('line');
     const nextOrigin = params.get('originStation');
     const nextDestination = params.get('destinationStation');
+    const nextDestinationLine = params.get('destinationLine');
     const nextDirection = params.get('direction');
     const nextComfortType = params.get('comfortType') as ComfortType | null;
     if (nextLine) setLine(nextLine);
     if (nextOrigin) setOriginStation(nextOrigin);
     if (nextDestination) setDestinationStation(nextDestination);
+    if (nextDestinationLine) setDestinationLine(nextDestinationLine);
     if (nextDirection) setDirection(nextDirection);
     if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
   }, []);
@@ -108,8 +95,7 @@ export default function HomePage() {
 
   async function runRecommendation() {
     setError('');
-    setFeedbackState('idle');
-    setSaveState('idle');
+
     if (!line || !originStation) {
       setError('노선과 출발역은 꼭 필요해요.');
       return;
@@ -123,8 +109,8 @@ export default function HomePage() {
       });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error?.message ?? '추천을 계산하지 못했어요.');
-      setResult(json);
-      setTimeout(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      window.sessionStorage.setItem('coolcar_last_result', JSON.stringify({ result: json, context: { destinationLine } }));
+      router.push('/result');
     } catch (e) {
       setError(e instanceof Error ? e.message : '추천 중 문제가 생겼어요.');
     } finally {
@@ -149,40 +135,13 @@ export default function HomePage() {
       setLine(station.line);
       setPickerLine(station.line);
     }
-    if (pickerTarget === 'destination') setDestinationStation(station.name);
+    if (pickerTarget === 'destination') {
+      setDestinationStation(station.name);
+      setDestinationLine(station.line);
+    }
     setPickerTarget(null);
   }
 
-  async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
-    if (!result) return;
-    setFeedbackState('idle');
-    const response = await fetch('/api/feedback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recommendationId: result.recommendationId, anonymousId, line, station: originStation, direction, carNo: result.recommendedCar.carNo, feedbackType }),
-    });
-    if (!response.ok) {
-      setFeedbackState('error');
-      return;
-    }
-    const json = await response.json().catch(() => ({}));
-    setFeedbackState(json.persisted === false ? 'mock' : 'sent');
-  }
-
-  async function saveRoute() {
-    setSaveState('idle');
-    const response = await fetch('/api/routes/saved', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ anonymousId, line, originStation, destinationStation, direction, comfortType, label: `${originStation} → ${destinationStation || '목적지'}`, isDefault: false }),
-    });
-    if (!response.ok) {
-      setSaveState('error');
-      return;
-    }
-    const json = await response.json().catch(() => ({}));
-    setSaveState(json.persisted === false ? 'mock' : 'saved');
-  }
 
   return (
     <main className="shell with-tabbar">
@@ -229,63 +188,6 @@ export default function HomePage() {
       </form>
 
       {loading && <section className="card skeleton"><h2>칸별 쾌적도를 계산 중이에요</h2><div /></section>}
-
-      {result && (
-        <section className="result-stack" id="result">
-          <article className="card result-card hero-result">
-            <div className="badges"><span>{sourceLabel(result.sourceMeta.sourceType)}</span><span>{confidenceLabel(result.sourceMeta.confidence)}</span>{result.fallbackUsed && <span>대체 계산</span>}</div>
-            <p className="eyebrow">지금은 여기</p>
-            <h2>{result.recommendedCar.label}</h2>
-            <p className="score">{originStation} → {destinationStation || '목적지'} · {comfortLabel(comfortType)} 기준</p>
-            <p className="source-message">{sourceTone(result)}</p>
-            <div className="result-actions"><button type="button" onClick={() => void saveRoute()}>루틴 저장하기</button><button type="button" onClick={() => void runRecommendation()}>다시 계산</button></div>
-            {saveState === 'saved' && <p className="ok">퇴근 루틴에 저장했어요.</p>}
-            {saveState === 'mock' && <p className="ok">저장했어요.</p>}
-            {saveState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
-          </article>
-
-          <article className="card metrics-card">
-            <div><span>{result.recommendedCar.coolingScore}</span><b>시원함</b></div>
-            <div><span>{result.recommendedCar.crowdScore}</span><b>혼잡 여유</b></div>
-            <div><span>{result.recommendedCar.convenienceScore}</span><b>동선</b></div>
-          </article>
-
-          <article className="card">
-            <div className="section-title">칸별 쾌적도</div>
-            <div className="cars" aria-label="칸별 쾌적도">
-              {result.cars.map((car) => (
-                <div key={car.carNo} className={car.carNo === result.recommendedCar.carNo ? 'car best' : result.avoidCars.some((a) => a.carNo === car.carNo) ? 'car avoid' : 'car'}>
-                  {car.carNo === result.recommendedCar.carNo && <small className="best-badge">BEST</small>}
-                  <strong>{car.carNo}</strong><em>{car.totalComfortScore}</em>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="card">
-            <div className="section-title">왜 이 칸을 추천했나요?</div>
-            <ul className="reasons">{result.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
-            <p className="avoid">피하면 좋은 칸: {result.avoidCars.map((c) => c.label).join(', ')}</p>
-            <p className="notice">{result.safetyNotice}</p>
-            <p className="source-detail"><Link href="/data-source">데이터 기준 보기</Link></p>
-          </article>
-
-          <article className="card feedback">
-            <div className="section-title">방금 추천 어땠어요?</div>
-            <p className="microcopy">피드백은 다음 추천에 반영돼요.</p>
-            <div className="feedback-buttons">
-              <button onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
-              <button onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
-              <button onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
-              <button onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
-              <button onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
-            </div>
-            {feedbackState === 'sent' && <p className="ok">다음 추천에 반영했어요.</p>}
-            {feedbackState === 'mock' && <p className="ok">피드백을 받았어요.</p>}
-            {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
-          </article>
-        </section>
-      )}
 
       {pickerTarget && (
         <div className="station-picker-backdrop" role="presentation" onClick={() => setPickerTarget(null)}>

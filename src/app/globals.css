@@ -77,6 +77,11 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .badges span { border-radius: 999px; background: rgba(255,255,255,.14); color: inherit; border: 1px solid rgba(255,255,255,.22); padding: 7px 10px; font-size: 12px; font-weight: 900; }
 .result-card h2 { font-size: 42px; margin: 0 0 8px; letter-spacing: -0.08em; line-height:1.03; }
+.result-page-card h1 { color:#fff; font-size:44px; margin:0 0 10px; letter-spacing:-.08em; line-height:1.02; }
+.result-kicker { color:#0369a1; background:#ecfeff; border-radius:999px; padding:9px 12px; font-size:13px; font-weight:950; }
+.consumer-badges span { background: rgba(255,255,255,.12); }
+.transfer-note { margin:12px 0 0; padding:12px; border-radius:16px; background:rgba(255,255,255,.1); color:#dbeafe; line-height:1.5; font-size:13px; }
+.result-why-card { background: linear-gradient(180deg,#fff,#f8fdff); }
 .score { font-size: 15px; font-weight: 950; margin: 0 0 8px; color: #bae6fd; }
 .source-message, .notice { color: var(--muted); line-height: 1.55; margin: 0; }
 .hero-result .source-message { color: #dbeafe; }
