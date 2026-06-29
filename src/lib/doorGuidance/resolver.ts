@@ -1,4 +1,5 @@
 import { makeDoorGuideKey, normalizeDirection } from './normalize';
+import { fetchPublicDoorGuideRecords } from './publicAdapter';
 import { STATIC_DOOR_GUIDES } from './staticFixture';
 import type { DoorGuideLookupInput, DoorGuideLookupResult, DoorGuideRecord } from './types';
 
@@ -20,8 +21,8 @@ function keyForInput(input: DoorGuideLookupInput) {
   });
 }
 
-export function lookupDoorGuide(input: DoorGuideLookupInput): DoorGuideLookupResult {
-  const candidates = STATIC_DOOR_GUIDES.filter((record) => keyForRecord(record) === keyForInput(input));
+export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: DoorGuideRecord[]): DoorGuideLookupResult {
+  const candidates = records.filter((record) => keyForRecord(record) === keyForInput(input));
   if (candidates.length === 0) {
     return { status: 'needs_data', reason: '아직 이 구간의 문 위치 정보가 충분하지 않아요.' };
   }
@@ -56,6 +57,21 @@ export function lookupDoorGuide(input: DoorGuideLookupInput): DoorGuideLookupRes
   const best = sorted[0];
   if (!best) return { status: 'needs_data', reason: '문 위치 정보를 찾지 못했어요.' };
   return { status: 'available', record: best };
+}
+
+export function lookupStaticDoorGuide(input: DoorGuideLookupInput): DoorGuideLookupResult {
+  return resolveDoorGuideRecords(input, STATIC_DOOR_GUIDES);
+}
+
+export async function lookupDoorGuide(input: DoorGuideLookupInput): Promise<DoorGuideLookupResult> {
+  const staticResult = lookupStaticDoorGuide(input);
+  const apiRecords = await fetchPublicDoorGuideRecords(input);
+  if (apiRecords.length > 0) {
+    const apiResult = resolveDoorGuideRecords(input, apiRecords);
+    if (apiResult.status === 'available') return apiResult;
+    if (apiResult.status === 'needs_direction') return apiResult;
+  }
+  return staticResult;
 }
 
 export function listStaticDoorGuides() {

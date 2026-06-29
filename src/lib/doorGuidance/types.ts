@@ -1,5 +1,5 @@
 export type DoorGuideGoal = 'FINAL_EXIT' | 'NEXT_TRANSFER';
-export type DoorGuideSource = 'SEOUL_OPENAPI_SAMPLE' | 'STATIC_CURATED';
+export type DoorGuideSource = 'SEOUL_OPENAPI_SAMPLE' | 'STATIC_CURATED' | 'SEOUL_OPENAPI_GET_FST_EXIT';
 
 export type DoorGuideRecord = {
   line: string;

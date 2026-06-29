@@ -169,7 +169,7 @@ export async function recommend(request: RecommendRequest): Promise<Recommendati
     avoidCars,
     cars: scored.sort((a, b) => a.carNo - b.carNo),
     reasons: reasons(recommendedCar, request, providerResult.fallbackUsed, feedback),
-    routeGuidance: buildRouteGuidance(request, recommendedCar),
+    routeGuidance: await buildRouteGuidance(request, recommendedCar),
     sourceMeta: {
       ...providerResult.sourceMeta,
       confidence: feedback.count >= 3 ? 'MEDIUM' : providerResult.sourceMeta.confidence,

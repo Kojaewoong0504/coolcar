@@ -45,7 +45,7 @@ function baseLeg(params: {
   };
 }
 
-function applyDoorGuide(params: {
+async function applyDoorGuide(params: {
   line: string;
   toStation: string;
   direction?: string;
@@ -63,7 +63,7 @@ function applyDoorGuide(params: {
     };
   }
 
-  const result = lookupDoorGuide({
+  const result = await lookupDoorGuide({
     line: params.line,
     toStation: params.toStation,
     direction: params.direction,
@@ -101,14 +101,14 @@ function applyDoorGuide(params: {
   };
 }
 
-export function buildRouteGuidance(request: RecommendRequest, recommendedCar: CarComfort): RouteGuidance {
+export async function buildRouteGuidance(request: RecommendRequest, recommendedCar: CarComfort): Promise<RouteGuidance> {
   const origin = cleanStationName(request.originStation);
   const destination = cleanStationName(request.destinationStation) || '목적지';
   const transfers = uniqueStations(request.transferStations, origin, destination);
   const disclaimer = '전체 이동 경로를 대신 정해주는 기능이 아니라, 선택한 이동 경로에서 타기 좋은 위치를 안내하는 참고 정보예요.';
 
   if (transfers.length === 0 && sameLine(request)) {
-    const doorGuide = applyDoorGuide({
+    const doorGuide = await applyDoorGuide({
       line: request.line,
       toStation: destination,
       direction: request.direction,
@@ -162,12 +162,12 @@ export function buildRouteGuidance(request: RecommendRequest, recommendedCar: Ca
   }
 
   const waypoints = [origin, ...transfers, destination];
-  const legs = waypoints.slice(0, -1).map((fromStation, index) => {
+  const legs = await Promise.all(waypoints.slice(0, -1).map(async (fromStation, index) => {
     const toStation = waypoints[index + 1];
     const isLast = index === waypoints.length - 2;
     const line = index === 0 ? request.line : (isLast ? request.destinationLine || '환승 후 노선' : '환승 후 노선');
     const goal = isLast ? 'FINAL_EXIT' : 'NEXT_TRANSFER';
-    const doorGuide = applyDoorGuide({
+    const doorGuide = await applyDoorGuide({
       line,
       toStation,
       direction: index === 0 ? request.direction : undefined,
@@ -192,7 +192,7 @@ export function buildRouteGuidance(request: RecommendRequest, recommendedCar: Ca
       facility: doorGuide.facility,
       message: doorGuide.message,
     });
-  });
+  }));
 
   return {
     status: 'limited',

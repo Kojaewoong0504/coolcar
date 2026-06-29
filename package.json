@@ -14,6 +14,8 @@
     "test:auth-linkage": "tsx scripts/smoke-auth-linkage.ts",
     "test:station-search": "tsx scripts/smoke-station-search.ts",
     "test:door-guidance": "tsx scripts/smoke-door-guidance.ts",
+    "test:public-door-guide": "tsx scripts/smoke-public-door-guide-adapter.ts",
+    "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
   },
   "dependencies": {
