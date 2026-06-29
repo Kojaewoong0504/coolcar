@@ -1,3 +1,4 @@
+import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { getCurrentUser } from '@/lib/supabase/server';
@@ -19,7 +20,7 @@ export default async function SettingsPage() {
       <section className="card">
         <div className="section-title">계정</div>
         {user ? (
-          <div className="account-card"><p><b>{displayName}</b></p><p className="microcopy">로그인됨 · 저장 경로를 사용자 계정으로 연결할 수 있는 기반이 준비됐어요.</p><LogoutButton /></div>
+          <div className="account-card"><p><b>{displayName}</b></p><p className="microcopy">로그인됨 · 저장 경로를 사용자 계정으로 연결할 수 있는 기반이 준비됐어요.</p><AuthMergeOnLoad /><LogoutButton /></div>
         ) : (
           <><p className="notice">로그인하지 않아도 추천은 바로 사용할 수 있어요. 저장 경로 동기화가 필요할 때만 소셜 로그인을 사용합니다.</p><SocialLoginButtons next="/settings" /></>
         )}

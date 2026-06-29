@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 type Provider = 'kakao' | 'google' | 'apple';
 const providers: { id: Provider; label: string; emoji: string }[] = [
@@ -18,10 +17,14 @@ export function SocialLoginButtons({ next = '/settings' }: { next?: string }) {
     setError('');
     setLoading(provider);
     try {
-      const supabase = createSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-      const { error: signInError } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });
-      if (signInError) throw signInError;
+      const response = await fetch('/api/auth/oauth-start', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ provider, next }),
+      });
+      const payload = await response.json().catch(() => null) as { url?: string; error?: { message?: string } } | null;
+      if (!response.ok || !payload?.url) throw new Error(payload?.error?.message ?? '로그인을 시작하지 못했어요.');
+      window.location.href = payload.url;
     } catch (e) {
       setError(e instanceof Error ? e.message : '로그인을 시작하지 못했어요.');
       setLoading(null);

@@ -17,7 +17,7 @@ export default function LoginPage({ searchParams }: { searchParams?: Promise<{ e
       </section>
       <section className="card">
         <div className="section-title">익명 데이터 연결</div>
-        <p className="notice">이 기기의 익명 추천·피드백·저장 경로는 `coolcar_anonymous_id`로 보관됩니다. 로그인 후 병합 API로 연결하는 구조까지 확장할 예정입니다.</p>
+        <p className="notice">이 기기의 익명 추천·피드백·저장 경로는 `coolcar_anonymous_id`로 보관됩니다. 로그인 후 설정 화면에서 자동으로 계정에 연결합니다.</p>
       </section>
       <nav className="tabbar"><a href="/">홈</a><a href="/saved">저장</a><a href="/data-source">데이터</a><a href="/settings">설정</a></nav>
     </main>
