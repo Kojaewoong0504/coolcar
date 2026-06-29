@@ -100,22 +100,11 @@ export default function HomePage() {
       setError('노선과 출발역은 꼭 필요해요.');
       return;
     }
+
+    const request = { line, originStation, destinationStation, direction, comfortType, waitToleranceMin: 3, avoidPrioritySeatArea, anonymousId };
+    window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({ request, context: { destinationLine } }));
     setLoading(true);
-    try {
-      const response = await fetch('/api/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ line, originStation, destinationStation, direction, comfortType, waitToleranceMin: 3, avoidPrioritySeatArea, anonymousId }),
-      });
-      const json = await response.json();
-      if (!response.ok) throw new Error(json.error?.message ?? '추천을 계산하지 못했어요.');
-      window.sessionStorage.setItem('coolcar_last_result', JSON.stringify({ result: json, context: { destinationLine } }));
-      router.push('/result');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '추천 중 문제가 생겼어요.');
-    } finally {
-      setLoading(false);
-    }
+    router.push('/result?loading=1');
   }
 
   async function submit(event: FormEvent) {

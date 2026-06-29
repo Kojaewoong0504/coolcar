@@ -2,10 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import type { RecommendationResponse } from '@/lib/types';
+import type { RecommendRequest, RecommendationResponse } from '@/lib/types';
 
 type StoredResult = {
   result: RecommendationResponse;
+  context?: { destinationLine?: string };
+};
+
+type PendingRecommendation = {
+  request: RecommendRequest;
   context?: { destinationLine?: string };
 };
 
@@ -32,17 +37,50 @@ function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) 
 
 export default function ResultPage() {
   const [stored, setStored] = useState<StoredResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [feedbackState, setFeedbackState] = useState<'idle' | 'sent' | 'mock' | 'error'>('idle');
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'mock' | 'error'>('idle');
 
   useEffect(() => {
+    const pendingRaw = window.sessionStorage.getItem('coolcar_pending_recommendation');
+    if (pendingRaw) {
+      try {
+        const pending = JSON.parse(pendingRaw) as PendingRecommendation;
+        fetch('/api/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pending.request),
+        })
+          .then(async (response) => {
+            const json = await response.json();
+            if (!response.ok) throw new Error(json.error?.message ?? '추천을 계산하지 못했어요.');
+            const nextStored = { result: json as RecommendationResponse, context: pending.context };
+            window.sessionStorage.setItem('coolcar_last_result', JSON.stringify(nextStored));
+            window.sessionStorage.removeItem('coolcar_pending_recommendation');
+            setStored(nextStored);
+          })
+          .catch((caught) => setError(caught instanceof Error ? caught.message : '추천 중 문제가 생겼어요.'))
+          .finally(() => setLoading(false));
+      } catch {
+        window.sessionStorage.removeItem('coolcar_pending_recommendation');
+        setError('추천 정보를 다시 선택해 주세요.');
+        setLoading(false);
+      }
+      return;
+    }
+
     const raw = window.sessionStorage.getItem('coolcar_last_result');
-    if (!raw) return;
+    if (!raw) {
+      setLoading(false);
+      return;
+    }
     try {
       setStored(JSON.parse(raw) as StoredResult);
     } catch {
       setStored(null);
     }
+    setLoading(false);
   }, []);
 
   const backHref = useMemo(() => {
@@ -59,12 +97,30 @@ export default function ResultPage() {
     return `/?${params.toString()}`;
   }, [stored]);
 
+  if (loading) {
+    return (
+      <main className="shell with-tabbar result-loading-page">
+        <section className="card result-loading-card">
+          <div className="cool-spinner" aria-hidden="true">🧊</div>
+          <p className="eyebrow">추천 계산 중</p>
+          <h1>지금 타기 좋은 칸을 고르고 있어요</h1>
+          <p>덜 덥고, 덜 붐비고, 내릴 때 덜 걷는 위치를 찾는 중이에요.</p>
+          <div className="loading-steps" aria-label="추천 진행 단계">
+            <span>출발·도착 확인</span>
+            <span>칸별 쾌적도 비교</span>
+            <span>동선까지 확인</span>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!stored) {
     return (
       <main className="shell with-tabbar">
         <section className="card empty result-empty">
-          <h1>아직 추천 결과가 없어요</h1>
-          <p>출발역과 도착역을 고르면 바로 탈 위치를 알려드릴게요.</p>
+          <h1>{error ? '추천을 다시 시도해 주세요' : '아직 추천 결과가 없어요'}</h1>
+          <p>{error || '출발역과 도착역을 고르면 바로 탈 위치를 알려드릴게요.'}</p>
           <Link className="primary" href="/">추천받으러 가기</Link>
         </section>
       </main>
