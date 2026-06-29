@@ -3,7 +3,8 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
-import { STATIONS } from '@/lib/stations';
+import { SUPPORTED_LINES } from '@/lib/stations';
+import type { Station } from '@/lib/stations';
 import type { ComfortType, RecommendationResponse } from '@/lib/types';
 
 const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: string }[] = [
@@ -13,8 +14,8 @@ const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: 
   { label: '밸런스', value: 'BALANCED', desc: '균형 추천', emoji: '⚖️' },
 ];
 
-const lines = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선'];
-type StationHit = { name: string; line: string; operator: string };
+const lines = [...SUPPORTED_LINES];
+type StationHit = Pick<Station, 'name' | 'line' | 'operator'>;
 type PickerTarget = 'origin' | 'destination' | null;
 
 function sourceLabel(type: string) {
@@ -58,14 +59,10 @@ export default function HomePage() {
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
   const [pickerQuery, setPickerQuery] = useState('');
   const [pickerLine, setPickerLine] = useState(line);
+  const [pickerStations, setPickerStations] = useState<StationHit[]>([]);
+  const [pickerLoading, setPickerLoading] = useState(false);
 
   const selectedComfort = useMemo(() => comfortOptions.find((o) => o.value === comfortType), [comfortType]);
-  const pickerStations = useMemo(() => {
-    const query = pickerQuery.trim().replace(/역$/, '');
-    return STATIONS
-      .filter((station) => (!pickerLine || station.line === pickerLine) && (!query || station.name.replace(/역$/, '').includes(query)))
-      .slice(0, 18);
-  }, [pickerLine, pickerQuery]);
 
   useEffect(() => {
     (window as Window & { coolcarHydrated?: boolean }).coolcarHydrated = true;
@@ -87,12 +84,39 @@ export default function HomePage() {
     const q = originStation.trim();
     if (q.length < 1) return setOriginHits([]);
     const controller = new AbortController();
-    fetch(`/api/stations/search?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+    fetch(`/api/stations/search?q=${encodeURIComponent(q)}&limit=4`, { signal: controller.signal })
       .then((r) => r.json())
       .then((j) => setOriginHits((j.stations ?? []).slice(0, 4)))
       .catch(() => undefined);
     return () => controller.abort();
   }, [originStation]);
+
+  useEffect(() => {
+    if (!pickerTarget) {
+      setPickerStations([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const query = pickerQuery.trim();
+    const params = new URLSearchParams({ limit: '24' });
+    if (query) {
+      params.set('q', query);
+      // 역 이름을 치는 순간은 노선과 무관하게 전체 역에서 먼저 찾는다.
+      // 노선 chip은 검색어가 비어 있을 때 "해당 노선 둘러보기" 용도로 쓴다.
+    } else if (pickerLine) {
+      params.set('line', pickerLine);
+    }
+
+    setPickerLoading(true);
+    fetch(`/api/stations/search?${params.toString()}`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((j) => setPickerStations((j.stations ?? []).slice(0, 24)))
+      .catch(() => undefined)
+      .finally(() => setPickerLoading(false));
+
+    return () => controller.abort();
+  }, [pickerTarget, pickerLine, pickerQuery]);
 
   async function runRecommendation() {
     setError('');
@@ -295,18 +319,20 @@ export default function HomePage() {
             <div className="line-chip-grid" aria-label="노선 선택">
               {lines.map((item) => <button key={item} type="button" className={item === pickerLine ? 'active' : ''} onClick={() => setPickerLine(item)}>{item}</button>)}
             </div>
+            <p className="station-picker-hint">역 이름을 입력하면 전체 지원 노선에서 먼저 찾아요. 검색어를 지우면 선택한 노선의 역을 둘러볼 수 있어요.</p>
             <label className="station-search-label">
               <span>역 이름 검색</span>
-              <input autoFocus value={pickerQuery} onChange={(event) => setPickerQuery(event.target.value)} placeholder="강남, 홍대입구, 여의도" />
+              <input autoFocus value={pickerQuery} onChange={(event) => setPickerQuery(event.target.value)} placeholder="역삼, 삼성, 시청, 여의도" />
             </label>
             <div className="station-result-list">
-              {pickerStations.map((station) => (
+              {pickerLoading && <p className="microcopy">역을 찾고 있어요…</p>}
+              {!pickerLoading && pickerStations.map((station) => (
                 <button key={`${station.name}-${station.line}-${pickerTarget}`} type="button" onClick={() => chooseStation(station)}>
                   <span><b>{station.name}</b><small>{station.operator}</small></span>
                   <em>{station.line}</em>
                 </button>
               ))}
-              {pickerStations.length === 0 && <p className="microcopy">검색 결과가 없어요. 다른 역 이름이나 노선을 선택해 주세요.</p>}
+              {!pickerLoading && pickerStations.length === 0 && <p className="microcopy">검색 결과가 없어요. 다른 역 이름으로 검색해 주세요.</p>}
             </div>
           </section>
         </div>
