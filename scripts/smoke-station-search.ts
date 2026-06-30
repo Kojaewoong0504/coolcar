@@ -17,6 +17,10 @@ const requiredExactRows = [
   { query: '구반포', name: '구반포역', line: '9호선' },
   { query: '구의', name: '구의역', line: '2호선' },
   { query: '국회의사당', name: '국회의사당역', line: '9호선' },
+  { query: '수원', name: '수원역', line: '1호선' },
+  { query: '천안', name: '천안역', line: '1호선' },
+  { query: '배방', name: '배방역', line: '1호선' },
+  { query: '신창', name: '신창역', line: '1호선' },
 ];
 
 for (const expected of requiredExactRows) {

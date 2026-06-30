@@ -744,6 +744,28 @@ export const STATIONS: Station[] = [
   { name: "사당역", line: "4호선", operator: "서울교통공사", lat: 37.4765, lng: 126.9816 },
   { name: "신설동역", line: "우이신설선", operator: "우이신설경전철", lat: 37.5761, lng: 127.0245 },
   { name: "선릉역", line: "수인분당선", operator: "코레일", lat: 37.5045, lng: 127.049 },
+  // Supplemental 수도권 전철 1호선 rows missing from the broad source.
+  // Keep as station-search inventory only; car/door guidance still requires DoorGuideRecord evidence.
+  { name: "영등포역", line: "1호선", operator: "코레일", lat: 37.5157, lng: 126.9075 },
+  { name: "개봉역", line: "1호선", operator: "코레일", lat: 37.4946, lng: 126.8586 },
+  { name: "오류동역", line: "1호선", operator: "코레일", lat: 37.4944, lng: 126.8459 },
+  { name: "부천역", line: "1호선", operator: "코레일", lat: 37.4841, lng: 126.7827 },
+  { name: "성균관대역", line: "1호선", operator: "코레일", lat: 37.3004, lng: 126.9707 },
+  { name: "화서역", line: "1호선", operator: "코레일", lat: 37.2839, lng: 126.9896 },
+  { name: "수원역", line: "1호선", operator: "코레일", lat: 37.2663, lng: 126.9997 },
+  { name: "세류역", line: "1호선", operator: "코레일", lat: 37.2451, lng: 127.0138 },
+  { name: "서동탄역", line: "1호선", operator: "코레일", lat: 37.1955, lng: 127.0517 },
+  { name: "성환역", line: "1호선", operator: "코레일", lat: 36.9161, lng: 127.1269 },
+  { name: "직산역", line: "1호선", operator: "코레일", lat: 36.8706, lng: 127.1438 },
+  { name: "두정역", line: "1호선", operator: "코레일", lat: 36.8339, lng: 127.1487 },
+  { name: "천안역", line: "1호선", operator: "코레일", lat: 36.8100, lng: 127.1468 },
+  { name: "봉명역", line: "1호선", operator: "코레일", lat: 36.8012, lng: 127.1358 },
+  { name: "쌍용역", line: "1호선", operator: "코레일", lat: 36.7938, lng: 127.1214 },
+  { name: "아산역", line: "1호선", operator: "코레일", lat: 36.7921, lng: 127.1044 },
+  { name: "탕정역", line: "1호선", operator: "코레일", lat: 36.7886, lng: 127.0848 },
+  { name: "배방역", line: "1호선", operator: "코레일", lat: 36.7775, lng: 127.0528 },
+  { name: "온양온천역", line: "1호선", operator: "코레일", lat: 36.7805, lng: 127.0032 },
+  { name: "신창역", line: "1호선", operator: "코레일", lat: 36.7695, lng: 126.9511 },
 ];
 
 export const SUPPORTED_LINES = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '공항철도', '경의중앙선', '김포골드라인', '서해선', '우이신설선'] as const;
@@ -752,6 +774,7 @@ export const MAJOR_STATIONS_BY_LINE: Record<string, string[]> = {
   '2호선': ['강남역', '교대역', '잠실역', '건대입구역', '왕십리역', '시청역', '신도림역', '구로디지털단지역', '당산역', '합정역', '홍대입구역', '신림역', '사당역'],
   '9호선': ['김포공항역', '마곡나루역', '당산역', '여의도역', '노량진역', '고속터미널역', '신논현역', '봉은사역', '종합운동장역', '올림픽공원역'],
   '공항철도': ['서울역', '공덕역', '홍대입구역', '김포공항역', '계양역', '검암역', '운서역', '인천공항1터미널역', '인천공항2터미널역'],
+  '1호선': ['연천역', '의정부역', '광운대역', '청량리역', '서울역', '용산역', '영등포역', '구로역', '인천역', '수원역', '평택역', '천안역', '아산역', '배방역', '신창역'],
   '신분당선': ['강남역', '양재역', '판교역', '정자역', '광교중앙역', '광교역'],
   '3호선': ['구파발역', '연신내역', '종로3가역', '고속터미널역', '교대역', '양재역', '수서역'],
   '5호선': ['김포공항역', '여의도역', '광화문역', '왕십리역', '천호역', '올림픽공원역'],
@@ -767,7 +790,7 @@ export function normalizeStationName(value: string): string {
 }
 
 const SEARCH_SERVICE_AREA = {
-  minLat: 36.85,
+  minLat: 36.70,
   maxLat: 38.35,
   minLng: 126.0,
   maxLng: 127.8,
