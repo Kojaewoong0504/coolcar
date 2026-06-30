@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
@@ -14,6 +14,28 @@ const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: 
   { label: '혼잡회피', value: 'CROWD_AVOIDER', desc: '덜 붐비는 칸', emoji: '🫧' },
   { label: '밸런스', value: 'BALANCED', desc: '균형 추천', emoji: '⚖️' },
 ];
+
+const preferenceStorageKey = 'coolcar_preferences';
+
+type SavedPreferences = {
+  comfortType: ComfortType;
+  waitToleranceMin: 0 | 3 | 5 | 10;
+  avoidPrioritySeatArea: boolean;
+};
+
+function isComfortType(value: unknown): value is ComfortType {
+  return comfortOptions.some((option) => option.value === value);
+}
+
+function readLocalPreferences(): Partial<SavedPreferences> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(preferenceStorageKey) ?? '{}') as Partial<SavedPreferences>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
 
 const lines = [...SUPPORTED_LINES];
 type StationHit = Pick<Station, 'name' | 'line' | 'operator'>;
@@ -41,6 +63,7 @@ function getAnonymousId() {
 
 export default function HomePage() {
   const router = useRouter();
+  const preferenceTouchedRef = useRef(false);
   const [anonymousId, setAnonymousId] = useState<string>();
   const [comfortType, setComfortType] = useState<ComfortType>('HOT_SENSITIVE');
   const [line, setLine] = useState('2호선');
@@ -50,6 +73,8 @@ export default function HomePage() {
   const [direction, setDirection] = useState('');
   const [transferStationsInput, setTransferStationsInput] = useState('');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [preferenceMessage, setPreferenceMessage] = useState('이 취향을 다음 추천에도 기억할게요.');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,7 +87,25 @@ export default function HomePage() {
 
   useEffect(() => {
     (window as Window & { coolcarHydrated?: boolean }).coolcarHydrated = true;
-    setAnonymousId(getAnonymousId());
+    const id = getAnonymousId() ?? crypto.randomUUID();
+    setAnonymousId(id);
+
+    const localPreferences = readLocalPreferences();
+    if (isComfortType(localPreferences.comfortType)) setComfortType(localPreferences.comfortType);
+    if (typeof localPreferences.avoidPrioritySeatArea === 'boolean') setAvoidPrioritySeatArea(localPreferences.avoidPrioritySeatArea);
+
+    void fetch(`/api/preferences?anonymousId=${encodeURIComponent(id)}`)
+      .then((response) => response.json())
+      .then((json: { preferences?: Partial<SavedPreferences>; persisted?: boolean; owner?: string }) => {
+        if (!preferenceTouchedRef.current) {
+          if (isComfortType(json.preferences?.comfortType)) setComfortType(json.preferences.comfortType);
+          if (typeof json.preferences?.avoidPrioritySeatArea === 'boolean') setAvoidPrioritySeatArea(json.preferences.avoidPrioritySeatArea);
+        }
+        setPreferenceMessage(json.persisted ? '저장된 취향을 불러왔어요.' : '이 취향을 다음 추천에도 기억할게요.');
+      })
+      .catch(() => undefined)
+      .finally(() => setPreferencesLoaded(true));
+
     const params = new URLSearchParams(window.location.search);
     const nextLine = params.get('line');
     const nextOrigin = params.get('originStation');
@@ -110,6 +153,21 @@ export default function HomePage() {
   }, [router]);
 
   useEffect(() => {
+    if (!preferencesLoaded || !anonymousId) return;
+    const preferences: SavedPreferences = { comfortType, waitToleranceMin: 3, avoidPrioritySeatArea };
+    window.localStorage.setItem(preferenceStorageKey, JSON.stringify(preferences));
+    setPreferenceMessage('취향이 저장됐어요. 언제 접속해도 같은 값으로 시작할게요.');
+    const controller = new AbortController();
+    void fetch('/api/preferences', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...preferences, anonymousId }),
+      signal: controller.signal,
+    }).catch(() => setPreferenceMessage('이 기기에는 저장됐어요. 로그인하면 계정에도 맞춰둘 수 있어요.'));
+    return () => controller.abort();
+  }, [anonymousId, avoidPrioritySeatArea, comfortType, preferencesLoaded]);
+
+  useEffect(() => {
     if (!pickerTarget) {
       setPickerStations([]);
       return;
@@ -142,17 +200,10 @@ export default function HomePage() {
     [transferStationsInput],
   );
   const appliedConditionCount = [
-    comfortType !== 'HOT_SENSITIVE',
     transferStations.length > 0,
     Boolean(direction.trim()),
     !avoidPrioritySeatArea,
   ].filter(Boolean).length;
-  const conditionSummary = [
-    selectedComfort.desc,
-    transferStations.length > 0 ? `환승역 ${transferStations.length}개` : undefined,
-    direction.trim() ? `${direction.trim()} 방면 참고` : undefined,
-    avoidPrioritySeatArea ? '배려석 주변 피함' : undefined,
-  ].filter(Boolean).join(' · ');
 
   async function runRecommendation() {
     setError('');
@@ -261,25 +312,28 @@ export default function HomePage() {
           <p className="route-helper">노선은 역 선택으로 자동 맞춰져요. 환승역·방면은 알고 있을 때만 추가하세요.</p>
         </div>
 
-        <div className="condition-summary-card">
-          <span>추천 조건</span>
-          <strong>{conditionSummary}</strong>
-          <button type="button" onClick={() => setShowAdvancedOptions((value) => !value)} aria-expanded={showAdvancedOptions}>
-            {showAdvancedOptions ? '조건 접기' : appliedConditionCount > 0 ? `조건 ${appliedConditionCount}개 적용됨` : '조건 더하기'}
-          </button>
-        </div>
-
-        {showAdvancedOptions && (
-          <section className="advanced-options" aria-label="추가 추천 조건">
-            <div className="section-row"><div><div className="section-title">선택 조건</div><p>정확히 알고 있는 것만 추가하면 돼요.</p></div></div>
-            <div className="segmented-pills compact-segments" role="group" aria-label="추천 성향">
-              {comfortOptions.map((option) => (
-                <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} onClick={() => setComfortType(option.value)}>
-                  <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
-                </button>
-              ))}
+        <section className="preference-card" aria-label="내 취향">
+          <div className="section-row preference-head">
+            <div>
+              <div className="section-title">내 취향</div>
+              <p>어떤 칸이 편하세요? 선택한 값은 다음에도 유지돼요.</p>
             </div>
+            <span>{selectedComfort.emoji}</span>
+          </div>
+          <div className="segmented-pills preference-segments" role="group" aria-label="추천 성향">
+            {comfortOptions.map((option) => (
+              <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} aria-pressed={option.value === comfortType} onClick={() => { preferenceTouchedRef.current = true; setComfortType(option.value); }}>
+                <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
+              </button>
+            ))}
+          </div>
+          <p className="preference-save-copy">{preferenceMessage}</p>
+        </section>
 
+        <details className="advanced-options-shell" open={showAdvancedOptions} onToggle={(event) => setShowAdvancedOptions((event.currentTarget as HTMLDetailsElement).open)}>
+          <summary>{appliedConditionCount > 0 ? `추가 조건 ${appliedConditionCount}개 적용됨` : '필요할 때만 추가 설정'}</summary>
+          <section className="advanced-options" aria-label="추가 추천 조건">
+            <p className="microcopy">환승역이나 방면을 정확히 알고 있을 때만 넣어주세요. 모르면 비워도 추천은 받을 수 있어요.</p>
             <label className="field optional-transfer-field">
               <span>환승역을 아는 경우만 추가</span>
               <input value={transferStationsInput} onChange={(event) => setTransferStationsInput(event.target.value)} placeholder="예: 강남역, 고속터미널역" />
@@ -292,12 +346,12 @@ export default function HomePage() {
               <small>잘 모르겠으면 비워두세요. 문 위치는 방향까지 확인되는 경우에만 안내해요.</small>
             </label>
 
-            <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
+            <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => { preferenceTouchedRef.current = true; setAvoidPrioritySeatArea(e.target.checked); }} /> 교통약자석 주변은 배려해서 추천</label>
           </section>
-        )}
+        </details>
 
         {error && <p className="error">{error}</p>}
-        <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />경로 후보를 찾고 있어요…</> : <>경로 후보 보기 <span aria-hidden="true">→</span></>}</button>
+        <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />타기 좋은 칸을 찾고 있어요…</> : <>내 칸 추천받기 <span aria-hidden="true">→</span></>}</button>
       </form>
 
       <section className="card recent-route-card">

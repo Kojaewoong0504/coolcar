@@ -62,11 +62,11 @@ export function generateCars(request: RecommendRequest, mode: 'statistical' | 'e
   const weak = new Set(weakAcCars[request.line] ?? []);
   return Array.from({ length: count }, (_, i) => {
     const carNo = i + 1;
-    const edgeBonus = carNo === 1 || carNo === count ? 24 : carNo === 2 || carNo === count - 1 ? 14 : 0;
-    const centerPenalty = Math.max(0, 18 - Math.abs(carNo - (count + 1) / 2) * 6);
-    const syntheticCrowd = Math.min(96, Math.max(12, 42 + centerPenalty + rushBias + ((hash + carNo * 13) % 22) - edgeBonus / 2));
+    const edgeBonus = carNo === 1 || carNo === count ? 8 : carNo === 2 || carNo === count - 1 ? 6 : 0;
+    const centerPenalty = Math.max(0, 14 - Math.abs(carNo - (count + 1) / 2) * 5);
+    const syntheticCrowd = Math.min(96, Math.max(12, 42 + centerPenalty + rushBias + ((hash + carNo * 13) % 22) - edgeBonus / 3));
     const coolingScore = Math.min(100, Math.max(20, 58 + edgeBonus - (weak.has(carNo) ? 26 : 0) - (mode === 'estimated' ? 6 : 0)));
-    const convenienceScore = Math.min(100, Math.max(20, 62 + ((hash + carNo * 5) % 18) - (carNo === 1 || carNo === count ? 4 : 0)));
+    const convenienceScore = Math.min(100, Math.max(20, 62 + ((hash + carNo * 5) % 18) - (carNo === 1 || carNo === count ? 8 : 0)));
     return {
       carNo,
       label: `${carNo}번째 칸 ${carNo <= 2 ? '앞쪽' : carNo >= count - 1 ? '뒤쪽' : '중앙'}`,

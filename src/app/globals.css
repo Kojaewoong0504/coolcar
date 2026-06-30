@@ -86,6 +86,18 @@ h1 { font-size: 42px; line-height: 1.03; letter-spacing: -0.08em; margin: 0 0 14
 .condition-summary-card span { grid-column: 1 / -1; color:var(--muted); font-size:12px; font-weight:950; }
 .condition-summary-card strong { min-width:0; font-size:13px; line-height:1.35; color:#0f172a; }
 .condition-summary-card button { border:1px solid #bae6fd; background:#ecfeff; color:#0369a1; border-radius:999px; padding:9px 11px; font-weight:950; white-space:nowrap; }
+.preference-card { display:grid; gap:12px; border:1px solid var(--border); border-radius:24px; background:linear-gradient(180deg,#fff,#f8fdff); padding:14px; }
+.preference-head { align-items:flex-start; }
+.preference-head .section-title { margin-bottom:6px; }
+.preference-head p { color:var(--muted); line-height:1.45; margin:0; font-size:13px; }
+.preference-head > span { width:42px; height:42px; border-radius:16px; display:grid; place-items:center; background:#ecfeff; font-size:22px; }
+.preference-segments { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.preference-save-copy { margin:0; color:#0369a1; font-size:12px; font-weight:900; line-height:1.45; }
+.advanced-options-shell { border:1px solid var(--border); border-radius:20px; background:#f8fdff; overflow:hidden; }
+.advanced-options-shell summary { list-style:none; min-height:48px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; color:#0369a1; font-weight:950; cursor:pointer; }
+.advanced-options-shell summary::-webkit-details-marker { display:none; }
+.advanced-options-shell summary::after { content:'+'; width:24px; height:24px; border-radius:999px; display:grid; place-items:center; background:#ecfeff; }
+.advanced-options-shell[open] summary::after { content:'–'; background:#0f172a; color:#fff; }
 .advanced-options { display:grid; gap:12px; padding:14px; border:1px solid var(--border); border-radius:22px; background:linear-gradient(180deg,#fff,#f8fdff); animation: rise .18s ease-out; }
 .compact-segments { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .recent-route-card { margin-top: 12px; }
@@ -280,6 +292,17 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .manual-transfer-list span { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
 .manual-transfer-list button { border:1px solid var(--border); background:#f8fdff; border-radius:999px; padding:6px 8px; color:#0369a1; font-size:12px; font-weight:900; }
 .route-plan-notice { display:grid; gap:8px; }
+.route-plan-secondary, .collapsed-manual-route { border:1px solid var(--border); border-radius:22px; background:rgba(255,255,255,.88); overflow:hidden; margin:14px 0; box-shadow:0 12px 28px rgba(14,165,233,.08); }
+.route-plan-secondary summary, .collapsed-manual-route summary { list-style:none; min-height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-weight:950; color:#0369a1; cursor:pointer; }
+.route-plan-secondary summary::-webkit-details-marker, .collapsed-manual-route summary::-webkit-details-marker { display:none; }
+.route-plan-secondary summary::after, .collapsed-manual-route summary::after { content:'+'; width:26px; height:26px; display:grid; place-items:center; border-radius:999px; background:#ecfeff; color:#0369a1; }
+.route-plan-secondary[open] summary::after, .collapsed-manual-route[open] summary::after { content:'–'; background:#0f172a; color:#fff; }
+.primary-plan-card { border-color:#bae6fd; box-shadow:0 20px 45px rgba(14,165,233,.14); }
+.compact-route-plan-list { padding:0 12px 12px; gap:10px; }
+.compact-plan-card { margin:0; box-shadow:none; }
+.compact-plan-card .primary { min-height:48px; border-radius:17px; }
+.manual-route-body { display:grid; gap:12px; padding:0 14px 14px; }
+.single-direction-card { background:#f8fdff; }
 .active-leg-card { display:grid; gap:12px; background:linear-gradient(180deg,#fff,#f8fdff); }
 .active-leg-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
 .active-leg-head span, .active-leg-head em { border-radius:999px; padding:7px 10px; font-size:12px; font-weight:950; font-style:normal; }

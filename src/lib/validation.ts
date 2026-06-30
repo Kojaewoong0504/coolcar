@@ -17,6 +17,13 @@ export const recommendRequestSchema = z.object({
   transferStations: z.array(z.string().min(1)).max(5).optional(),
 });
 
+export const preferenceSchema = z.object({
+  anonymousId: z.string().uuid().optional(),
+  comfortType: comfortTypeSchema.default('HOT_SENSITIVE'),
+  waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
+  avoidPrioritySeatArea: z.boolean().default(true),
+});
+
 export const routePlansRequestSchema = z.object({
   line: z.string().optional(),
   originLine: z.string().optional(),

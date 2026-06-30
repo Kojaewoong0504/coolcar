@@ -42,7 +42,7 @@ export default function RoutePlansPage() {
   const [manualTransfers, setManualTransfers] = useState<string[]>([]);
   const [manualDirection, setManualDirection] = useState('');
   const [manualLoading, setManualLoading] = useState(false);
-  const [candidateDirections, setCandidateDirections] = useState<Record<string, string>>({});
+  const [directionInput, setDirectionInput] = useState('');
 
   useEffect(() => {
     const raw = window.sessionStorage.getItem('coolcar_pending_route_plan');
@@ -86,6 +86,12 @@ export default function RoutePlansPage() {
     });
     return `/?${params.toString()}`;
   }, [baseRequest]);
+
+  const primaryCandidate = plans?.candidates.find((candidate) => candidate.type !== 'UNRESOLVED') ?? plans?.candidates[0];
+  const otherCandidates = plans?.candidates.filter((candidate) => candidate.id !== primaryCandidate?.id) ?? [];
+  const needsDirection = primaryCandidate?.coverage.nextTransferDoorGuide === 'needs_direction';
+  const canUseDirection = Boolean(primaryCandidate && primaryCandidate.type !== 'UNRESOLVED');
+  const cleanedDirectionInput = directionInput.trim();
 
   function selectCandidate(candidate: RoutePlanCandidate, directionOverride?: string) {
     if (!baseRequest) return;
@@ -182,80 +188,91 @@ export default function RoutePlansPage() {
       </header>
 
       <section className="card route-plan-hero">
-        <p className="eyebrow">먼저 경로를 골라요</p>
-        <h1>어떤 경로로 가시나요?</h1>
+        <p className="eyebrow">가는 길 확인</p>
+        <h1>이 경로로 칸을 추천할게요</h1>
         <p><b>{baseRequest.originStation}</b> → <b>{baseRequest.destinationStation || '목적지'}</b></p>
-        <p className="microcopy">원하는 환승 경로를 고르면, 그 경로 기준으로 구간별 타기 좋은 칸을 추천해요.</p>
+        <p className="microcopy">먼저 가장 자연스러운 경로 하나만 보여드려요. 다른 경로가 필요하면 아래에서 바꿀 수 있어요.</p>
       </section>
 
       {error && <p className="error">{error}</p>}
 
-      <section className="route-plan-list" aria-label="경로 후보 목록">
-        {plans?.candidates.map((candidate) => (
-          <article className="card route-plan-card" key={candidate.id}>
-            <div className="route-plan-card-head">
-              <span>{candidate.badge}</span>
-              <em>{coverageCopy(candidate)}</em>
-            </div>
-            <h2>{candidate.title}</h2>
-            <p className="route-plan-path">{routePath(candidate)}</p>
-            <p className="route-plan-lines">{candidate.lines.join(' → ')}</p>
-            <p className="microcopy">{candidate.summary}</p>
-            <div className="route-plan-legs">
-              {candidate.legs.map((leg) => (
-                <div key={`${candidate.id}-${leg.legNo}`}>
-                  <span>{leg.legNo}구간</span>
-                  <strong>{leg.fromStation} → {leg.toStation}</strong>
-                  <small>{leg.line}{leg.transferToLine ? ` · ${leg.transferToLine} 환승 기준` : ''}</small>
-                </div>
-              ))}
-            </div>
-            <p className="route-plan-safe-note">{candidate.safetyNote}</p>
-            {candidate.type !== 'UNRESOLVED' && (
-              <label className="direction-input-card">
-                <span>지금 타는 {candidate.recommendRequestPatch.line} 방면</span>
-                <input
-                  value={candidateDirections[candidate.id] ?? ''}
-                  onChange={(event) => setCandidateDirections((current) => ({ ...current, [candidate.id]: event.target.value }))}
-                  placeholder="안내판에 보이는 방면명 입력"
-                  aria-label={`${candidate.title} 방면 입력`}
-                />
-                <small>예: 잠실, 신도림처럼 안내판에 보이는 이름을 입력해 주세요. 모르면 비워두고 쾌적칸 중심으로 볼 수 있어요.</small>
-              </label>
-            )}
-            <button className="primary" type="button" onClick={() => selectCandidate(candidate, candidateDirections[candidate.id])}>{candidate.type === 'UNRESOLVED' ? '경로 없이 쾌적칸 보기' : candidateDirections[candidate.id]?.trim() ? '이 방면으로 칸 추천받기' : '방면 없이 쾌적칸 보기'}</button>
-          </article>
-        ))}
-      </section>
+      {primaryCandidate && (
+        <section className="card route-plan-card primary-plan-card" aria-label="추천 경로">
+          <div className="route-plan-card-head">
+            <span>추천 경로</span>
+            <em>{coverageCopy(primaryCandidate)}</em>
+          </div>
+          <h2>{primaryCandidate.title}</h2>
+          <p className="route-plan-path">{routePath(primaryCandidate)}</p>
+          <p className="route-plan-lines">{primaryCandidate.lines.join(' → ')}</p>
+          <p className="microcopy">{primaryCandidate.summary}</p>
+          {canUseDirection && (
+            <label className="direction-input-card single-direction-card">
+              <span>{needsDirection ? '방면을 알면 더 정확해요' : '방면을 알고 있다면 확인해 주세요'}</span>
+              <input
+                value={directionInput}
+                onChange={(event) => setDirectionInput(event.target.value)}
+                placeholder="승강장 안내판에 보이는 이름 입력"
+                aria-label="방면 입력"
+              />
+              <small>예: 잠실, 신도림, 교대. 모르면 비워도 추천은 받을 수 있고, 그땐 쾌적칸 중심으로 안내해요.</small>
+            </label>
+          )}
+          <button className="primary" type="button" onClick={() => selectCandidate(primaryCandidate, cleanedDirectionInput || undefined)}>
+            {cleanedDirectionInput ? '이 방면으로 칸 추천받기' : '이 경로로 추천받기'}
+          </button>
+        </section>
+      )}
 
-      <section className="card manual-route-card">
-        <p className="eyebrow">직접 설정</p>
-        <h2>환승역을 알고 있다면 직접 넣어주세요</h2>
-        <p className="microcopy">입력한 순서대로 경로를 나눠 추천합니다. 아직은 첫 환승역 중심으로 안내 품질을 확인해요.</p>
-        <div className="manual-transfer-input">
-          <input value={manualTransferInput} onChange={(event) => setManualTransferInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addManualTransfer(); } }} placeholder="예: 당산역" aria-label="환승역 직접 입력" />
-          <button type="button" onClick={addManualTransfer}>추가</button>
-        </div>
-        <label className="direction-input-card manual-direction-input">
-          <span>첫 구간 방면</span>
-          <input value={manualDirection} onChange={(event) => setManualDirection(event.target.value)} placeholder="안내판에 보이는 방면명 입력" aria-label="직접 설정 경로 방면 입력" />
-          <small>방면을 입력하면 첫 환승역의 칸·문 위치를 더 정확히 확인해요. 모르면 비워둬도 됩니다.</small>
-        </label>
-        <div className="manual-transfer-list">
-          {manualTransfers.length === 0 && <p className="microcopy">환승역을 추가하지 않으면 위의 ‘경로 미확정’ 후보로 쾌적칸만 볼 수 있어요.</p>}
-          {manualTransfers.map((station, index) => (
-            <div key={station}>
-              <strong>{index + 1}. {station}</strong>
-              <span>
-                <button type="button" onClick={() => moveManualTransfer(index, -1)} disabled={index === 0}>위로</button>
-                <button type="button" onClick={() => moveManualTransfer(index, 1)} disabled={index === manualTransfers.length - 1}>아래로</button>
-                <button type="button" onClick={() => setManualTransfers((current) => current.filter((item) => item !== station))}>삭제</button>
-              </span>
-            </div>
-          ))}
-        </div>
-        <button className="primary" type="button" onClick={() => void buildManualCandidate()} disabled={manualTransfers.length === 0 || manualLoading}>{manualLoading ? '직접 경로 확인 중…' : manualTransfers.length > 1 ? '이 환승 순서로 추천받기' : '이 환승역으로 추천받기'}</button>
-      </section>
+      {otherCandidates.length > 0 && (
+        <details className="route-plan-secondary">
+          <summary>다른 경로 보기</summary>
+          <section className="route-plan-list compact-route-plan-list" aria-label="다른 경로 목록">
+            {otherCandidates.map((candidate) => (
+              <article className="card route-plan-card compact-plan-card" key={candidate.id}>
+                <div className="route-plan-card-head">
+                  <span>{candidate.badge}</span>
+                  <em>{coverageCopy(candidate)}</em>
+                </div>
+                <h2>{candidate.title}</h2>
+                <p className="route-plan-path">{routePath(candidate)}</p>
+                <p className="route-plan-lines">{candidate.lines.join(' → ')}</p>
+                <button className="primary" type="button" onClick={() => selectCandidate(candidate, cleanedDirectionInput || undefined)}>{candidate.type === 'UNRESOLVED' ? '경로 없이 쾌적칸 보기' : '이 경로로 바꾸기'}</button>
+              </article>
+            ))}
+          </section>
+        </details>
+      )}
+
+      <details className="manual-route-card collapsed-manual-route">
+        <summary>경로를 직접 바꾸고 싶어요</summary>
+        <section className="manual-route-body">
+          <p className="microcopy">지도 앱에서 확인한 환승역이 있다면 여기서만 추가하세요. 메인 추천은 위 경로 하나로 바로 진행됩니다.</p>
+          <div className="manual-transfer-input">
+            <input value={manualTransferInput} onChange={(event) => setManualTransferInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addManualTransfer(); } }} placeholder="예: 당산역" aria-label="환승역 직접 입력" />
+            <button type="button" onClick={addManualTransfer}>추가</button>
+          </div>
+          <label className="direction-input-card manual-direction-input">
+            <span>첫 구간 방면</span>
+            <input value={manualDirection} onChange={(event) => setManualDirection(event.target.value)} placeholder="안내판에 보이는 방면명 입력" aria-label="직접 설정 경로 방면 입력" />
+            <small>방면을 입력하면 첫 환승역의 칸·문 위치를 더 정확히 확인해요. 모르면 비워둬도 됩니다.</small>
+          </label>
+          <div className="manual-transfer-list">
+            {manualTransfers.length === 0 && <p className="microcopy">환승역을 추가하지 않으면 위 추천 경로로 바로 진행하면 돼요.</p>}
+            {manualTransfers.map((station, index) => (
+              <div key={station}>
+                <strong>{index + 1}. {station}</strong>
+                <span>
+                  <button type="button" onClick={() => moveManualTransfer(index, -1)} disabled={index === 0}>위로</button>
+                  <button type="button" onClick={() => moveManualTransfer(index, 1)} disabled={index === manualTransfers.length - 1}>아래로</button>
+                  <button type="button" onClick={() => setManualTransfers((current) => current.filter((item) => item !== station))}>삭제</button>
+                </span>
+              </div>
+            ))}
+          </div>
+          <button className="primary" type="button" onClick={() => void buildManualCandidate()} disabled={manualTransfers.length === 0 || manualLoading}>{manualLoading ? '직접 경로 확인 중…' : manualTransfers.length > 1 ? '이 환승 순서로 추천받기' : '이 환승역으로 추천받기'}</button>
+        </section>
+      </details>
 
       {plans?.warnings.length ? (
         <section className="card route-plan-notice">

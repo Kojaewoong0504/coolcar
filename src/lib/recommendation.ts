@@ -134,7 +134,7 @@ function scoreCar(car: CarComfort, request: RecommendRequest): CarComfort {
       : request.comfortType === 'CROWD_AVOIDER'
         ? { cool: 0.22, crowd: 0.56, convenience: 0.22 }
         : { cool: 0.34, crowd: 0.34, convenience: 0.32 };
-  const priorityPenalty = request.avoidPrioritySeatArea && car.isPrioritySeatArea ? 8 : 0;
+  const priorityPenalty = request.avoidPrioritySeatArea && car.isPrioritySeatArea ? 18 : 0;
   const weakAcBonus = request.comfortType === 'COLD_SENSITIVE' && car.isWeakAc ? 12 : 0;
   const feedbackBonus = car.tags.includes('최근제보') ? 4 : car.tags.includes('제보주의') ? -6 : 0;
   const total = (car.coolingScore * weights.cool) + (car.crowdScore * weights.crowd) + (car.convenienceScore * weights.convenience) + weakAcBonus + feedbackBonus - priorityPenalty;

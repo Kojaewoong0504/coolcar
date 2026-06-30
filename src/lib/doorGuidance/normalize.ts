@@ -32,14 +32,19 @@ export function normalizeDirection(value?: string) {
   const compact = (value ?? '')
     .trim()
     .replace(/\s+/g, '')
-    .replace(/\(.+?\)/g, '');
-  if (!compact) return undefined;
-  if (compact === '내선') return 'INNER';
-  if (compact === '외선') return 'OUTER';
-  if (compact === '상행') return 'UP';
-  if (compact === '하행') return 'DOWN';
-  if (compact.endsWith('방면')) return `TOWARD_${compact.replace(/방면$/, '')}`;
-  return `TOWARD_${compact}`;
+    .replace(/\(.+?\)/g, '')
+    .replace(/쪽$/, '')
+    .replace(/방향$/, '')
+    .replace(/방면$/, '')
+    .replace(/행$/, '')
+    .replace(/역$/, '');
+  const aliased = STATION_ALIASES.get(compact) ?? compact;
+  if (!aliased) return undefined;
+  if (aliased === '내선') return 'INNER';
+  if (aliased === '외선') return 'OUTER';
+  if (aliased === '상행') return 'UP';
+  if (aliased === '하행') return 'DOWN';
+  return `TOWARD_${aliased}`;
 }
 
 export function makeDoorGuideKey(params: { line: string; stationName: string; goal: string; targetLine?: string }) {

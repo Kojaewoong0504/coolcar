@@ -24,6 +24,8 @@
     "test:public-door-guide": "tsx scripts/smoke-public-door-guide-adapter.ts",
     "test:route-transparency": "tsx scripts/smoke-route-transparency.ts",
     "test:route-plans": "tsx scripts/smoke-route-plans.ts",
+    "test:direction-normalization": "tsx scripts/smoke-direction-normalization.ts",
+    "test:comfort-bias": "tsx scripts/smoke-comfort-only-bias.ts",
     "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
   },
