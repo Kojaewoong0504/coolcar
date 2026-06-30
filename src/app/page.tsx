@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
@@ -18,6 +18,15 @@ const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: 
 const lines = [...SUPPORTED_LINES];
 type StationHit = Pick<Station, 'name' | 'line' | 'operator'>;
 type PickerTarget = 'origin' | 'destination' | null;
+type RecentRoute = {
+  label: string;
+  line: string;
+  originStation: string;
+  destinationStation: string;
+  destinationLine?: string;
+  comfortType: ComfortType;
+  transferStations?: string[];
+};
 
 
 function getAnonymousId() {
@@ -38,9 +47,10 @@ export default function HomePage() {
   const [originStation, setOriginStation] = useState('강남역');
   const [destinationStation, setDestinationStation] = useState('홍대입구역');
   const [destinationLine, setDestinationLine] = useState('2호선');
-  const [direction, setDirection] = useState('내선');
+  const [direction, setDirection] = useState('');
   const [transferStationsInput, setTransferStationsInput] = useState('');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
@@ -48,6 +58,7 @@ export default function HomePage() {
   const [pickerLine, setPickerLine] = useState(line);
   const [pickerStations, setPickerStations] = useState<StationHit[]>([]);
   const [pickerLoading, setPickerLoading] = useState(false);
+  const [recentRoutes, setRecentRoutes] = useState<RecentRoute[]>([]);
 
   useEffect(() => {
     (window as Window & { coolcarHydrated?: boolean }).coolcarHydrated = true;
@@ -67,6 +78,34 @@ export default function HomePage() {
     const nextTransfers = params.get('transferStations');
     if (nextTransfers) setTransferStationsInput(nextTransfers);
     if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
+
+    const routes: RecentRoute[] = [];
+    const lastRaw = window.sessionStorage.getItem('coolcar_last_result');
+    if (lastRaw) {
+      try {
+        const last = JSON.parse(lastRaw) as { result?: { request?: RecentRoute } };
+        const request = last.result?.request;
+        if (request?.originStation && request.destinationStation) {
+          routes.push({
+            label: `${request.originStation} → ${request.destinationStation}`,
+            line: request.line,
+            originStation: request.originStation,
+            destinationStation: request.destinationStation,
+            destinationLine: request.destinationLine,
+            comfortType: request.comfortType,
+            transferStations: request.transferStations,
+          });
+        }
+      } catch {
+        // Ignore stale local session data.
+      }
+    }
+    routes.push(
+      { label: '강남 → 판교', line: '2호선', originStation: '역삼역', destinationStation: '판교역', destinationLine: '신분당선', comfortType: 'BALANCED', transferStations: ['강남역'] },
+      { label: '양재 → 여의도', line: '3호선', originStation: '양재역', destinationStation: '여의도역', destinationLine: '9호선', comfortType: 'BALANCED', transferStations: ['고속터미널역'] },
+    );
+    const deduped = routes.filter((route, index, arr) => arr.findIndex((item) => item.label === route.label) === index).slice(0, 3);
+    setRecentRoutes(deduped);
     router.prefetch('/result?loading=1');
   }, [router]);
 
@@ -97,6 +136,24 @@ export default function HomePage() {
     return () => controller.abort();
   }, [pickerTarget, pickerLine, pickerQuery]);
 
+  const selectedComfort = comfortOptions.find((option) => option.value === comfortType) ?? comfortOptions[0];
+  const transferStations = useMemo(
+    () => transferStationsInput.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 5),
+    [transferStationsInput],
+  );
+  const appliedConditionCount = [
+    comfortType !== 'HOT_SENSITIVE',
+    transferStations.length > 0,
+    Boolean(direction.trim()),
+    !avoidPrioritySeatArea,
+  ].filter(Boolean).length;
+  const conditionSummary = [
+    selectedComfort.desc,
+    transferStations.length > 0 ? `환승역 ${transferStations.length}개` : undefined,
+    direction.trim() ? `${direction.trim()} 방면 참고` : undefined,
+    avoidPrioritySeatArea ? '배려석 주변 피함' : undefined,
+  ].filter(Boolean).join(' · ');
+
   async function runRecommendation() {
     setError('');
 
@@ -105,8 +162,18 @@ export default function HomePage() {
       return;
     }
 
-    const transferStations = transferStationsInput.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 5);
-    const request = { line, originStation, destinationStation, destinationLine, direction, comfortType, waitToleranceMin: 3, avoidPrioritySeatArea, anonymousId, transferStations };
+    const request = {
+      line,
+      originStation,
+      destinationStation,
+      destinationLine,
+      direction: direction.trim() || undefined,
+      comfortType,
+      waitToleranceMin: 3,
+      avoidPrioritySeatArea,
+      anonymousId,
+      transferStations,
+    };
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({ request, context: { destinationLine } }));
     setLoading(true);
     router.push('/result?loading=1');
@@ -136,6 +203,17 @@ export default function HomePage() {
     setPickerTarget(null);
   }
 
+  function applyRecentRoute(route: RecentRoute) {
+    setLine(route.line);
+    setOriginStation(route.originStation);
+    setDestinationStation(route.destinationStation);
+    setDestinationLine(route.destinationLine ?? route.line);
+    setComfortType(route.comfortType);
+    setTransferStationsInput(route.transferStations?.join(', ') ?? '');
+    setDirection('');
+    setShowAdvancedOptions(Boolean(route.transferStations?.length));
+  }
+
 
   return (
     <main className="shell with-tabbar">
@@ -144,32 +222,29 @@ export default function HomePage() {
         <UserProfilePill />
       </header>
 
-      <section className="hero-card home-hero">
+      <section className="hero-card home-hero simple-home-hero">
         <div className="hero-orb" aria-hidden="true" />
-        <div className="brand-hero">
+        <div className="brand-hero compact-brand">
           <img className="brand-app-icon" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />
           <div>
             <p className="brand-name">시원칸</p>
             <p className="brand-subtitle">지하철 쾌적칸 추천 앱</p>
           </div>
         </div>
-        <p className="eyebrow">퇴근길 쾌적칸 추천</p>
-        <h1>노선도 말고,<br />어디 탈지만.</h1>
-        <p>더위, 추위, 혼잡도를 합쳐 쾌적할 가능성이 높은 칸을 골라드려요.</p>
-        <div className="hero-stats"><span><b>30초</b>입력 완료</span><span><b>무료</b>추천 가능</span><span><b>3초</b>결론 확인</span></div>
+        <p className="eyebrow">10초 추천</p>
+        <h1>어디서 타고,<br />어디서 내리나요?</h1>
+        <p>출발역과 도착역만 고르면 지금 타기 좋은 칸을 바로 골라드려요.</p>
       </section>
 
-      <form className="card form trip-card" onSubmit={submit}>
-        <div className="section-row"><div><div className="section-title">오늘의 기준</div><p>내가 피하고 싶은 불편함을 먼저 골라요.</p></div></div>
-        <div className="segmented-pills" role="group" aria-label="추천 성향">
-          {comfortOptions.map((option) => (
-            <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} onClick={() => setComfortType(option.value)}>
-              <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
-            </button>
-          ))}
+      <form className="card form trip-card simple-trip-card" onSubmit={submit}>
+        <div className="section-row trip-title-row">
+          <div>
+            <div className="section-title">어디 탈지 추천받기</div>
+            <p>환승역이나 방면을 몰라도 괜찮아요. 필요한 경우만 짧게 확인할게요.</p>
+          </div>
         </div>
 
-        <div className="route-summary-card">
+        <div className="route-summary-card primary-route-card">
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('origin')} aria-label="출발역 선택">
             <span className="route-label">출발</span>
             <span className="route-value">{originStation}</span>
@@ -182,21 +257,59 @@ export default function HomePage() {
             <span className="route-badge subtle">변경</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
-          <p className="route-helper">노선은 출발역 선택 시 자동으로 맞춰져요. 방향은 다음 단계에서 경로 기반 자동 계산으로 바꿀 예정이에요.</p>
+          <p className="route-helper">노선은 역 선택으로 자동 맞춰져요. 환승역·방면은 알고 있을 때만 추가하세요.</p>
         </div>
 
-        <label className="field optional-transfer-field">
-          <span>환승역이 있다면 입력</span>
-          <input value={transferStationsInput} onChange={(event) => setTransferStationsInput(event.target.value)} placeholder="예: 교대역, 고속터미널역" />
-          <small>지도앱에서 확인한 환승역을 쉼표로 입력하면 구간별 위치 안내로 나눠 보여드려요.</small>
-        </label>
+        <div className="condition-summary-card">
+          <span>추천 조건</span>
+          <strong>{conditionSummary}</strong>
+          <button type="button" onClick={() => setShowAdvancedOptions((value) => !value)} aria-expanded={showAdvancedOptions}>
+            {showAdvancedOptions ? '조건 접기' : appliedConditionCount > 0 ? `조건 ${appliedConditionCount}개 적용됨` : '조건 더하기'}
+          </button>
+        </div>
 
-        <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
+        {showAdvancedOptions && (
+          <section className="advanced-options" aria-label="추가 추천 조건">
+            <div className="section-row"><div><div className="section-title">선택 조건</div><p>정확히 알고 있는 것만 추가하면 돼요.</p></div></div>
+            <div className="segmented-pills compact-segments" role="group" aria-label="추천 성향">
+              {comfortOptions.map((option) => (
+                <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} onClick={() => setComfortType(option.value)}>
+                  <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
+                </button>
+              ))}
+            </div>
+
+            <label className="field optional-transfer-field">
+              <span>환승역을 아는 경우만 추가</span>
+              <input value={transferStationsInput} onChange={(event) => setTransferStationsInput(event.target.value)} placeholder="예: 강남역, 고속터미널역" />
+              <small>비워도 추천받을 수 있어요. 입력하면 확인된 구간에서 환승 가까운 칸을 함께 봅니다.</small>
+            </label>
+
+            <label className="field optional-transfer-field">
+              <span>방면을 알고 있다면 입력</span>
+              <input value={direction} onChange={(event) => setDirection(event.target.value)} placeholder="예: 교대, 선릉, 잠원 방면" />
+              <small>잘 모르겠으면 비워두세요. 문 위치는 방향까지 확인되는 경우에만 안내해요.</small>
+            </label>
+
+            <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => setAvoidPrioritySeatArea(e.target.checked)} /> 교통약자석 주변은 배려해서 추천</label>
+          </section>
+        )}
+
         {error && <p className="error">{error}</p>}
-        <button className="primary sticky-cta" type="button" onClick={() => void runRecommendation()} disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />지금 탈 칸을 고르고 있어요…</> : <>지금 추천받기 <span aria-hidden="true">→</span></>}</button>
+        <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />지금 탈 칸을 고르고 있어요…</> : <>지금 탈 칸 보기 <span aria-hidden="true">→</span></>}</button>
       </form>
 
-
+      <section className="card recent-route-card">
+        <div className="section-row"><div><div className="section-title">최근·추천 경로</div><p>자주 쓰는 길은 한 번에 불러올 수 있어요.</p></div></div>
+        <div className="recent-route-list">
+          {recentRoutes.map((route) => (
+            <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
+              <span><b>{route.label}</b><small>{route.line} · {comfortOptions.find((option) => option.value === route.comfortType)?.desc ?? '균형 추천'}</small></span>
+              <em>불러오기</em>
+            </button>
+          ))}
+        </div>
+      </section>
       {pickerTarget && (
         <div className="station-picker-backdrop" role="presentation" onClick={() => setPickerTarget(null)}>
           <section className="station-picker-sheet" role="dialog" aria-modal="true" aria-label={pickerTarget === 'origin' ? '출발역 선택' : '도착역 선택'} onClick={(event) => event.stopPropagation()}>
