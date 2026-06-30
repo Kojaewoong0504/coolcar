@@ -123,6 +123,21 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .consumer-badges span { background: rgba(255,255,255,.12); }
 .transfer-note { margin:12px 0 0; padding:12px; border-radius:16px; background:rgba(255,255,255,.1); color:#dbeafe; line-height:1.5; font-size:13px; }
 .result-why-card { background: linear-gradient(180deg,#fff,#f8fdff); }
+.result-one-line-reason { font-size:15px; font-weight:850; }
+.compact-result-badges { margin-bottom:12px; }
+.result-detail-accordion { padding:0; overflow:hidden; background:linear-gradient(180deg,#fff,#f8fdff); }
+.result-detail-accordion summary { list-style:none; min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; cursor:pointer; }
+.result-detail-accordion summary::-webkit-details-marker { display:none; }
+.result-detail-accordion summary span { font-size:16px; font-weight:950; letter-spacing:-.04em; }
+.result-detail-accordion summary em { font-style:normal; border-radius:999px; background:#ecfeff; color:#0369a1; padding:7px 10px; font-size:12px; font-weight:950; white-space:nowrap; }
+.result-detail-accordion summary::after { content:'+'; width:26px; height:26px; border-radius:999px; display:grid; place-items:center; background:#f1f5f9; color:#64748b; font-weight:950; flex:0 0 auto; }
+.result-detail-accordion[open] summary::after { content:'–'; background:#0f172a; color:#fff; }
+.result-detail-body { display:grid; gap:12px; padding:0 20px 18px; border-top:1px solid var(--border); }
+.result-detail-body > .microcopy:first-child { margin-top:14px; }
+.compact-route-leg-list { margin-top:2px; }
+.compact-route-leg-card { padding:12px; gap:8px; }
+.compact-door-tip { padding:11px; }
+.compact-door-tip strong { font-size:16px; line-height:1.25; }
 .result-loading-page { min-height: 100svh; display:grid; align-items:center; }
 .result-loading-card { text-align:center; padding:34px 22px; background: radial-gradient(circle at 50% 0%, #fff 0%, #e0fbff 48%, #f8fdff 100%); }
 .result-loading-card h1 { margin: 8px 0 10px; font-size: 34px; line-height:1.08; letter-spacing:-.07em; }
