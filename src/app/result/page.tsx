@@ -445,7 +445,7 @@ export default function ResultPage() {
         </button>
       </div>
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
+      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/settings">내 정보</Link></nav>
     </main>
   );
 }

@@ -112,7 +112,7 @@ export default function SavedPage() {
     const serverStored = route.recent_request
       ? { request: route.recent_request, context: route.recent_context }
       : undefined;
-    const fallbackRequest: RecommendRequest = {
+    const baseRequest: RecommendRequest = {
       line: route.line,
       originStation: route.origin_station,
       destinationStation: route.destination_station ?? undefined,
@@ -125,7 +125,7 @@ export default function SavedPage() {
     const restored = localStored ?? serverStored;
     const pending = restored
       ? { request: { ...restored.request, comfortType: 'HOT_SENSITIVE' as const, anonymousId: restored.request.anonymousId ?? anonymousId }, context: restored.context }
-      : { request: fallbackRequest, context: undefined };
+      : { request: baseRequest, context: undefined };
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify(pending));
     window.location.href = '/result';
   }
@@ -161,12 +161,12 @@ export default function SavedPage() {
       </header>
 
       <section className="hero-card compact saved-hero">
-        <p className="eyebrow">MY ROUTINES</p>
-        <h1>{isLoggedIn ? `${firstName}님의 루틴` : '이 기기의 루틴'}<br />바로 추천받아요.</h1>
-        <p>{isLoggedIn ? '계정에 연결된 출퇴근 경로를 불러왔어요. 출발 전 한 번만 누르면 지금 타기 좋은 칸을 다시 계산해요.' : '로그인하지 않아도 이 기기에 루틴을 저장할 수 있어요. Google/Kakao로 연결하면 다른 기기에서도 이어서 볼 수 있어요.'}</p>
+        <p className="eyebrow">저장 루틴</p>
+        <h1>{isLoggedIn ? `${firstName}님의 루틴` : '저장한 루틴'}<br />바로 추천받아요.</h1>
+        <p>{isLoggedIn ? '저장한 경로를 불러왔어요. 출발 전 한 번만 누르면 지금 타기 좋은 칸을 다시 계산해요.' : '로그인하지 않아도 이 기기에 루틴을 저장할 수 있어요. 로그인하면 다른 기기에서도 볼 수 있어요.'}</p>
       </section>
 
-      {isLoggedIn && <section className="card soft-notice"><AuthMergeOnLoad /></section>}
+      {isLoggedIn && <AuthMergeOnLoad />}
 
       {loading && <section className="card skeleton"><h2>저장 루틴을 불러오는 중이에요</h2><div /></section>}
 
@@ -182,7 +182,7 @@ export default function SavedPage() {
         <section className="card summary-card">
           <span className="summary-kicker">저장 루틴 {routes.length}개</span>
           <h2>{defaultRoute ? `오늘도 ${defaultRoute.origin_station}에서 출발하나요?` : '오늘도 자주 타는 경로로 가나요?'}</h2>
-          <p>{isLoggedIn ? '계정에 안전하게 연결된 루틴이에요.' : '다른 기기에서도 보려면 로그인으로 루틴을 연결하세요.'}</p>
+          <p>{isLoggedIn ? '계정에 저장된 루틴이에요.' : '다른 기기에서도 보려면 로그인해 주세요.'}</p>
         </section>
       )}
 
@@ -210,8 +210,8 @@ export default function SavedPage() {
       {!isLoggedIn && !loading && routes.length > 0 && (
         <section className="card login-nudge">
           <h2>다른 기기에서도 보려면</h2>
-          <p>Google 또는 Kakao로 5초 만에 연결하고 저장 루틴을 이어서 볼 수 있어요.</p>
-          <Link className="ghost" href="/login?next=/saved">로그인하고 루틴 연결하기</Link>
+          <p>Google 또는 Kakao로 5초 만에 로그인하고 저장 루틴을 이어서 볼 수 있어요.</p>
+          <Link className="ghost" href="/login?next=/saved">로그인하고 루틴 이어보기</Link>
         </section>
       )}
 
@@ -224,7 +224,7 @@ export default function SavedPage() {
         </section>
       )}
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link className="active" href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
+      <nav className="tabbar"><Link href="/">홈</Link><Link className="active" href="/saved">저장</Link><Link href="/settings">내 정보</Link></nav>
     </main>
   );
 }

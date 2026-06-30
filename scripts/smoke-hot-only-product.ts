@@ -5,15 +5,35 @@ const productFiles = [
   'src/app/page.tsx',
   'src/app/saved/page.tsx',
   'src/app/result/page.tsx',
+  'src/app/settings/page.tsx',
+  'src/app/data-source/page.tsx',
+  'src/app/login/page.tsx',
+  'src/components/auth/AuthMergeOnLoad.tsx',
 ];
 
-const forbiddenProductCopy = ['추위형', '혼잡회피', '밸런스', '약냉방·중앙', '덜 붐비는 칸', '균형 추천', '내 취향', '추웠어요'];
+const forbiddenProductCopy = [
+  '추위형',
+  '혼잡회피',
+  '밸런스',
+  '약냉방·중앙',
+  '덜 붐비는 칸',
+  '균형 추천',
+  '내 취향',
+  '추웠어요',
+  '익명 기록',
+  'API 캐싱',
+  'quota',
+  'fallback',
+  'Personalization',
+  'Trust & Source',
+  '데이터 출처',
+];
 
 for (const file of productFiles) {
   const text = readFileSync(file, 'utf8');
   for (const forbidden of forbiddenProductCopy) {
     if (text.includes(forbidden)) {
-      throw new Error(`${file} still exposes removed preference copy: ${forbidden}`);
+      throw new Error(`${file} still exposes removed consumer copy: ${forbidden}`);
     }
   }
 }

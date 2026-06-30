@@ -11,13 +11,13 @@ export default async function SettingsPage() {
 
   return (
     <main className="shell with-tabbar">
-      <header className="topbar"><div className="logo"><span className="logo-mark">🧊</span>설정</div><Link className="ghost" href="/">홈</Link></header>
-      <section className="hero-card compact"><p className="eyebrow">Personalization</p><h1>내가 편한 지하철<br />기준을 저장해요.</h1><p>로그인하면 저장 경로와 피드백을 계정에 연결해 여러 기기에서 이어갈 수 있어요.</p></section>
+      <header className="topbar"><div className="logo"><span className="logo-mark">🧊</span>내 정보</div><Link className="ghost" href="/">홈</Link></header>
+      <section className="hero-card compact"><p className="eyebrow">내 정보</p><h1>저장한 경로를<br />어디서든 이어가요.</h1><p>로그인하면 이 기기에서 저장한 루틴을 다른 기기에서도 볼 수 있어요.</p></section>
       <section className="card settings-list">
-        <div><b>기본 성향</b><span>더위형 / 추위형 / 혼잡회피 / 밸런스</span></div>
-        <div><b>교통약자석 배려 모드</b><span>켜짐 — 착석 유도가 아닌 위치 참고만 제공</span></div>
-        <div><b>데이터 신뢰도 표시</b><span>모든 추천 결과에 실측·통계·추정·커뮤니티 배지 표시</span></div>
-        <div><b>API 캐싱</b><span>TMAP 무료 quota 보호를 위해 캐시가 없으면 추정 추천으로 안내</span></div>
+        <div><b>추천 기준</b><span>더운 날 타기 좋은 칸을 먼저 안내해요.</span></div>
+        <div><b>저장 루틴</b><span>자주 타는 경로를 저장하고 바로 다시 추천받을 수 있어요.</span></div>
+        <div><b>배려 안내</b><span>교통약자석 주변은 착석 유도가 아닌 위치 참고로만 안내해요.</span></div>
+        <div><b>추천 안내</b><span>실시간 정보가 부족하면 참고 추천으로 표시해요.</span></div>
       </section>
       <section className="card">
         <div className="section-title">계정</div>
@@ -32,11 +32,11 @@ export default async function SettingsPage() {
             <LogoutButton />
           </div>
         ) : (
-          <><p className="notice">로그인하지 않아도 추천은 바로 사용할 수 있어요. 저장 경로 동기화가 필요할 때만 소셜 로그인을 사용합니다.</p><SocialLoginButtons next="/settings" /></>
+          <><p className="notice">로그인하지 않아도 추천은 바로 사용할 수 있어요. 저장한 경로를 다른 기기에서도 보고 싶을 때만 소셜 로그인을 사용해 주세요.</p><SocialLoginButtons next="/settings" /></>
         )}
       </section>
-      <section className="card"><div className="section-title">운영 원칙</div><p className="notice">실시간 데이터가 없는 구간은 “현재 가장 덜 붐빔”처럼 말하지 않고, 시간대 패턴 기반 참고 추천으로 안내합니다.</p><div className="result-actions"><Link href="/data-source">데이터 출처 보기</Link><Link href="/privacy">개인정보 안내</Link></div></section>
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link className="active" href="/settings">설정</Link></nav>
+      <section className="card"><div className="section-title">앱 안내</div><p className="notice">시원칸은 공개 데이터와 시간대 패턴을 함께 참고해 더 시원하게 탈 가능성이 높은 칸을 안내해요. 실제 객실 온도와 혼잡은 열차 상황에 따라 달라질 수 있어요.</p><div className="result-actions"><Link href="/data-source">추천 기준 보기</Link><Link href="/privacy">개인정보 안내</Link></div></section>
+      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link className="active" href="/settings">내 정보</Link></nav>
     </main>
   );
 }
