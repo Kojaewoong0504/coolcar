@@ -91,6 +91,7 @@ export default function ResultPage() {
   const [error, setError] = useState('');
   const [feedbackState, setFeedbackState] = useState<'idle' | 'pending' | 'sent' | 'mock' | 'error'>('idle');
   const [saveState, setSaveState] = useState<'idle' | 'pending' | 'saved' | 'mock' | 'error'>('idle');
+  const [activeLegIndex, setActiveLegIndex] = useState(0);
   const recommendationStarted = useRef(false);
 
   useEffect(() => {
@@ -113,6 +114,7 @@ export default function ResultPage() {
             window.sessionStorage.removeItem('coolcar_pending_recommendation');
             window.history.replaceState(null, '', '/result');
             setStored(nextStored);
+            setActiveLegIndex(0);
           })
           .catch((caught) => setError(caught instanceof Error ? caught.message : '추천 중 문제가 생겼어요.'))
           .finally(() => setLoading(false));
@@ -131,6 +133,7 @@ export default function ResultPage() {
     }
     try {
       setStored(JSON.parse(raw) as StoredResult);
+      setActiveLegIndex(0);
     } catch {
       setStored(null);
     }
@@ -193,6 +196,9 @@ export default function ResultPage() {
   const hasAnchorWindow = result.routeChoice?.mode === 'ANCHOR_WINDOW';
   const routePath = routePathCopy(result);
   const routeBasis = routeBasisCopy(result, needsTransfer);
+  const activeLeg = result.routeGuidance.legs[Math.min(activeLegIndex, Math.max(result.routeGuidance.legs.length - 1, 0))];
+  const nextLeg = result.routeGuidance.legs[Math.min(activeLegIndex, Math.max(result.routeGuidance.legs.length - 1, 0)) + 1];
+  const hasMultipleLegs = result.routeGuidance.legs.length > 1;
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
@@ -302,6 +308,35 @@ export default function ResultPage() {
         {saveState === 'mock' && <p className="ok">저장했어요.</p>}
         {saveState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
       </section>
+
+      {activeLeg && (
+        <section className="card active-leg-card" aria-label="현재 탑승 구간 안내">
+          <div className="active-leg-head">
+            <span>{hasMultipleLegs ? `현재 구간 ${Math.min(activeLegIndex + 1, result.routeGuidance.legs.length)} / ${result.routeGuidance.legs.length}` : '현재 구간'}</span>
+            <em>{legStatusCopy(activeLeg.status)}</em>
+          </div>
+          <h2>{activeLeg.fromStation} → {activeLeg.toStation}</h2>
+          <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ` · ${activeLeg.direction}` : ''}</p>
+          <div className={activeLeg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
+            <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승 기준' : '하차 기준'}</span>
+            <strong>{activeLeg.positionLabel} {legActionCopy(activeLeg.status)}</strong>
+            {activeLeg.anchorCarNo != null && activeLeg.anchorDoorNo != null && <small>{activeLeg.anchorCarNo}번째 칸 · {activeLeg.anchorDoorNo}번 문 근처가 편해요.</small>}
+            {activeLeg.candidateCarNos?.length ? <small>{activeLeg.candidateCarNos.join(', ')}번째 칸도 비슷한 범위예요.</small> : null}
+          </div>
+          <p className="microcopy">{activeLeg.message}</p>
+          {nextLeg ? (
+            <div className="next-leg-preview">
+              <span>다음 구간</span>
+              <strong>{nextLeg.fromStation} → {nextLeg.toStation}</strong>
+              <small>{nextLeg.line} · {legStatusCopy(nextLeg.status)}</small>
+              <button type="button" onClick={() => setActiveLegIndex((index) => Math.min(index + 1, result.routeGuidance.legs.length - 1))}>환승했어요 · 다음 구간 보기</button>
+            </div>
+          ) : hasMultipleLegs ? (
+            <p className="ok">마지막 구간이에요. 도착역 안내를 확인해 주세요.</p>
+          ) : null}
+          {activeLegIndex > 0 && <button className="ghost active-leg-back" type="button" onClick={() => setActiveLegIndex((index) => Math.max(index - 1, 0))}>← 이전 구간</button>}
+        </section>
+      )}
 
       <details className="card result-detail-accordion result-why-card">
         <summary>

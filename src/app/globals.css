@@ -249,4 +249,42 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .door-tip small { font-size:12px; font-weight:850; line-height:1.35; opacity:.82; }
 .door-tip.available { background:#e0f2fe; color:#075985; }
 .door-tip.pending { background:#fff7ed; color:#9a3412; }
+.route-plan-hero { background: radial-gradient(circle at 0% 0%, #fff 0%, #e0fbff 46%, #f8fdff 100%); }
+.route-plan-hero h1 { font-size:34px; line-height:1.08; letter-spacing:-.07em; margin:6px 0 10px; }
+.route-plan-hero p:not(.eyebrow) { color:var(--muted); line-height:1.55; margin:8px 0 0; }
+.route-plan-list { display:grid; gap:12px; }
+.route-plan-card { display:grid; gap:12px; border-color:#dbeafe; background:linear-gradient(180deg,#fff,#f8fdff); }
+.route-plan-card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.route-plan-card-head span, .route-plan-card-head em { border-radius:999px; padding:7px 10px; font-size:12px; font-weight:950; font-style:normal; }
+.route-plan-card-head span { background:#0f172a; color:#fff; }
+.route-plan-card-head em { background:#ecfeff; color:#0369a1; }
+.route-plan-card h2, .manual-route-card h2, .route-plan-notice h2 { margin:0; letter-spacing:-.05em; }
+.route-plan-path { margin:0; font-size:20px; line-height:1.25; font-weight:950; letter-spacing:-.05em; color:#0f172a; }
+.route-plan-lines { margin:0; color:#0369a1; font-weight:950; }
+.route-plan-legs { display:grid; gap:8px; }
+.route-plan-legs div { display:grid; gap:4px; padding:11px; border:1px solid var(--border); border-radius:16px; background:#fff; }
+.route-plan-legs span { color:#0284c7; font-size:12px; font-weight:950; }
+.route-plan-legs strong { color:#0f172a; letter-spacing:-.03em; }
+.route-plan-legs small { color:var(--muted); font-weight:850; }
+.route-plan-safe-note { margin:0; padding:11px; border-radius:16px; background:#fff7ed; color:#9a3412; line-height:1.45; font-size:12px; font-weight:850; }
+.manual-route-card { display:grid; gap:12px; background:linear-gradient(180deg,#fff,#f8fdff); }
+.manual-transfer-input { display:grid; grid-template-columns:1fr auto; gap:8px; }
+.manual-transfer-input button { border:1px solid #bae6fd; background:#ecfeff; color:#0369a1; border-radius:16px; padding:0 14px; font-weight:950; }
+.manual-transfer-list { display:grid; gap:8px; }
+.manual-transfer-list div { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; border:1px solid var(--border); border-radius:16px; background:#fff; }
+.manual-transfer-list span { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+.manual-transfer-list button { border:1px solid var(--border); background:#f8fdff; border-radius:999px; padding:6px 8px; color:#0369a1; font-size:12px; font-weight:900; }
+.route-plan-notice { display:grid; gap:8px; }
+.active-leg-card { display:grid; gap:12px; background:linear-gradient(180deg,#fff,#f8fdff); }
+.active-leg-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.active-leg-head span, .active-leg-head em { border-radius:999px; padding:7px 10px; font-size:12px; font-weight:950; font-style:normal; }
+.active-leg-head span { background:#0f172a; color:#fff; }
+.active-leg-head em { background:#ecfeff; color:#0369a1; }
+.active-leg-card h2 { margin:0; font-size:24px; line-height:1.15; letter-spacing:-.06em; }
+.next-leg-preview { display:grid; gap:4px; padding:12px; border-radius:18px; background:#ecfeff; color:#075985; }
+.next-leg-preview span { font-size:12px; font-weight:950; color:#0284c7; }
+.next-leg-preview strong { letter-spacing:-.03em; }
+.next-leg-preview small { font-weight:850; opacity:.8; }
+.next-leg-preview button { margin-top:8px; border:0; border-radius:999px; padding:10px 12px; background:#0f172a; color:#fff; font-weight:950; }
+.active-leg-back { justify-self:start; }
 @media (max-width: 360px) { h1 { font-size: 34px; } .route-options, .source-grid { grid-template-columns: 1fr; } .cars { gap: 6px; } .car { min-height: 72px; border-radius: 15px; } .profile-name { display:none; } .line-chip-grid { grid-template-columns: repeat(3, 1fr); } .route-leg-head { align-items:flex-start; flex-direction:column; } .route-leg-head b { white-space:normal; } }

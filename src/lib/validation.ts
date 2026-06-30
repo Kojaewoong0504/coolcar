@@ -17,6 +17,21 @@ export const recommendRequestSchema = z.object({
   transferStations: z.array(z.string().min(1)).max(5).optional(),
 });
 
+export const routePlansRequestSchema = z.object({
+  line: z.string().optional(),
+  originLine: z.string().optional(),
+  originStation: z.string().min(1, '출발역을 선택해 주세요.'),
+  destinationStation: z.string().min(1, '도착역을 선택해 주세요.'),
+  destinationLine: z.string().optional(),
+  direction: z.string().optional(),
+  comfortType: comfortTypeSchema.default('HOT_SENSITIVE'),
+  waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
+  avoidPrioritySeatArea: z.boolean().default(true),
+  anonymousId: z.string().uuid().optional(),
+  transferStations: z.array(z.string().min(1)).max(5).optional(),
+  maxCandidates: z.number().int().min(1).max(6).optional(),
+});
+
 export const feedbackSchema = z.object({
   recommendationId: z.string().uuid().optional(),
   anonymousId: z.string().uuid().optional(),

@@ -23,6 +23,7 @@
     "test:no-fake-anchor": "tsx scripts/smoke-no-fake-anchor.ts",
     "test:public-door-guide": "tsx scripts/smoke-public-door-guide-adapter.ts",
     "test:route-transparency": "tsx scripts/smoke-route-transparency.ts",
+    "test:route-plans": "tsx scripts/smoke-route-plans.ts",
     "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
   },

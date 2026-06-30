@@ -174,9 +174,10 @@ export default function HomePage() {
       anonymousId,
       transferStations,
     };
-    window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({ request, context: { destinationLine } }));
+    window.sessionStorage.setItem('coolcar_pending_route_plan', JSON.stringify({ request, context: { destinationLine } }));
+    window.sessionStorage.removeItem('coolcar_pending_recommendation');
     setLoading(true);
-    router.push('/result?loading=1');
+    router.push('/route-plans');
   }
 
   async function submit(event: FormEvent) {
@@ -233,7 +234,7 @@ export default function HomePage() {
         </div>
         <p className="eyebrow">10초 추천</p>
         <h1>어디서 타고,<br />어디서 내리나요?</h1>
-        <p>출발역과 도착역만 고르면 지금 타기 좋은 칸을 바로 골라드려요.</p>
+        <p>출발역과 도착역만 고르면 가능한 환승 경로를 먼저 보여드릴게요.</p>
       </section>
 
       <form className="card form trip-card simple-trip-card" onSubmit={submit}>
@@ -296,7 +297,7 @@ export default function HomePage() {
         )}
 
         {error && <p className="error">{error}</p>}
-        <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />지금 탈 칸을 고르고 있어요…</> : <>지금 탈 칸 보기 <span aria-hidden="true">→</span></>}</button>
+        <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />경로 후보를 찾고 있어요…</> : <>경로 후보 보기 <span aria-hidden="true">→</span></>}</button>
       </form>
 
       <section className="card recent-route-card">

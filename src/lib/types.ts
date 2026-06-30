@@ -93,3 +93,51 @@ export type RouteGuidance = {
   disclaimer: string;
   legs: RouteLegGuidance[];
 };
+
+export type RoutePlanCandidateType = 'DIRECT' | 'ONE_TRANSFER' | 'USER_SPECIFIED' | 'UNRESOLVED';
+export type RoutePlanCoverageStatus = 'available' | 'needs_direction' | 'needs_data' | 'not_applicable' | 'not_checked';
+
+export type RoutePlanLeg = {
+  legNo: number;
+  fromStation: string;
+  toStation: string;
+  line: string;
+  goal: 'FINAL_EXIT' | 'NEXT_TRANSFER';
+  transferToLine?: string;
+};
+
+export type RoutePlanCandidate = {
+  id: string;
+  type: RoutePlanCandidateType;
+  title: string;
+  badge: string;
+  summary: string;
+  originStation: string;
+  destinationStation: string;
+  transferStations: string[];
+  lines: string[];
+  legs: RoutePlanLeg[];
+  coverage: {
+    nextTransferDoorGuide: RoutePlanCoverageStatus;
+    finalExitDoorGuide: RoutePlanCoverageStatus;
+  };
+  recommendRequestPatch: {
+    line: string;
+    destinationLine?: string;
+    transferStations?: string[];
+    direction?: string;
+  };
+  reasonCodes: string[];
+  safetyNote: string;
+};
+
+export type RoutePlanWarning = {
+  code: 'UNKNOWN_ORIGIN_STATION' | 'UNKNOWN_DESTINATION_STATION' | 'UNKNOWN_TRANSFER_STATION' | 'NO_CANDIDATES' | 'STATION_ORDER_UNAVAILABLE' | 'DOOR_GUIDE_LIMITED' | 'MULTI_TRANSFER_LIMITED';
+  message: string;
+};
+
+export type RoutePlansResponse = {
+  candidates: RoutePlanCandidate[];
+  warnings: RoutePlanWarning[];
+  disclaimer: string;
+};
