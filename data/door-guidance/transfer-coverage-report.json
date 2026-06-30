@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T00:38:10.887Z",
+  "generatedAt": "2026-06-30T01:03:13.212Z",
   "sourceInventoryGeneratedAt": "2026-06-30T00:36:41.507Z",
   "policy": {
     "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
@@ -13,22 +13,17 @@
   "summary": {
     "totalStations": 69,
     "totalDirectedTransferPairs": 206,
-    "verifiedNextTransferPairs": 0,
-    "missingNextTransferPairs": 206,
-    "coverageRatio": 0,
+    "verifiedNextTransferPairs": 157,
+    "missingNextTransferPairs": 49,
+    "coverageRatio": 0.7621,
     "p0Stations": 16,
     "p1Stations": 17,
     "p2Stations": 36,
     "needsMasterData": 0,
     "finalExitStaticRecords": 4,
-    "nextTransferStaticRecords": 0
+    "nextTransferStaticRecords": 456
   },
-  "blockers": [
-    {
-      "code": "NO_VERIFIED_NEXT_TRANSFER_ANCHORS",
-      "message": "No verified NEXT_TRANSFER door anchors are available yet; product must stay in COMFORT_ONLY for these pairs."
-    }
-  ],
+  "blockers": [],
   "stations": [
     {
       "stationName": "김포공항역",
@@ -42,33 +37,17 @@
         "서해선"
       ],
       "totalPairs": 20,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 20,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 5,
+      "missingNextTransferPairs": 15,
+      "coverageRatio": 0.25,
       "missingPairs": [
         {
           "fromLine": "5호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "5호선",
           "toLine": "김포골드라인"
         },
         {
           "fromLine": "5호선",
           "toLine": "서해선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "공항철도"
         },
         {
           "fromLine": "9호선",
@@ -81,10 +60,6 @@
         {
           "fromLine": "공항철도",
           "toLine": "5호선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "9호선"
         },
         {
           "fromLine": "공항철도",
@@ -140,59 +115,10 @@
         "공항철도"
       ],
       "totalPairs": 12,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 12,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "경의중앙선"
-        }
-      ],
+      "verifiedNextTransferPairs": 12,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -206,35 +132,19 @@
         "공항철도"
       ],
       "totalPairs": 12,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 12,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0.5,
       "missingPairs": [
         {
           "fromLine": "1호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "1호선",
           "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "1호선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "1호선"
         },
         {
           "fromLine": "4호선",
           "toLine": "경의중앙선"
         },
         {
-          "fromLine": "4호선",
-          "toLine": "공항철도"
-        },
-        {
           "fromLine": "경의중앙선",
           "toLine": "1호선"
         },
@@ -245,14 +155,6 @@
         {
           "fromLine": "경의중앙선",
           "toLine": "공항철도"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "1호선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "4호선"
         },
         {
           "fromLine": "공항철도",
@@ -272,59 +174,10 @@
         "수인분당선"
       ],
       "totalPairs": 12,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 12,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "경의중앙선"
-        }
-      ],
+      "verifiedNextTransferPairs": 12,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -337,35 +190,10 @@
         "9호선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "3호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "3호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "3호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "7호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -419,35 +247,10 @@
         "5호선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "3호선"
-        },
-        {
-          "fromLine": "1호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "3호선",
-          "toLine": "1호선"
-        },
-        {
-          "fromLine": "3호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "1호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -460,35 +263,10 @@
         "공항철도"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "공항철도"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "경의중앙선"
-        }
-      ],
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -500,19 +278,10 @@
         "신분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "신분당선"
-        },
-        {
-          "fromLine": "신분당선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -524,19 +293,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -548,14 +308,10 @@
         "3호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "3호선"
-        },
         {
           "fromLine": "3호선",
           "toLine": "2호선"
@@ -572,14 +328,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "4호선"
-        },
         {
           "fromLine": "4호선",
           "toLine": "2호선"
@@ -596,19 +348,10 @@
         "2호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -620,19 +363,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "5호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -644,19 +378,10 @@
         "8호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "8호선"
-        },
-        {
-          "fromLine": "8호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -668,19 +393,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -693,21 +409,13 @@
         "우이신설선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 4,
+      "coverageRatio": 0.3333,
       "missingPairs": [
         {
           "fromLine": "1호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "1호선",
           "toLine": "우이신설선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "1호선"
         },
         {
           "fromLine": "2호선",
@@ -733,19 +441,10 @@
         "8호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "8호선"
-        },
-        {
-          "fromLine": "8호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -757,19 +456,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -781,17 +471,13 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "5호선"
         }
       ],
       "notes": []
@@ -805,19 +491,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -829,19 +506,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -853,19 +521,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -877,19 +536,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -901,19 +551,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -949,19 +590,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -973,19 +605,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -997,19 +620,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1021,14 +635,10 @@
         "3호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "3호선"
-        },
         {
           "fromLine": "3호선",
           "toLine": "2호선"
@@ -1045,19 +655,10 @@
         "8호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "8호선"
-        },
-        {
-          "fromLine": "8호선",
-          "toLine": "5호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1069,19 +670,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "5호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1093,19 +685,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1117,19 +700,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "7호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "7호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1141,19 +715,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1165,19 +730,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1189,19 +745,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1213,19 +760,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1237,19 +775,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1261,14 +790,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "수인분당선"
-        },
         {
           "fromLine": "수인분당선",
           "toLine": "3호선"
@@ -1285,19 +810,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1309,19 +825,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1333,19 +840,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "8호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "8호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1381,19 +879,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "8호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "8호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1405,14 +894,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "6호선"
-        },
         {
           "fromLine": "6호선",
           "toLine": "4호선"
@@ -1429,19 +914,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1477,19 +953,10 @@
         "2호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1501,19 +968,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1525,19 +983,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1549,19 +998,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "6호선"
-        },
-        {
-          "fromLine": "6호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1573,19 +1013,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1597,19 +1028,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1621,19 +1043,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1645,19 +1058,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1669,14 +1073,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
         {
           "fromLine": "5호선",
           "toLine": "2호선"
@@ -1693,17 +1093,13 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "4호선"
         }
       ],
       "notes": []
@@ -1741,19 +1137,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1765,19 +1152,10 @@
         "신분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "수인분당선",
-          "toLine": "신분당선"
-        },
-        {
-          "fromLine": "신분당선",
-          "toLine": "수인분당선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1789,19 +1167,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1813,19 +1182,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1837,19 +1197,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "1호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1861,17 +1212,13 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "1호선"
         }
       ],
       "notes": []
@@ -1885,14 +1232,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
         {
           "fromLine": "수인분당선",
           "toLine": "4호선"
@@ -1909,19 +1252,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1933,19 +1267,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "6호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "6호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1957,19 +1282,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     }
   ]

@@ -1,6 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { recommend } from '../src/lib/recommendation';
+import { listStaticDoorGuides } from '../src/lib/doorGuidance/resolver';
+import { makeDoorGuideKey } from '../src/lib/doorGuidance/normalize';
 
 type InventoryPayload = {
   inventory: Array<{
@@ -17,16 +19,38 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
+function transferKey(stationName: string, fromLine: string, toLine: string) {
+  return makeDoorGuideKey({
+    line: fromLine,
+    stationName,
+    goal: 'NEXT_TRANSFER',
+    targetLine: toLine,
+  });
+}
+
+const VERIFIED_TRANSFER_KEYS = new Set(
+  listStaticDoorGuides()
+    .filter((record) => record.goal === 'NEXT_TRANSFER' && record.targetLine)
+    .map((record) => transferKey(record.stationName, record.line, record.targetLine ?? '')),
+);
+
 function sampleByStation(payload: InventoryPayload, stationName: string) {
   const item = payload.inventory.find((row) => row.stationName === stationName);
   assert(item, `${stationName} missing from inventory`);
-  const pair = item.linePairs[0];
-  assert(pair, `${stationName} has no transfer pairs`);
-  return { item, pair };
+  const pair = item.linePairs.find((candidate) => !VERIFIED_TRANSFER_KEYS.has(transferKey(stationName, candidate.fromLine, candidate.toLine)));
+  return pair ? { item, pair } : undefined;
 }
 
 async function assertNoFakeAnchorForStation(payload: InventoryPayload, stationName: string) {
-  const { item, pair } = sampleByStation(payload, stationName);
+  const sample = sampleByStation(payload, stationName);
+  if (!sample) {
+    return {
+      stationName,
+      skipped: true,
+      reason: 'all_transfer_pairs_verified',
+    };
+  }
+  const { item, pair } = sample;
   const result = await recommend({
     line: pair.fromLine,
     originStation: `${stationName}이전역`,
@@ -56,13 +80,23 @@ async function assertNoFakeAnchorForStation(payload: InventoryPayload, stationNa
 
 async function main() {
   const payload = JSON.parse(readFileSync(INVENTORY_PATH, 'utf8')) as InventoryPayload;
-  const stationsToProbe = ['강남역', '고속터미널역', '사당역', '신도림역', '잠실역', '홍대입구역', '공덕역', '왕십리역'];
+  const preferredStations = ['강남역', '고속터미널역', '사당역', '신도림역', '잠실역', '홍대입구역', '공덕역', '왕십리역'];
+  const dynamicStations = payload.inventory
+    .filter((item) => item.linePairs.some((pair) => !VERIFIED_TRANSFER_KEYS.has(transferKey(item.stationName, pair.fromLine, pair.toLine))))
+    .sort((a, b) => {
+      const priorityRank = { P0: 0, P1: 1, P2: 2 } as const;
+      return priorityRank[a.priority] - priorityRank[b.priority] || a.stationName.localeCompare(b.stationName, 'ko');
+    })
+    .map((item) => item.stationName);
+  const stationsToProbe = [...new Set([...preferredStations, ...dynamicStations])].slice(0, 12);
   const results = [];
   for (const stationName of stationsToProbe) {
     results.push(await assertNoFakeAnchorForStation(payload, stationName));
   }
+  const checked = results.filter((result) => !('skipped' in result));
+  assert(checked.length >= 4, 'no-fake-anchor smoke should still probe at least 4 unverified transfer pairs from the inventory');
 
-  console.log(JSON.stringify({ ok: true, checked: results.length, results }, null, 2));
+  console.log(JSON.stringify({ ok: true, checked: checked.length, skipped: results.length - checked.length, results }, null, 2));
 }
 
 main().catch((error) => {

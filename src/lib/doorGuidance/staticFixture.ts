@@ -1,3 +1,4 @@
+import verifiedNextTransferGuides from '../../../data/door-guidance/verified-next-transfer-guides.json';
 import { normalizeDirection, parseCarDoor } from './normalize';
 import type { DoorGuideRecord } from './types';
 
@@ -58,7 +59,7 @@ const SEOUL_OPENAPI_SAMPLE_ROWS: SeoulOpenApiSampleRow[] = [
   },
 ];
 
-export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.flatMap((row) => {
+const FINAL_EXIT_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.flatMap((row) => {
   const parsed = parseCarDoor(row.qckgffVhclDoorNo);
   if (!parsed) return [];
   return [{
@@ -75,3 +76,15 @@ export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.f
     updatedAt: row.crtrYmd,
   }];
 });
+
+// Verified public transfer anchors generated from:
+// - 서울교통공사_서울 도시철도 환승정보 (서울 열린데이터광장 OA-22521)
+// - 국토교통부_철도역 빠른 환승 정보 (data.go.kr 15151816)
+// Generation policy: only public/official records with valid 1~12 car and 1~4 door values;
+// ambiguous same-key car/door conflicts are excluded from the generated JSON.
+const VERIFIED_NEXT_TRANSFER_GUIDES = verifiedNextTransferGuides.records as DoorGuideRecord[];
+
+export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
+  ...FINAL_EXIT_GUIDES,
+  ...VERIFIED_NEXT_TRANSFER_GUIDES,
+];

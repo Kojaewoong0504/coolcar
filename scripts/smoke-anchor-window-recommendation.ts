@@ -34,6 +34,37 @@ async function main() {
   assert(noDirection.routeChoice.mode === 'COMFORT_ONLY', '방향이 없어 anchor가 불확실하면 전체 쾌적도 모드여야 합니다.');
   assert(noDirection.routeGuidance.legs[0]?.status === 'needs_direction', '방향 누락은 needs_direction으로 표시해야 합니다.');
 
+  const gangnamTransfer = await recommend({
+    line: '2호선',
+    originStation: '역삼역',
+    destinationStation: '판교역',
+    destinationLine: '신분당선',
+    direction: '교대',
+    transferStations: ['강남역'],
+    comfortType: 'BALANCED',
+  });
+
+  assert(gangnamTransfer.routeChoice.mode === 'ANCHOR_WINDOW', '검증된 강남역 환승 fixture는 anchor window 모드여야 합니다.');
+  assert(gangnamTransfer.routeChoice.goal === 'NEXT_TRANSFER', '강남역 anchor goal은 NEXT_TRANSFER여야 합니다.');
+  assert(gangnamTransfer.routeChoice.anchorCarNo === 6, '강남역 2호선→신분당선 교대 방향 기준칸은 6번째 칸이어야 합니다.');
+  assert(gangnamTransfer.routeChoice.anchorDoorNo === 3, '강남역 2호선→신분당선 교대 방향 기준 문은 3번 문이어야 합니다.');
+  assert(JSON.stringify(gangnamTransfer.routeChoice.candidateCarNos) === JSON.stringify([5, 6, 7]), 'anchor 6의 후보는 5,6,7번째 칸이어야 합니다.');
+  assert(gangnamTransfer.routeChoice.candidateCarNos.includes(gangnamTransfer.recommendedCar.carNo), '강남역 최종 추천칸은 환승 anchor±1 후보 안에 있어야 합니다.');
+  assert(gangnamTransfer.routeGuidance.legs[0]?.status === 'available', '강남역 첫 환승 leg는 available이어야 합니다.');
+  assert(gangnamTransfer.routeGuidance.legs[0]?.recommendedDoorNo === 3, '강남역 첫 환승 leg는 3번 문을 유지해야 합니다.');
+
+  const gangnamTransferNoDirection = await recommend({
+    line: '2호선',
+    originStation: '역삼역',
+    destinationStation: '판교역',
+    destinationLine: '신분당선',
+    transferStations: ['강남역'],
+    comfortType: 'BALANCED',
+  });
+
+  assert(gangnamTransferNoDirection.routeChoice.mode === 'COMFORT_ONLY', '강남역 방향이 없으면 환승 anchor를 적용하면 안 됩니다.');
+  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'needs_direction', '강남역 방향 누락은 needs_direction이어야 합니다.');
+
   console.log(JSON.stringify({
     ok: true,
     anchored: {
@@ -46,6 +77,14 @@ async function main() {
     noDirection: {
       mode: noDirection.routeChoice.mode,
       legStatus: noDirection.routeGuidance.legs[0]?.status,
+    },
+    gangnamTransfer: {
+      recommendedCarNo: gangnamTransfer.recommendedCar.carNo,
+      anchorCarNo: gangnamTransfer.routeChoice.anchorCarNo,
+      anchorDoorNo: gangnamTransfer.routeChoice.anchorDoorNo,
+      candidateCarNos: gangnamTransfer.routeChoice.candidateCarNos,
+      mode: gangnamTransfer.routeChoice.mode,
+      legStatus: gangnamTransfer.routeGuidance.legs[0]?.status,
     },
   }, null, 2));
 }

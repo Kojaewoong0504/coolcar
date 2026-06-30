@@ -140,7 +140,7 @@ const scenarios: Scenario[] = [
   {
     id: 'P7_SADANG_TO_JONGGAK_OFFICE',
     persona: '사당 거주 직장인: 종각/종로 업무지구 출근',
-    commuteStory: '사당에서 서울역 환승 후 1호선으로 종각 이동. 서울역 FINAL_EXIT는 있지만 4호선 NEXT_TRANSFER 데이터는 없는 케이스',
+    commuteStory: '사당에서 서울역 환승 후 1호선으로 종각 이동. 공공 빠른환승 데이터로 서울역 4호선→1호선 환승문을 안내하는 케이스',
     request: {
       line: '4호선',
       originStation: '사당역',
@@ -150,12 +150,12 @@ const scenarios: Scenario[] = [
       transferStations: ['서울역'],
       comfortType: 'BALANCED',
     },
-    expected: { mode: 'COMFORT_ONLY', guidanceStatus: 'limited', firstLegStatus: 'needs_data' },
+    expected: { mode: 'ANCHOR_WINDOW', anchorCarNo: 10, anchorDoorNo: 4, candidateCarNos: [9, 10], guidanceStatus: 'limited', firstLegStatus: 'available' },
   },
   {
     id: 'P8_YANGJAE_TO_YEOUIDO_FINANCE',
     persona: '양재 거주 금융권 직장인: 여의도 출근',
-    commuteStory: '양재에서 고속터미널 환승 후 9호선으로 여의도 이동. 고속터미널 환승문 데이터 부족 확인',
+    commuteStory: '양재에서 고속터미널 환승 후 9호선으로 여의도 이동. 공공 빠른환승 데이터로 고속터미널 3호선→9호선 환승문을 안내하는 케이스',
     request: {
       line: '3호선',
       originStation: '양재역',
@@ -165,7 +165,7 @@ const scenarios: Scenario[] = [
       transferStations: ['고속터미널역'],
       comfortType: 'BALANCED',
     },
-    expected: { mode: 'COMFORT_ONLY', guidanceStatus: 'limited', firstLegStatus: 'needs_data' },
+    expected: { mode: 'ANCHOR_WINDOW', anchorCarNo: 2, anchorDoorNo: 3, candidateCarNos: [1, 2, 3], guidanceStatus: 'limited', firstLegStatus: 'available' },
   },
   {
     id: 'P9_YEOUIDO_TO_GANGNAM_MULTI_TRANSFER',

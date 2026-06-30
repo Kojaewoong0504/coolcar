@@ -22,9 +22,12 @@ const car: CarComfort = {
 
 async function main() {
   assert(normalizeLine('01호선') === '1호선', 'line alias failed');
+  assert(normalizeLine('경의선') === '경의중앙선', '경의선 alias failed');
+  assert(normalizeLine('수인분당') === '수인분당선', '수인분당 alias failed');
   assert(normalizeStationName(' 서울역 ') === '서울', 'station trim/역 normalization failed');
   assert(normalizeStationName('서울') === normalizeStationName('서울역'), '서울/서울역 alias failed');
   assert(normalizeDirection('시청 방면') === 'TOWARD_시청', 'direction 방면 normalization failed');
+  assert(normalizeDirection('교대(법원.검찰청)') === 'TOWARD_교대', 'direction parenthesis normalization failed');
   assert(parseCarDoor('9-3')?.carNo === 9 && parseCarDoor('9-3')?.doorNo === 3, 'door parse failed');
   assert(parseCarDoor('13-1') === undefined, 'invalid carNo should be rejected');
   assert(parseCarDoor('2-9') === undefined, 'invalid doorNo should be rejected');
@@ -32,6 +35,24 @@ async function main() {
   const available = await lookupDoorGuide({ line: '1호선', toStation: '서울역', direction: '시청', goal: 'FINAL_EXIT' });
   assert(available.status === 'available', '서울역 1호선 시청 방향 should be available');
   assert(available.record.carNo === 9 && available.record.doorNo === 3, '서울역 시청 direction should map to 9-3');
+
+  const gangnamTransfer = await lookupDoorGuide({
+    line: '2호선',
+    toStation: '강남역',
+    direction: '교대',
+    goal: 'NEXT_TRANSFER',
+    targetLine: '신분당선',
+  });
+  assert(gangnamTransfer.status === 'available', '강남역 2호선→신분당선 교대 방향 transfer anchor should be available');
+  assert(gangnamTransfer.record.carNo === 6 && gangnamTransfer.record.doorNo === 3, '강남역 교대 방향 transfer anchor should map to 6-3');
+
+  const gangnamNoDirection = await lookupDoorGuide({
+    line: '2호선',
+    toStation: '강남역',
+    goal: 'NEXT_TRANSFER',
+    targetLine: '신분당선',
+  });
+  assert(gangnamNoDirection.status === 'needs_direction', 'directional transfer data without direction should need direction');
 
   const noDirection = await lookupDoorGuide({ line: '1호선', toStation: '서울역', goal: 'FINAL_EXIT' });
   assert(noDirection.status === 'needs_direction', 'directional data without direction should need direction');
@@ -70,6 +91,9 @@ async function main() {
     ok: true,
     fixtures: {
       seoulStationSicheong: { carNo: available.record.carNo, doorNo: available.record.doorNo },
+      gangnam2ToShinbundang: gangnamTransfer.status === 'available'
+        ? { carNo: gangnamTransfer.record.carNo, doorNo: gangnamTransfer.record.doorNo }
+        : undefined,
     },
     routeGuidance: {
       status: guidance.legs[0].status,

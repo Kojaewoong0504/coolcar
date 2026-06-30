@@ -3,6 +3,8 @@ const LINE_ALIASES = new Map<string, string>([
   ['1', '1호선'],
   ['02호선', '2호선'],
   ['2', '2호선'],
+  ['경의선', '경의중앙선'],
+  ['수인분당', '수인분당선'],
 ]);
 
 const STATION_ALIASES = new Map<string, string>([
@@ -27,7 +29,10 @@ export function normalizeStationName(value?: string) {
 }
 
 export function normalizeDirection(value?: string) {
-  const compact = (value ?? '').trim().replace(/\s+/g, '');
+  const compact = (value ?? '')
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/\(.+?\)/g, '');
   if (!compact) return undefined;
   if (compact === '내선') return 'INNER';
   if (compact === '외선') return 'OUTER';
