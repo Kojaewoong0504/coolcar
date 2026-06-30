@@ -41,6 +41,18 @@ export type SourceMeta = {
   message: string;
 };
 
+export type RouteChoice = {
+  mode: 'ANCHOR_WINDOW' | 'COMFORT_ONLY';
+  goal?: 'FINAL_EXIT' | 'NEXT_TRANSFER';
+  anchorCarNo?: number;
+  anchorDoorNo?: number;
+  candidateCarNos: number[];
+  selectedCarNo: number;
+  station?: string;
+  facility?: string;
+  message: string;
+};
+
 export type RecommendationResponse = {
   recommendationId: string;
   request: RecommendRequest;
@@ -48,6 +60,7 @@ export type RecommendationResponse = {
   avoidCars: CarComfort[];
   cars: CarComfort[];
   reasons: string[];
+  routeChoice: RouteChoice;
   routeGuidance: RouteGuidance;
   sourceMeta: SourceMeta;
   fallbackUsed: boolean;
@@ -66,6 +79,9 @@ export type RouteLegGuidance = {
   status: 'available' | 'needs_data' | 'needs_direction' | 'needs_route';
   recommendedCarNo?: number;
   recommendedDoorNo?: number;
+  anchorCarNo?: number;
+  anchorDoorNo?: number;
+  candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;
   message: string;

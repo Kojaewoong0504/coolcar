@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
 import { resolveProvider } from './providers';
-import { buildRouteGuidance } from './routeGuidance';
+import { buildRouteGuidance, resolveRouteAnchor } from './routeGuidance';
 import { getSupabaseAdmin } from './supabase';
-import type { CarComfort, RecommendRequest, RecommendationResponse } from './types';
+import type { CarComfort, RecommendRequest, RecommendationResponse, RouteChoice } from './types';
 
 type FeedbackSignal = {
   car_no: number | null;
@@ -141,8 +141,51 @@ function scoreCar(car: CarComfort, request: RecommendRequest): CarComfort {
   return { ...car, totalComfortScore: clampScore(total) };
 }
 
-function reasons(car: CarComfort, request: RecommendRequest, fallbackUsed: boolean, feedback: FeedbackAdjustment): string[] {
+function sortByRecommendationScore(cars: CarComfort[]) {
+  return [...cars].sort((a, b) => {
+    if (b.totalComfortScore !== a.totalComfortScore) return b.totalComfortScore - a.totalComfortScore;
+    return a.carNo - b.carNo;
+  });
+}
+
+function candidateCarsAroundAnchor(cars: CarComfort[], anchorCarNo: number) {
+  const allowed = new Set([anchorCarNo - 1, anchorCarNo, anchorCarNo + 1]);
+  return cars.filter((car) => allowed.has(car.carNo));
+}
+
+function buildRouteChoice(params: {
+  cars: CarComfort[];
+  recommendedCar: CarComfort;
+  anchor?: Awaited<ReturnType<typeof resolveRouteAnchor>>;
+}): RouteChoice {
+  if (!params.anchor) {
+    return {
+      mode: 'COMFORT_ONLY',
+      candidateCarNos: params.cars.map((car) => car.carNo),
+      selectedCarNo: params.recommendedCar.carNo,
+      message: '환승·하차 위치가 확정되지 않아 전체 칸에서 쾌적도가 좋은 칸을 골랐어요.',
+    };
+  }
+
+  const candidateCarNos = candidateCarsAroundAnchor(params.cars, params.anchor.carNo).map((car) => car.carNo);
+  return {
+    mode: 'ANCHOR_WINDOW',
+    goal: params.anchor.goal,
+    anchorCarNo: params.anchor.carNo,
+    anchorDoorNo: params.anchor.doorNo,
+    candidateCarNos,
+    selectedCarNo: params.recommendedCar.carNo,
+    station: params.anchor.station,
+    facility: params.anchor.facility,
+    message: `${params.anchor.station} ${params.anchor.carNo}번째 칸${params.anchor.doorNo ? ` · ${params.anchor.doorNo}번 문` : ''} 주변 ${candidateCarNos.join(', ')}번째 칸 중에서 쾌적한 칸을 골랐어요.`,
+  };
+}
+
+function reasons(car: CarComfort, request: RecommendRequest, fallbackUsed: boolean, feedback: FeedbackAdjustment, routeChoice: RouteChoice): string[] {
   const list: string[] = [];
+  if (routeChoice.mode === 'ANCHOR_WINDOW') {
+    list.push(`환승·하차에 가까운 ${routeChoice.anchorCarNo}번째 칸 주변 ${routeChoice.candidateCarNos.join(', ')}번째 칸을 먼저 비교했어요.`);
+  }
   if (request.comfortType === 'HOT_SENSITIVE') list.push(`${car.label}은 더위 피하기에 유리한 쪽으로 추정돼요.`);
   if (request.comfortType === 'COLD_SENSITIVE') list.push(car.isWeakAc ? '약냉방칸이라 추위를 많이 타는 사용자에게 맞을 가능성이 높아요.' : '과냉방 가능성이 낮은 칸을 우선했어요.');
   if (request.comfortType === 'CROWD_AVOIDER') list.push('중앙부보다 혼잡도가 낮을 가능성이 높은 칸을 우선했어요.');
@@ -158,18 +201,23 @@ export async function recommend(request: RecommendRequest): Promise<Recommendati
   const feedback = await loadRecentFeedback(request);
   const scored = providerResult.cars
     .map((c) => applyFeedback(c, feedback))
-    .map((c) => scoreCar(c, request))
-    .sort((a, b) => b.totalComfortScore - a.totalComfortScore);
-  const recommendedCar = scored[0];
-  const avoidCars = [...scored].sort((a, b) => a.totalComfortScore - b.totalComfortScore).slice(0, 2);
+    .map((c) => scoreCar(c, request));
+  const sorted = sortByRecommendationScore(scored);
+  const routeAnchor = await resolveRouteAnchor(request);
+  const anchorCandidates = routeAnchor ? candidateCarsAroundAnchor(scored, routeAnchor.carNo) : [];
+  const recommendationPool = anchorCandidates.length > 0 ? anchorCandidates : scored;
+  const recommendedCar = sortByRecommendationScore(recommendationPool)[0] ?? sorted[0];
+  const routeChoice = buildRouteChoice({ cars: scored, recommendedCar, anchor: anchorCandidates.length > 0 ? routeAnchor : undefined });
+  const avoidCars = [...sorted].filter((car) => car.carNo !== recommendedCar.carNo).slice(-2).reverse();
   return {
     recommendationId: randomUUID(),
     request,
     recommendedCar,
     avoidCars,
     cars: scored.sort((a, b) => a.carNo - b.carNo),
-    reasons: reasons(recommendedCar, request, providerResult.fallbackUsed, feedback),
-    routeGuidance: await buildRouteGuidance(request, recommendedCar),
+    reasons: reasons(recommendedCar, request, providerResult.fallbackUsed, feedback, routeChoice),
+    routeChoice,
+    routeGuidance: await buildRouteGuidance(request, recommendedCar, routeChoice),
     sourceMeta: {
       ...providerResult.sourceMeta,
       confidence: feedback.count >= 3 ? 'MEDIUM' : providerResult.sourceMeta.confidence,

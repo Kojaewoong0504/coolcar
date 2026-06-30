@@ -1,5 +1,14 @@
-import type { CarComfort, RecommendRequest, RouteGuidance, RouteLegGuidance } from './types';
+import type { CarComfort, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
 import { lookupDoorGuide } from './doorGuidance/resolver';
+
+export type RouteAnchor = {
+  goal: 'FINAL_EXIT' | 'NEXT_TRANSFER';
+  station: string;
+  carNo: number;
+  doorNo?: number;
+  facility?: string;
+  message: string;
+};
 
 function cleanStationName(value?: string) {
   return (value ?? '').trim();
@@ -25,6 +34,9 @@ function baseLeg(params: {
   status: RouteLegGuidance['status'];
   recommendedCarNo?: number;
   recommendedDoorNo?: number;
+  anchorCarNo?: number;
+  anchorDoorNo?: number;
+  candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;
   message: string;
@@ -39,6 +51,9 @@ function baseLeg(params: {
     status: params.status,
     recommendedCarNo: params.recommendedCarNo,
     recommendedDoorNo: params.recommendedDoorNo,
+    anchorCarNo: params.anchorCarNo,
+    anchorDoorNo: params.anchorDoorNo,
+    candidateCarNos: params.candidateCarNos,
     positionLabel: params.positionLabel,
     facility: params.facility,
     message: params.message,
@@ -101,7 +116,50 @@ async function applyDoorGuide(params: {
   };
 }
 
-export async function buildRouteGuidance(request: RecommendRequest, recommendedCar: CarComfort): Promise<RouteGuidance> {
+export async function resolveRouteAnchor(request: RecommendRequest): Promise<RouteAnchor | undefined> {
+  const origin = cleanStationName(request.originStation);
+  const destination = cleanStationName(request.destinationStation) || '목적지';
+  const transfers = uniqueStations(request.transferStations, origin, destination);
+
+  const anchorTarget = transfers.length > 0
+    ? {
+        station: transfers[0],
+        goal: 'NEXT_TRANSFER' as const,
+        targetLine: transfers.length === 1 ? request.destinationLine : undefined,
+      }
+    : sameLine(request)
+      ? {
+          station: destination,
+          goal: 'FINAL_EXIT' as const,
+          targetLine: undefined,
+        }
+      : undefined;
+
+  if (!anchorTarget) return undefined;
+
+  const result = await lookupDoorGuide({
+    line: request.line,
+    toStation: anchorTarget.station,
+    direction: request.direction,
+    goal: anchorTarget.goal,
+    targetLine: anchorTarget.targetLine,
+  });
+
+  if (result.status !== 'available') return undefined;
+
+  return {
+    goal: anchorTarget.goal,
+    station: anchorTarget.station,
+    carNo: result.record.carNo,
+    doorNo: result.record.doorNo,
+    facility: result.record.facility,
+    message: result.record.facility
+      ? `${result.record.facility}와 가까운 위치를 기준으로 주변 칸을 비교했어요.`
+      : '환승·하차 위치와 가까운 칸 주변을 먼저 비교했어요.',
+  };
+}
+
+export async function buildRouteGuidance(request: RecommendRequest, recommendedCar: CarComfort, routeChoice?: RouteChoice): Promise<RouteGuidance> {
   const origin = cleanStationName(request.originStation);
   const destination = cleanStationName(request.destinationStation) || '목적지';
   const transfers = uniqueStations(request.transferStations, origin, destination);
@@ -129,11 +187,18 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
           direction: request.direction,
           goal: 'FINAL_EXIT',
           status: doorGuide.status,
-          recommendedCarNo: doorGuide.recommendedCarNo,
+          recommendedCarNo: routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
           recommendedDoorNo: doorGuide.recommendedDoorNo,
-          positionLabel: doorGuide.positionLabel,
+          anchorCarNo: routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available' ? doorGuide.recommendedCarNo : undefined,
+          anchorDoorNo: doorGuide.recommendedDoorNo,
+          candidateCarNos: routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.candidateCarNos : undefined,
+          positionLabel: routeChoice?.mode === 'ANCHOR_WINDOW'
+            ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
+            : doorGuide.positionLabel,
           facility: doorGuide.facility,
-          message: doorGuide.message,
+          message: routeChoice?.mode === 'ANCHOR_WINDOW'
+            ? `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
+            : doorGuide.message,
         }),
       ],
     };
@@ -186,11 +251,18 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       direction: index === 0 ? request.direction : undefined,
       goal,
       status: index === 0 ? doorGuide.status : (doorGuide.status === 'available' ? 'available' : 'needs_route'),
-      recommendedCarNo: doorGuide.recommendedCarNo,
+      recommendedCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
       recommendedDoorNo: doorGuide.recommendedDoorNo,
-      positionLabel: index === 0 || doorGuide.status === 'available' ? doorGuide.positionLabel : '환승 후 탑승 위치 확인 필요',
+      anchorCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available' ? doorGuide.recommendedCarNo : undefined,
+      anchorDoorNo: index === 0 ? doorGuide.recommendedDoorNo : undefined,
+      candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.candidateCarNos : undefined,
+      positionLabel: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+        ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
+        : index === 0 || doorGuide.status === 'available' ? doorGuide.positionLabel : '환승 후 탑승 위치 확인 필요',
       facility: doorGuide.facility,
-      message: doorGuide.message,
+      message: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+        ? `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
+        : doorGuide.message,
     });
   }));
 

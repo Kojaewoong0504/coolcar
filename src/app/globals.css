@@ -128,6 +128,9 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .hero-result .car { border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.1); color:#e0f2fe; }
 .hero-result .car em { color:#bae6fd; }
 .hero-result .car.best { background: linear-gradient(180deg, #0ea5e9, #22d3ee); color:#fff; border-color:transparent; }
+.hero-result .car.anchor { background:rgba(125,211,252,.22); border-color:rgba(186,230,253,.55); color:#e0f2fe; }
+.hero-result .car.candidate { background:rgba(236,254,255,.16); border-color:rgba(103,232,249,.36); color:#cffafe; }
+.hero-result .car.candidate em, .hero-result .car.anchor em { color:#cffafe; }
 .hero-result .car.avoid { background:rgba(254,226,226,.16); border-color:rgba(254,202,202,.28); color:#fecaca; }
 .hero-result .car.avoid em { color:#fecaca; }
 .car { min-height: 78px; border: 1px solid var(--border); border-radius: 18px; background: #f8fdff; display: grid; justify-items: center; align-content: center; gap: 2px; text-align:center; position:relative; }
@@ -200,6 +203,7 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .door-tip { border-radius:18px; padding:12px; display:grid; gap:4px; }
 .door-tip span { font-size:12px; font-weight:950; color:var(--muted); }
 .door-tip strong { font-size:18px; letter-spacing:-.04em; }
+.door-tip small { font-size:12px; font-weight:850; line-height:1.35; opacity:.82; }
 .door-tip.available { background:#e0f2fe; color:#075985; }
 .door-tip.pending { background:#fff7ed; color:#9a3412; }
 @media (max-width: 360px) { h1 { font-size: 34px; } .route-options, .source-grid { grid-template-columns: 1fr; } .cars { gap: 6px; } .car { min-height: 72px; border-radius: 15px; } .profile-name { display:none; } .line-chip-grid { grid-template-columns: repeat(3, 1fr); } .route-leg-head { align-items:flex-start; flex-direction:column; } .route-leg-head b { white-space:normal; } }

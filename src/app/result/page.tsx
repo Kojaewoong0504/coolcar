@@ -28,7 +28,11 @@ function comfortCopy(result: RecommendationResponse) {
 }
 
 function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) {
-  if (needsTransfer) return '환승할 가능성이 있어 내릴 때 움직임이 적은 위치를 우선했어요.';
+  if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
+    const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
+    return `${station}에서 가까운 ${result.routeChoice.candidateCarNos.join(', ')}번째 칸을 먼저 보고, 그 안에서 가장 쾌적한 칸을 골랐어요.`;
+  }
+  if (needsTransfer) return '아직 정확한 환승문 정보가 부족해 쾌적도 중심으로 추천했어요. 환승 안내는 승강장에서 한 번 더 확인해 주세요.';
   if (result.request.comfortType === 'HOT_SENSITIVE') return '더운 날에 덜 답답하고 비교적 시원하게 탈 수 있는 위치예요.';
   if (result.request.comfortType === 'COLD_SENSITIVE') return '찬바람이 부담스러울 때 너무 춥지 않은 쪽을 우선했어요.';
   if (result.request.comfortType === 'CROWD_AVOIDER') return '사람이 몰리는 구간을 피하기 쉬운 쪽을 우선했어요.';
@@ -136,6 +140,8 @@ export default function ResultPage() {
   const destinationLine = stored.context?.destinationLine;
   const needsTransfer = Boolean(destinationLine && destinationLine !== result.request.line);
   const anonymousId = getAnonymousId();
+  const hasAnchorWindow = result.routeChoice?.mode === 'ANCHOR_WINDOW';
+  const anchorRangeLabel = hasAnchorWindow ? result.routeChoice.candidateCarNos.join(', ') : '';
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
@@ -189,34 +195,40 @@ export default function ResultPage() {
 
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges">
-          <span>추천 완료</span>
-          <span>{needsTransfer ? '환승 동선 고려' : '내리는 동선 고려'}</span>
+          <span>{hasAnchorWindow ? '환승·하차 가까움' : '추천 완료'}</span>
+          <span>{hasAnchorWindow ? '옆 칸까지 비교' : needsTransfer ? '환승 정보 제한' : '쾌적도 우선'}</span>
+          <span>{hasAnchorWindow ? '쾌적 추천' : comfortCopy(result)}</span>
         </div>
-        <p className="eyebrow">지금 타기 좋은 위치</p>
+        <p className="eyebrow">{hasAnchorWindow ? '환승 가까운 쾌적칸' : '지금 타기 좋은 위치'}</p>
         <h1>{result.recommendedCar.label}</h1>
-        <p className="score">{result.request.originStation} → {result.request.destinationStation || '목적지'} · {comfortCopy(result)}</p>
+        <p className="score">{result.request.originStation} → {result.request.destinationStation || '목적지'} · {hasAnchorWindow ? `${anchorRangeLabel}번째 칸 중 선택` : comfortCopy(result)}</p>
         <p className="source-message">{friendlyReason(result, needsTransfer)}</p>
         <p className="microcopy">실시간 온도 측정이 아니라 공공·정적 규칙, 시간대 패턴, 이용자 제보를 바탕으로 한 참고용 추천이에요.</p>
         <div className="train-map" aria-label="지하철 칸별 추천 위치">
           <div className="train-map-head">
             <span>칸 위치 보기</span>
-            <small>파란 칸으로 가면 돼요</small>
+            <small>{hasAnchorWindow ? '환승 가까운 범위 안에서 골랐어요' : '파란 칸으로 가면 돼요'}</small>
           </div>
           <div className="cars result-cars">
             {result.cars.map((car) => {
               const isBest = car.carNo === result.recommendedCar.carNo;
-              const isAvoid = result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
+              const isAnchor = hasAnchorWindow && car.carNo === result.routeChoice.anchorCarNo;
+              const isCandidate = hasAnchorWindow && result.routeChoice.candidateCarNos.includes(car.carNo);
+              const isAvoid = !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
+              const className = isBest ? 'car best' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : isAvoid ? 'car avoid' : 'car';
+              const label = isBest ? '추천' : isAnchor ? '환승' : isCandidate ? '가능' : isAvoid ? '피하기' : '';
               return (
-                <div key={car.carNo} className={isBest ? 'car best' : isAvoid ? 'car avoid' : 'car'} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAvoid ? ' 피하면 좋아요' : ''}`}>
-                  {isBest && <span className="best-badge">추천</span>}
+                <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAnchor ? ' 환승 가까움' : isCandidate ? ' 허용 범위' : isAvoid ? ' 피하면 좋아요' : ''}`}>
+                  {label && <span className="best-badge">{label}</span>}
                   <strong>{car.carNo}</strong>
-                  <em>{isBest ? '여기' : isAvoid ? '피하기' : car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙'}</em>
+                  <em>{isBest ? '여기' : isAnchor ? '가까움' : isCandidate ? '주변' : isAvoid ? '피하기' : car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙'}</em>
                 </div>
               );
             })}
           </div>
         </div>
-        {needsTransfer && <p className="transfer-note">환승역 구조를 더 정확히 붙이면, 다음 버전에서는 환승 게이트와 가까운 칸을 우선 추천할 수 있어요.</p>}
+        {hasAnchorWindow && <p className="transfer-note">가장 가까운 칸만 고르지 않고, 그 양옆 칸까지 비교해서 덜 덥고 덜 붐비는 쪽을 추천했어요.</p>}
+        {!hasAnchorWindow && needsTransfer && <p className="transfer-note">정확한 환승문 정보가 부족한 구간은 쾌적칸 중심으로 추천해요. 환승 가까운 칸 데이터는 지원 역부터 확대 중이에요.</p>}
         <div className="result-actions">
           <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>{saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}</button>
           <Link href={backHref}>다시 추천</Link>
@@ -248,7 +260,9 @@ export default function ResultPage() {
               <p className="route-leg-meta">{leg.line}{leg.direction ? ` · ${leg.direction}` : ''}</p>
               <div className={leg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
                 <span>{leg.status === 'available' ? '추천 위치' : leg.status === 'needs_direction' ? '방향 확인 필요' : leg.status === 'needs_route' ? '경로 확인 필요' : '참고 위치'}</span>
-                <strong>{leg.recommendedDoorNo ? `${leg.recommendedCarNo}번째 칸 · ${leg.recommendedDoorNo}번 문 근처` : leg.positionLabel}</strong>
+                <strong>{leg.positionLabel}</strong>
+                {leg.anchorCarNo && leg.anchorDoorNo && <small>기준 위치: {leg.anchorCarNo}번째 칸 · {leg.anchorDoorNo}번 문 근처</small>}
+                {leg.candidateCarNos && <small>비교 범위: {leg.candidateCarNos.join(', ')}번째 칸</small>}
               </div>
               <p className="microcopy">{leg.message}</p>
             </article>
@@ -264,6 +278,7 @@ export default function ResultPage() {
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>🔁 환승이 멀었어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
         </div>
