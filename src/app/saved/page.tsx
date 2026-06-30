@@ -30,12 +30,6 @@ type StoredRoutineRequest = {
 
 type StoredRoutineRequests = Record<string, StoredRoutineRequest>;
 
-const comfortLabels: Record<string, string> = {
-  HOT_SENSITIVE: '더위형',
-  COLD_SENSITIVE: '추위형',
-  CROWD_AVOIDER: '혼잡회피',
-  BALANCED: '밸런스',
-};
 
 function readStoredRoutineRequests(): StoredRoutineRequests {
   if (typeof window === 'undefined') return {};
@@ -63,10 +57,6 @@ function getAnonymousId() {
   return id;
 }
 
-function comfortLabel(value?: string | null) {
-  return comfortLabels[value ?? 'BALANCED'] ?? '밸런스';
-}
-
 function routeTitle(route: SavedRoute) {
   return `${route.origin_station} → ${route.destination_station ?? '목적지'}`;
 }
@@ -77,7 +67,7 @@ function routeMeta(route: SavedRoute) {
   const transfers = request?.transferStations?.filter(Boolean) ?? [];
   const lineCopy = destinationLine && destinationLine !== route.line ? `${route.line} → ${destinationLine}` : route.line;
   const transferCopy = transfers.length > 0 ? ` · ${transfers.join(', ')} 환승` : '';
-  return `${lineCopy}${transferCopy} · ${comfortLabel(route.comfort_type ?? request?.comfortType)} 기준`;
+  return `${lineCopy}${transferCopy} · 시원한 칸 기준`;
 }
 
 export default function SavedPage() {
@@ -127,14 +117,14 @@ export default function SavedPage() {
       originStation: route.origin_station,
       destinationStation: route.destination_station ?? undefined,
       direction: route.direction ?? undefined,
-      comfortType: (route.comfort_type as RecommendRequest['comfortType']) ?? 'BALANCED',
+      comfortType: 'HOT_SENSITIVE',
       avoidPrioritySeatArea: true,
       waitToleranceMin: 3,
       anonymousId,
     };
     const restored = localStored ?? serverStored;
     const pending = restored
-      ? { request: { ...restored.request, anonymousId: restored.request.anonymousId ?? anonymousId }, context: restored.context }
+      ? { request: { ...restored.request, comfortType: 'HOT_SENSITIVE' as const, anonymousId: restored.request.anonymousId ?? anonymousId }, context: restored.context }
       : { request: fallbackRequest, context: undefined };
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify(pending));
     window.location.href = '/result';

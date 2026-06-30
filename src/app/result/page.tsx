@@ -43,19 +43,11 @@ function getAnonymousId() {
 }
 
 function comfortCopy(result: RecommendationResponse) {
-  const type = result.request.comfortType;
-  if (type === 'HOT_SENSITIVE') return '시원하게 가고 싶은 기준';
-  if (type === 'COLD_SENSITIVE') return '너무 춥지 않게 가는 기준';
-  if (type === 'CROWD_AVOIDER') return '붐비는 곳을 피하는 기준';
-  return '전체적으로 무난한 기준';
+  return '시원한 칸 기준';
 }
 
 function comfortShortCopy(result: RecommendationResponse) {
-  const type = result.request.comfortType;
-  if (type === 'HOT_SENSITIVE') return '더위형';
-  if (type === 'COLD_SENSITIVE') return '추위형';
-  if (type === 'CROWD_AVOIDER') return '혼잡회피';
-  return '밸런스';
+  return '시원칸 기준';
 }
 
 function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean) {
@@ -305,7 +297,7 @@ export default function ResultPage() {
         destinationStation: result.request.destinationStation,
         destinationLine: destinationLine ?? result.request.destinationLine,
         direction: result.request.direction,
-        comfortType: result.request.comfortType,
+        comfortType: 'HOT_SENSITIVE',
         egressPreference: result.request.egressPreference,
         waitToleranceMin: result.request.waitToleranceMin,
         avoidPrioritySeatArea: result.request.avoidPrioritySeatArea,

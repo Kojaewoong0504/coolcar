@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
@@ -8,12 +8,7 @@ import { MAJOR_STATIONS_BY_LINE, SUPPORTED_LINES } from '@/lib/stations';
 import type { Station } from '@/lib/stations';
 import type { ComfortType } from '@/lib/types';
 
-const comfortOptions: { label: string; value: ComfortType; desc: string; emoji: string }[] = [
-  { label: '더위형', value: 'HOT_SENSITIVE', desc: '시원한 칸 우선', emoji: '🧊' },
-  { label: '추위형', value: 'COLD_SENSITIVE', desc: '약냉방·중앙', emoji: '🧣' },
-  { label: '혼잡회피', value: 'CROWD_AVOIDER', desc: '덜 붐비는 칸', emoji: '🫧' },
-  { label: '밸런스', value: 'BALANCED', desc: '균형 추천', emoji: '⚖️' },
-];
+const fixedComfortType: ComfortType = 'HOT_SENSITIVE';
 
 const preferenceStorageKey = 'coolcar_preferences';
 
@@ -22,10 +17,6 @@ type SavedPreferences = {
   waitToleranceMin: 0 | 3 | 5 | 10;
   avoidPrioritySeatArea: boolean;
 };
-
-function isComfortType(value: unknown): value is ComfortType {
-  return comfortOptions.some((option) => option.value === value);
-}
 
 function readLocalPreferences(): Partial<SavedPreferences> {
   if (typeof window === 'undefined') return {};
@@ -63,9 +54,8 @@ function getAnonymousId() {
 
 export default function HomePage() {
   const router = useRouter();
-  const preferenceTouchedRef = useRef(false);
   const [anonymousId, setAnonymousId] = useState<string>();
-  const [comfortType, setComfortType] = useState<ComfortType>('HOT_SENSITIVE');
+  const [comfortType] = useState<ComfortType>(fixedComfortType);
   const [line, setLine] = useState('2호선');
   const [originStation, setOriginStation] = useState('');
   const [destinationStation, setDestinationStation] = useState('');
@@ -74,7 +64,7 @@ export default function HomePage() {
   const [transferStationsInput, setTransferStationsInput] = useState('');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
-  const [preferenceMessage, setPreferenceMessage] = useState('이 취향을 다음 추천에도 기억할게요.');
+  const [preferenceMessage, setPreferenceMessage] = useState('시원한 칸 기준으로 추천할게요.');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
@@ -90,17 +80,13 @@ export default function HomePage() {
     setAnonymousId(id);
 
     const localPreferences = readLocalPreferences();
-    if (isComfortType(localPreferences.comfortType)) setComfortType(localPreferences.comfortType);
     if (typeof localPreferences.avoidPrioritySeatArea === 'boolean') setAvoidPrioritySeatArea(localPreferences.avoidPrioritySeatArea);
 
     void fetch(`/api/preferences?anonymousId=${encodeURIComponent(id)}`)
       .then((response) => response.json())
       .then((json: { preferences?: Partial<SavedPreferences>; persisted?: boolean; owner?: string }) => {
-        if (!preferenceTouchedRef.current) {
-          if (isComfortType(json.preferences?.comfortType)) setComfortType(json.preferences.comfortType);
-          if (typeof json.preferences?.avoidPrioritySeatArea === 'boolean') setAvoidPrioritySeatArea(json.preferences.avoidPrioritySeatArea);
-        }
-        setPreferenceMessage(json.persisted ? '저장된 취향을 불러왔어요.' : '이 취향을 다음 추천에도 기억할게요.');
+        if (typeof json.preferences?.avoidPrioritySeatArea === 'boolean') setAvoidPrioritySeatArea(json.preferences.avoidPrioritySeatArea);
+        setPreferenceMessage(json.persisted ? '시원한 칸 기준으로 준비됐어요.' : '시원한 칸 기준으로 추천할게요.');
       })
       .catch(() => undefined)
       .finally(() => setPreferencesLoaded(true));
@@ -111,7 +97,7 @@ export default function HomePage() {
     const nextDestination = params.get('destinationStation');
     const nextDestinationLine = params.get('destinationLine');
     const nextDirection = params.get('direction');
-    const nextComfortType = params.get('comfortType') as ComfortType | null;
+
     if (nextLine) setLine(nextLine);
     if (nextOrigin) setOriginStation(nextOrigin);
     if (nextDestination) setDestinationStation(nextDestination);
@@ -119,7 +105,7 @@ export default function HomePage() {
     if (nextDirection) setDirection(nextDirection);
     const nextTransfers = params.get('transferStations');
     if (nextTransfers) setTransferStationsInput(nextTransfers);
-    if (nextComfortType && comfortOptions.some((option) => option.value === nextComfortType)) setComfortType(nextComfortType);
+
 
     const routes: RecentRoute[] = [];
     const lastRaw = window.sessionStorage.getItem('coolcar_last_result');
@@ -143,8 +129,8 @@ export default function HomePage() {
       }
     }
     routes.push(
-      { label: '구로디지털단지 → 올림픽공원', line: '2호선', originStation: '구로디지털단지역', destinationStation: '올림픽공원역', destinationLine: '9호선', comfortType: 'HOT_SENSITIVE' },
-      { label: '홍대입구 → 인천공항', line: '공항철도', originStation: '홍대입구역', destinationStation: '인천공항1터미널역', destinationLine: '공항철도', comfortType: 'BALANCED' },
+      { label: '구로디지털단지 → 올림픽공원', line: '2호선', originStation: '구로디지털단지역', destinationStation: '올림픽공원역', destinationLine: '9호선', comfortType: fixedComfortType },
+      { label: '홍대입구 → 인천공항', line: '공항철도', originStation: '홍대입구역', destinationStation: '인천공항1터미널역', destinationLine: '공항철도', comfortType: fixedComfortType },
     );
     const deduped = routes.filter((route, index, arr) => arr.findIndex((item) => item.label === route.label) === index).slice(0, 3);
     setRecentRoutes(deduped);
@@ -153,7 +139,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!preferencesLoaded || !anonymousId) return;
-    const preferences: SavedPreferences = { comfortType, waitToleranceMin: 3, avoidPrioritySeatArea };
+    const preferences: SavedPreferences = { comfortType: fixedComfortType, waitToleranceMin: 3, avoidPrioritySeatArea };
     window.localStorage.setItem(preferenceStorageKey, JSON.stringify(preferences));
     setPreferenceMessage('취향이 저장됐어요. 언제 접속해도 같은 값으로 시작할게요.');
     const controller = new AbortController();
@@ -164,7 +150,7 @@ export default function HomePage() {
       signal: controller.signal,
     }).catch(() => setPreferenceMessage('이 기기에는 저장됐어요. 로그인하면 계정에도 맞춰둘 수 있어요.'));
     return () => controller.abort();
-  }, [anonymousId, avoidPrioritySeatArea, comfortType, preferencesLoaded]);
+  }, [anonymousId, avoidPrioritySeatArea, preferencesLoaded]);
 
   useEffect(() => {
     if (!pickerTarget) {
@@ -193,7 +179,7 @@ export default function HomePage() {
     return () => controller.abort();
   }, [pickerTarget, pickerLine, pickerQuery]);
 
-  const selectedComfort = comfortOptions.find((option) => option.value === comfortType) ?? comfortOptions[0];
+
   const majorStationHits = useMemo<StationHit[]>(() => {
     const names = MAJOR_STATIONS_BY_LINE[pickerLine] ?? [];
     return names.map((name) => ({ name, line: pickerLine, operator: pickerLine === '공항철도' ? '공항철도' : '수도권 전철' }));
@@ -268,7 +254,6 @@ export default function HomePage() {
     setOriginStation(route.originStation);
     setDestinationStation(route.destinationStation);
     setDestinationLine(route.destinationLine ?? route.line);
-    setComfortType(route.comfortType);
     setTransferStationsInput(route.transferStations?.join(', ') ?? '');
     setDirection('');
   }
@@ -319,20 +304,13 @@ export default function HomePage() {
           <p className="route-helper">환승역이나 방면을 몰라도 괜찮아요.</p>
         </div>
 
-        <section className="preference-card" aria-label="내 취향">
+        <section className="preference-card fixed-cool-card" aria-label="추천 기준">
           <div className="section-row preference-head">
             <div>
-              <div className="section-title">내 취향</div>
-              <p>어떤 칸이 편하세요? 선택한 값은 다음에도 유지돼요.</p>
+              <div className="section-title">추천 기준</div>
+              <p>더위 많이 타는 사람 기준으로, 덜 덥고 덜 답답한 칸을 먼저 볼게요.</p>
             </div>
-            <span>{selectedComfort.emoji}</span>
-          </div>
-          <div className="segmented-pills preference-segments" role="group" aria-label="추천 성향">
-            {comfortOptions.map((option) => (
-              <button key={option.value} type="button" className={option.value === comfortType ? 'segment active' : 'segment'} aria-pressed={option.value === comfortType} onClick={() => { preferenceTouchedRef.current = true; setComfortType(option.value); }}>
-                <span>{option.emoji}</span><b>{option.label}{option.value === comfortType && <em aria-hidden="true">✓</em>}</b><small>{option.desc}</small>
-              </button>
-            ))}
+            <span>🧊</span>
           </div>
           <p className="preference-save-copy">{preferenceMessage}</p>
         </section>
@@ -346,7 +324,7 @@ export default function HomePage() {
         <div className="recent-route-list">
           {recentRoutes.map((route) => (
             <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
-              <span><b>{route.label}</b><small>{route.line} · {comfortOptions.find((option) => option.value === route.comfortType)?.desc ?? '균형 추천'}</small></span>
+              <span><b>{route.label}</b><small>{route.line} · 시원한 칸 기준</small></span>
               <em>불러오기</em>
             </button>
           ))}

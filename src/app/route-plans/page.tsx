@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { EgressPreference, RecommendRequest, RoutePlanCandidate, RoutePlansResponse } from '@/lib/types';
 
+const fixedComfortType = 'HOT_SENSITIVE' as const;
+
 type PendingRoutePlan = {
   request: RecommendRequest;
   context?: { destinationLine?: string };
@@ -36,6 +38,7 @@ function egressDescription(value: EgressPreference) {
 function buildRecommendRequest(base: RecommendRequest, candidate: RoutePlanCandidate): RecommendRequest {
   return {
     ...base,
+    comfortType: fixedComfortType,
     line: candidate.recommendRequestPatch.line,
     destinationLine: candidate.recommendRequestPatch.destinationLine ?? base.destinationLine,
     direction: candidate.recommendRequestPatch.direction ?? base.direction,
@@ -70,7 +73,7 @@ export default function RoutePlansPage() {
       fetch('/api/route-plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...parsed.request, egressPreference: initialEgress, maxCandidates: 4 }),
+        body: JSON.stringify({ ...parsed.request, comfortType: fixedComfortType, egressPreference: initialEgress, maxCandidates: 4 }),
       })
         .then(async (response) => {
           const json = await response.json();
@@ -93,7 +96,6 @@ export default function RoutePlansPage() {
       originStation: baseRequest.originStation,
       destinationStation: baseRequest.destinationStation ?? '',
       destinationLine: baseRequest.destinationLine ?? '',
-      comfortType: baseRequest.comfortType,
       direction: baseRequest.direction ?? '',
       transferStations: baseRequest.transferStations?.join(', ') ?? '',
     });
@@ -105,7 +107,7 @@ export default function RoutePlansPage() {
 
   function selectCandidate(candidate: RoutePlanCandidate) {
     if (!baseRequest) return;
-    const nextRequest = { ...buildRecommendRequest(baseRequest, candidate), egressPreference };
+    const nextRequest = { ...buildRecommendRequest(baseRequest, candidate), egressPreference, comfortType: fixedComfortType };
     window.sessionStorage.setItem('coolcar_selected_route_plan', JSON.stringify({
       ...candidate,
       recommendRequestPatch: { ...candidate.recommendRequestPatch, egressPreference },
@@ -130,7 +132,7 @@ export default function RoutePlansPage() {
       const response = await fetch('/api/route-plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...baseRequest, egressPreference, transferStations: manualTransfers, maxCandidates: 3 }),
+        body: JSON.stringify({ ...baseRequest, comfortType: fixedComfortType, egressPreference, transferStations: manualTransfers, maxCandidates: 3 }),
       });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error?.message ?? '직접 경로를 만들지 못했어요.');
