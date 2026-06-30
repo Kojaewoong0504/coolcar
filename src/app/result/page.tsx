@@ -261,9 +261,9 @@ export default function ResultPage() {
           : '환승 동선과 쾌적도를 같이 봤어요.',
       ]
     : result.reasons.slice(0, 2);
-  const personalizationCopy = '추천·피드백은 내 취향 학습에 저장돼요.';
+  const personalizationCopy = '추천·피드백은 다음 시원칸 추천에 반영돼요.';
 
-  async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
+  async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
     setFeedbackState('pending');
     const response = await fetch('/api/feedback', {
@@ -428,7 +428,6 @@ export default function ResultPage() {
         </div>
         <div className="feedback-buttons">
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>🔁 환승이 멀었어요</button>
           <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>

@@ -7,7 +7,7 @@ const productFiles = [
   'src/app/result/page.tsx',
 ];
 
-const forbiddenProductCopy = ['추위형', '혼잡회피', '밸런스', '약냉방·중앙', '덜 붐비는 칸', '균형 추천'];
+const forbiddenProductCopy = ['추위형', '혼잡회피', '밸런스', '약냉방·중앙', '덜 붐비는 칸', '균형 추천', '내 취향', '추웠어요'];
 
 for (const file of productFiles) {
   const text = readFileSync(file, 'utf8');

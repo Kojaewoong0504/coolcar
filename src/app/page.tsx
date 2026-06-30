@@ -141,7 +141,7 @@ export default function HomePage() {
     if (!preferencesLoaded || !anonymousId) return;
     const preferences: SavedPreferences = { comfortType: fixedComfortType, waitToleranceMin: 3, avoidPrioritySeatArea };
     window.localStorage.setItem(preferenceStorageKey, JSON.stringify(preferences));
-    setPreferenceMessage('취향이 저장됐어요. 언제 접속해도 같은 값으로 시작할게요.');
+    setPreferenceMessage('기준이 저장됐어요. 언제 접속해도 시원한 칸 기준으로 시작할게요.');
     const controller = new AbortController();
     void fetch('/api/preferences', {
       method: 'POST',
