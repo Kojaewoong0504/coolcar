@@ -151,19 +151,32 @@ async function applyDoorGuide(params: {
   }
 
   if (result.status === 'needs_direction') {
+    const comfortPositionLabel = params.fallbackCarNo
+      ? params.goal === 'FINAL_EXIT'
+        ? `쾌적도 기준 ${params.fallbackCarNo}번째 칸`
+        : `${params.fallbackCarNo}번째 칸 근처`
+      : '쾌적칸 중심';
     return {
       status: 'needs_direction' as const,
       recommendedCarNo: params.fallbackCarNo,
-      positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '쾌적칸 중심',
+      positionLabel: comfortPositionLabel,
       egressPreference: params.egressPreference,
       message: '방면 자동 계산이 어려운 구간이라 쾌적칸 중심으로 안내해요. 승강장 안내를 함께 확인해 주세요.',
     };
   }
 
+  const comfortPositionLabel = params.fallbackCarNo
+    ? params.goal === 'FINAL_EXIT'
+      ? `쾌적도 기준 ${params.fallbackCarNo}번째 칸`
+      : `${params.fallbackCarNo}번째 칸 근처`
+    : params.goal === 'FINAL_EXIT'
+      ? '쾌적칸 중심'
+      : '탑승 위치 확인 필요';
+
   return {
     status: 'needs_data' as const,
     recommendedCarNo: params.fallbackCarNo,
-    positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '탑승 위치 확인 필요',
+    positionLabel: comfortPositionLabel,
     egressPreference: params.egressPreference,
     message: params.fallbackMessage,
   };
