@@ -57,11 +57,27 @@ async function main() {
   assert(directCandidate?.transferStations.length === 0, 'direct 후보는 환승역이 없어야 합니다.');
   assertNoForbiddenText(direct);
 
+  const directionAware = await buildRoutePlanCandidates({
+    line: '2호선',
+    originStation: '역삼역',
+    destinationStation: '판교역',
+    destinationLine: '신분당선',
+    transferStations: ['강남역'],
+    direction: '교대',
+    maxCandidates: 3,
+  });
+  const directionCandidate = directionAware.candidates.find((candidate) => candidate.type === 'USER_SPECIFIED');
+  assert(directionCandidate, '방면을 넣은 직접 환승 후보가 생성되어야 합니다.');
+  assert(directionCandidate.recommendRequestPatch.direction === '교대', '방면 입력은 추천 요청 패치에 보존되어야 합니다.');
+  assert(directionCandidate.coverage.nextTransferDoorGuide === 'available', '검증된 강남역 교대 방면 환승은 위치 안내 가능해야 합니다.');
+  assertNoForbiddenText(directionAware);
+
   console.log(JSON.stringify({
     ok: true,
     guroToOlympic: guroToOlympic.candidates.map((candidate) => ({ type: candidate.type, title: candidate.title, transfers: candidate.transferStations, lines: candidate.lines })),
     manual: { type: manualCandidate.type, transfers: manualCandidate.transferStations, lines: manualCandidate.lines },
     direct: { type: directCandidate?.type, lines: directCandidate?.lines },
+    directionAware: { type: directionCandidate.type, direction: directionCandidate.recommendRequestPatch.direction, coverage: directionCandidate.coverage.nextTransferDoorGuide },
   }, null, 2));
 }
 
