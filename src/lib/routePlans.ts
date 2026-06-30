@@ -1,6 +1,6 @@
 import { STATIONS, isSearchableMetroStation, normalizeStationName } from './stations';
 import { lookupDoorGuide } from './doorGuidance/resolver';
-import { inferLineDirection } from './routeDirection';
+import { inferLineDirection, estimateStationDistance } from './routeDirection';
 import type { ComfortType, EgressPreference, RoutePlanCandidate, RoutePlanCoverageStatus, RoutePlansResponse, RoutePlanWarning } from './types';
 
 type BuildRoutePlansRequest = {
@@ -70,13 +70,16 @@ function candidateId(parts: string[]) {
 
 function rankCandidate(candidate: RoutePlanCandidate) {
   let score = 0;
-  if (candidate.type === 'DIRECT') score += 20;
-  if (candidate.type === 'ONE_TRANSFER') score += 10;
-  if (candidate.type === 'USER_SPECIFIED') score += 30;
-  if (candidate.coverage.nextTransferDoorGuide === 'available') score += 20;
+  if (candidate.type === 'USER_SPECIFIED') score += 100000;
+  if (candidate.type === 'DIRECT') score += 90000;
+  if (candidate.type === 'ONE_TRANSFER') score += 80000;
+  if (candidate.type === 'UNRESOLVED') score -= 10000;
+
+  if (typeof candidate.estimatedStationCount === 'number') score -= candidate.estimatedStationCount * 100;
+  else score -= 50000;
+  if (candidate.coverage.nextTransferDoorGuide === 'available') score += 25;
   if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') score += 8;
   if (candidate.coverage.finalExitDoorGuide === 'available') score += 8;
-  if (candidate.type === 'UNRESOLVED') score -= 20;
   return score;
 }
 
@@ -97,6 +100,7 @@ async function buildDirectCandidate(params: {
     goal: 'FINAL_EXIT',
   });
   const finalStatus = doorCoverageStatus(finalExit.status);
+  const estimatedStationCount = estimateStationDistance({ line: params.line, originStation: params.originStation, targetStation: params.destinationStation });
   return {
     id: candidateId(['direct', params.line, params.originStation, params.destinationStation]),
     type: 'DIRECT',
@@ -109,6 +113,7 @@ async function buildDirectCandidate(params: {
     destinationStation: params.destinationStation,
     transferStations: [],
     lines: [params.line],
+    estimatedStationCount,
     legs: [{ legNo: 1, fromStation: params.originStation, toStation: params.destinationStation, line: params.line, goal: 'FINAL_EXIT' }],
     coverage: { nextTransferDoorGuide: 'not_applicable', finalExitDoorGuide: finalStatus },
     recommendRequestPatch: { line: params.line, destinationLine: params.line, transferStations: [], direction: effectiveDirection, egressPreference: params.egressPreference },
@@ -146,6 +151,11 @@ async function buildTransferCandidate(params: {
     goal: 'FINAL_EXIT',
   });
   const finalStatus = doorCoverageStatus(finalExit.status);
+  const firstLegDistance = estimateStationDistance({ line: params.fromLine, originStation: params.originStation, targetStation: params.transferStation });
+  const secondLegDistance = estimateStationDistance({ line: params.toLine, originStation: params.transferStation, targetStation: params.destinationStation });
+  const estimatedStationCount = typeof firstLegDistance === 'number' && typeof secondLegDistance === 'number'
+    ? firstLegDistance + secondLegDistance
+    : undefined;
   const type = params.userSpecified ? 'USER_SPECIFIED' : 'ONE_TRANSFER';
   return {
     id: candidateId([type, params.fromLine, params.transferStation, params.toLine, params.originStation, params.destinationStation]),
@@ -159,6 +169,7 @@ async function buildTransferCandidate(params: {
     destinationStation: params.destinationStation,
     transferStations: [params.transferStation],
     lines: [params.fromLine, params.toLine],
+    estimatedStationCount,
     legs: [
       { legNo: 1, fromStation: params.originStation, toStation: params.transferStation, line: params.fromLine, goal: 'NEXT_TRANSFER', transferToLine: params.toLine },
       { legNo: 2, fromStation: params.transferStation, toStation: params.destinationStation, line: params.toLine, goal: 'FINAL_EXIT' },
@@ -241,7 +252,6 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
         .filter((station) => station !== originStation && station !== destinationStation)
         .slice(0, 8);
       for (const transferStation of transfers) {
-        if (candidates.length >= maxCandidates) break;
         candidates.push(await buildTransferCandidate({ originStation, destinationStation, fromLine, toLine, transferStation, direction: request.direction, egressPreference: request.egressPreference }));
       }
     }
@@ -253,7 +263,11 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
     candidates.push(buildUnresolvedCandidate({ originStation, destinationStation, line: fallbackLine, destinationLine: fallbackDestinationLine, direction: request.direction, egressPreference: request.egressPreference }));
   }
 
-  const deduped = candidates
+  const comparableCandidates = candidates.some((candidate) => typeof candidate.estimatedStationCount === 'number')
+    ? candidates.filter((candidate) => candidate.type === 'USER_SPECIFIED' || candidate.type === 'DIRECT' || candidate.type === 'UNRESOLVED' || typeof candidate.estimatedStationCount === 'number')
+    : candidates;
+
+  const deduped = comparableCandidates
     .filter((candidate, index, list) => list.findIndex((item) => item.id === candidate.id) === index)
     .sort((a, b) => rankCandidate(b) - rankCandidate(a) || a.title.localeCompare(b.title, 'ko'))
     .slice(0, maxCandidates);

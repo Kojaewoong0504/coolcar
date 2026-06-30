@@ -126,6 +126,7 @@ export type RoutePlanCandidate = {
   destinationStation: string;
   transferStations: string[];
   lines: string[];
+  estimatedStationCount?: number;
   legs: RoutePlanLeg[];
   coverage: {
     nextTransferDoorGuide: RoutePlanCoverageStatus;

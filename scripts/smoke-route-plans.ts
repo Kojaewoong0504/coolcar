@@ -53,6 +53,20 @@ async function main() {
   assert(manualCandidate.legs.length === 2, '직접 1회 환승은 2개 구간이어야 합니다.');
   assertNoForbiddenText(manual);
 
+  const baebangToGuroDigital = await buildRoutePlanCandidates({
+    line: '1호선',
+    originStation: '배방역',
+    destinationStation: '구로디지털단지역',
+    destinationLine: '2호선',
+    comfortType: 'HOT_SENSITIVE',
+    maxCandidates: 4,
+  });
+  assert(baebangToGuroDigital.candidates[0]?.transferStations[0] === '신도림역', `배방역→구로디지털단지역의 1호선→2호선 대표 경로는 신도림 환승이어야 합니다. got=${baebangToGuroDigital.candidates[0]?.transferStations[0]}`);
+  const cityHallDetour = baebangToGuroDigital.candidates.find((candidate) => candidate.transferStations[0] === '시청역');
+  assert(cityHallDetour, '시청 환승 후보는 다른 경로로만 내려가야 합니다.');
+  assert((baebangToGuroDigital.candidates[0]?.estimatedStationCount ?? 999) < (cityHallDetour.estimatedStationCount ?? 0), '대표 경로는 역 수 기준으로 더 짧은 후보여야 합니다.');
+  assertNoForbiddenText(baebangToGuroDigital);
+
   const direct = await buildRoutePlanCandidates({
     line: '2호선',
     originStation: '역삼역',
@@ -83,6 +97,7 @@ async function main() {
   console.log(JSON.stringify({
     ok: true,
     guroToOlympic: guroToOlympic.candidates.map((candidate) => ({ type: candidate.type, title: candidate.title, transfers: candidate.transferStations, lines: candidate.lines })),
+    baebangToGuroDigital: baebangToGuroDigital.candidates.map((candidate) => ({ title: candidate.title, transfers: candidate.transferStations, distance: candidate.estimatedStationCount })),
     manual: { type: manualCandidate.type, transfers: manualCandidate.transferStations, lines: manualCandidate.lines },
     direct: { type: directCandidate?.type, lines: directCandidate?.lines },
     directionAware: { type: directionCandidate.type, direction: directionCandidate.recommendRequestPatch.direction, coverage: directionCandidate.coverage.nextTransferDoorGuide },

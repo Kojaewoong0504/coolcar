@@ -93,6 +93,20 @@ export function isSameLineDirectionSide(params: { line: string; atStation: strin
   return inputSide !== undefined && inputSide === recordSide;
 }
 
+export function estimateStationDistance(params: { line: string; originStation: string; targetStation?: string }): number | undefined {
+  const config = LINE_ORDERS[params.line];
+  if (!config || !params.targetStation) return undefined;
+
+  const order = config.stations;
+  const originKey = stationKey(params.originStation);
+  const targetKey = stationKey(params.targetStation);
+  const originIndex = order.findIndex((station) => stationKey(station) === originKey);
+  const targetIndex = order.findIndex((station) => stationKey(station) === targetKey);
+  if (originIndex < 0 || targetIndex < 0) return undefined;
+  const raw = Math.abs(targetIndex - originIndex);
+  return config.circular ? Math.min(raw, order.length - raw) : raw;
+}
+
 export function inferLineDirection(params: { line: string; originStation: string; targetStation?: string }): InferredDirection | undefined {
   const config = LINE_ORDERS[params.line];
   if (!config || !params.targetStation) return undefined;
