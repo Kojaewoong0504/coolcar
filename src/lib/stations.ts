@@ -728,6 +728,14 @@ export const STATIONS: Station[] = [
   { name: "김포공항역", line: "공항철도", operator: "공항철도", lat: 37.5622, lng: 126.8019 },
   { name: "김포공항역", line: "김포골드라인", operator: "김포골드라인", lat: 37.5622, lng: 126.8019 },
   { name: "김포공항역", line: "서해선", operator: "서해철도", lat: 37.5622, lng: 126.8019 },
+  { name: "계양역", line: "공항철도", operator: "공항철도", lat: 37.5714, lng: 126.7365 },
+  { name: "검암역", line: "공항철도", operator: "공항철도", lat: 37.5691, lng: 126.6738 },
+  { name: "청라국제도시역", line: "공항철도", operator: "공항철도", lat: 37.5566, lng: 126.6247 },
+  { name: "영종역", line: "공항철도", operator: "공항철도", lat: 37.5115, lng: 126.5237 },
+  { name: "운서역", line: "공항철도", operator: "공항철도", lat: 37.4929, lng: 126.4936 },
+  { name: "공항화물청사역", line: "공항철도", operator: "공항철도", lat: 37.4584, lng: 126.4769 },
+  { name: "인천공항1터미널역", line: "공항철도", operator: "공항철도", lat: 37.4475, lng: 126.4525 },
+  { name: "인천공항2터미널역", line: "공항철도", operator: "공항철도", lat: 37.4688, lng: 126.4337 },
   { name: "왕십리역", line: "경의중앙선", operator: "코레일", lat: 37.5612, lng: 127.0371 },
   { name: "홍대입구역", line: "경의중앙선", operator: "코레일", lat: 37.5568, lng: 126.9237 },
   { name: "홍대입구역", line: "공항철도", operator: "공항철도", lat: 37.5568, lng: 126.9237 },
@@ -739,6 +747,20 @@ export const STATIONS: Station[] = [
 ];
 
 export const SUPPORTED_LINES = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '공항철도', '경의중앙선', '김포골드라인', '서해선', '우이신설선'] as const;
+
+export const MAJOR_STATIONS_BY_LINE: Record<string, string[]> = {
+  '2호선': ['강남역', '교대역', '잠실역', '건대입구역', '왕십리역', '시청역', '신도림역', '구로디지털단지역', '당산역', '합정역', '홍대입구역', '신림역', '사당역'],
+  '9호선': ['김포공항역', '마곡나루역', '당산역', '여의도역', '노량진역', '고속터미널역', '신논현역', '봉은사역', '종합운동장역', '올림픽공원역'],
+  '공항철도': ['서울역', '공덕역', '홍대입구역', '김포공항역', '계양역', '검암역', '운서역', '인천공항1터미널역', '인천공항2터미널역'],
+  '신분당선': ['강남역', '양재역', '판교역', '정자역', '광교중앙역', '광교역'],
+  '3호선': ['구파발역', '연신내역', '종로3가역', '고속터미널역', '교대역', '양재역', '수서역'],
+  '5호선': ['김포공항역', '여의도역', '광화문역', '왕십리역', '천호역', '올림픽공원역'],
+};
+
+const STATION_SEARCH_ALIASES: Record<string, string[]> = {
+  '인천공항1터미널역': ['인천공항', '인천공항역', '인천공항1', '인천공항1터미널', '공항1터미널', '공항제1터미널', 't1'],
+  '인천공항2터미널역': ['인천공항', '인천공항역', '인천공항2', '인천공항2터미널', '공항2터미널', '공항제2터미널', 't2'],
+};
 
 export function normalizeStationName(value: string): string {
   return value.trim().replace(/\s+/g, '').replace(/역$/, '');
@@ -769,7 +791,8 @@ export function searchStations(query: string, options: { line?: string; limit?: 
   const matches = STATIONS.filter(isSearchableMetroStation).filter((s) => {
     const stationName = normalizeStationName(s.name);
     const lineMatches = !options.line || s.line === options.line;
-    const queryMatches = !q || stationName.includes(q) || s.line.includes(q);
+    const aliases = (STATION_SEARCH_ALIASES[s.name] ?? []).map(normalizeStationName);
+    const queryMatches = !q || stationName.includes(q) || s.line.includes(q) || aliases.some((alias) => alias.includes(q) || q.includes(alias));
     return lineMatches && queryMatches;
   });
   return matches

@@ -48,7 +48,7 @@ function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean
 }
 
 function directionStatusLabel(result: RecommendationResponse) {
-  return result.request.direction ? `${result.request.line} · ${result.request.direction} 기준` : `${result.request.line} · 방면 미입력`;
+  return result.request.direction ? `${result.request.line} · 이동 방향 자동 계산` : `${result.request.line} · 방면 미입력`;
 }
 
 function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
@@ -316,7 +316,7 @@ export default function ResultPage() {
             <em>{legStatusCopy(activeLeg.status)}</em>
           </div>
           <h2>{activeLeg.fromStation} → {activeLeg.toStation}</h2>
-          <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ` · ${activeLeg.direction}` : ''}</p>
+          <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ' · 이동 방향 자동 계산' : ''}</p>
           <div className={activeLeg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
             <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승 기준' : '하차 기준'}</span>
             <strong>{activeLeg.positionLabel} {legActionCopy(activeLeg.status)}</strong>

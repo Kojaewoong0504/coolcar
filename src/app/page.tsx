@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
-import { SUPPORTED_LINES } from '@/lib/stations';
+import { MAJOR_STATIONS_BY_LINE, SUPPORTED_LINES } from '@/lib/stations';
 import type { Station } from '@/lib/stations';
 import type { ComfortType } from '@/lib/types';
 
@@ -67,9 +67,9 @@ export default function HomePage() {
   const [anonymousId, setAnonymousId] = useState<string>();
   const [comfortType, setComfortType] = useState<ComfortType>('HOT_SENSITIVE');
   const [line, setLine] = useState('2호선');
-  const [originStation, setOriginStation] = useState('강남역');
-  const [destinationStation, setDestinationStation] = useState('홍대입구역');
-  const [destinationLine, setDestinationLine] = useState('2호선');
+  const [originStation, setOriginStation] = useState('');
+  const [destinationStation, setDestinationStation] = useState('');
+  const [destinationLine, setDestinationLine] = useState('');
   const [direction, setDirection] = useState('');
   const [transferStationsInput, setTransferStationsInput] = useState('');
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
@@ -143,8 +143,8 @@ export default function HomePage() {
       }
     }
     routes.push(
-      { label: '강남 → 판교', line: '2호선', originStation: '역삼역', destinationStation: '판교역', destinationLine: '신분당선', comfortType: 'BALANCED', transferStations: ['강남역'] },
-      { label: '양재 → 여의도', line: '3호선', originStation: '양재역', destinationStation: '여의도역', destinationLine: '9호선', comfortType: 'BALANCED', transferStations: ['고속터미널역'] },
+      { label: '구로디지털단지 → 올림픽공원', line: '2호선', originStation: '구로디지털단지역', destinationStation: '올림픽공원역', destinationLine: '9호선', comfortType: 'HOT_SENSITIVE' },
+      { label: '홍대입구 → 인천공항', line: '공항철도', originStation: '홍대입구역', destinationStation: '인천공항1터미널역', destinationLine: '공항철도', comfortType: 'BALANCED' },
     );
     const deduped = routes.filter((route, index, arr) => arr.findIndex((item) => item.label === route.label) === index).slice(0, 3);
     setRecentRoutes(deduped);
@@ -194,6 +194,10 @@ export default function HomePage() {
   }, [pickerTarget, pickerLine, pickerQuery]);
 
   const selectedComfort = comfortOptions.find((option) => option.value === comfortType) ?? comfortOptions[0];
+  const majorStationHits = useMemo<StationHit[]>(() => {
+    const names = MAJOR_STATIONS_BY_LINE[pickerLine] ?? [];
+    return names.map((name) => ({ name, line: pickerLine, operator: pickerLine === '공항철도' ? '공항철도' : '수도권 전철' }));
+  }, [pickerLine]);
   const transferStations = useMemo(
     () => transferStationsInput.split(',').map((item) => item.trim()).filter(Boolean).slice(0, 5),
     [transferStationsInput],
@@ -207,8 +211,13 @@ export default function HomePage() {
   async function runRecommendation() {
     setError('');
 
-    if (!line || !originStation) {
-      setError('노선과 출발역은 꼭 필요해요.');
+    if (!originStation || !destinationStation) {
+      setError('출발역과 도착역을 선택해 주세요.');
+      return;
+    }
+
+    if (!line) {
+      setError('출발 노선을 선택해 주세요.');
       return;
     }
 
@@ -237,7 +246,7 @@ export default function HomePage() {
 
   function openStationPicker(target: Exclude<PickerTarget, null>) {
     setPickerTarget(target);
-    setPickerQuery(target === 'origin' ? originStation.replace(/역$/, '') : destinationStation.replace(/역$/, ''));
+    setPickerQuery('');
     setPickerLine(line);
   }
 
@@ -297,8 +306,8 @@ export default function HomePage() {
         <div className="route-summary-card primary-route-card">
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('origin')} aria-label="출발역 선택">
             <span className="route-label">출발</span>
-            <span className="route-value">{originStation}</span>
-            <span className="route-badge">{line}</span>
+            <span className="route-value">{originStation || '출발역 선택'}</span>
+            <span className="route-badge">{originStation ? line : '노선 선택'}</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('destination')} aria-label="도착역 선택">
@@ -357,7 +366,14 @@ export default function HomePage() {
             <div className="line-chip-grid" aria-label="노선 선택">
               {lines.map((item) => <button key={item} type="button" className={item === pickerLine ? 'active' : ''} onClick={() => setPickerLine(item)}>{item}</button>)}
             </div>
-            <p className="station-picker-hint">역 이름을 입력하면 전체 지원 노선에서 먼저 찾아요. 검색어를 지우면 선택한 노선의 역을 둘러볼 수 있어요.</p>
+            {majorStationHits.length > 0 && (
+              <div className="major-station-strip" aria-label={`${pickerLine} 주요역`}>
+                {majorStationHits.map((station) => (
+                  <button key={`${station.line}-${station.name}`} type="button" onClick={() => chooseStation(station)}>{station.name.replace(/역$/, '')}</button>
+                ))}
+              </div>
+            )}
+            <p className="station-picker-hint">호선을 고르면 주요역을 바로 누를 수 있어요. 역 이름을 입력하면 전체 지원 노선에서 찾아요.</p>
             <label className="station-search-label">
               <span>역 이름 검색</span>
               <input autoFocus value={pickerQuery} onChange={(event) => setPickerQuery(event.target.value)} placeholder="역삼, 삼성, 시청, 여의도" />

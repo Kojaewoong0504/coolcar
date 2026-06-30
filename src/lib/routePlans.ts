@@ -1,5 +1,6 @@
 import { STATIONS, isSearchableMetroStation, normalizeStationName } from './stations';
 import { lookupDoorGuide } from './doorGuidance/resolver';
+import { inferLineDirection } from './routeDirection';
 import type { ComfortType, RoutePlanCandidate, RoutePlanCoverageStatus, RoutePlansResponse, RoutePlanWarning } from './types';
 
 type BuildRoutePlansRequest = {
@@ -84,10 +85,12 @@ async function buildDirectCandidate(params: {
   line: string;
   direction?: string;
 }): Promise<RoutePlanCandidate> {
+  const inferred = params.direction ? undefined : inferLineDirection({ line: params.line, originStation: params.originStation, targetStation: params.destinationStation });
+  const effectiveDirection = params.direction ?? inferred?.doorGuideDirection;
   const finalExit = await lookupDoorGuide({
     line: params.line,
     toStation: params.destinationStation,
-    direction: params.direction,
+    direction: effectiveDirection,
     goal: 'FINAL_EXIT',
   });
   const finalStatus = doorCoverageStatus(finalExit.status);
@@ -105,7 +108,7 @@ async function buildDirectCandidate(params: {
     lines: [params.line],
     legs: [{ legNo: 1, fromStation: params.originStation, toStation: params.destinationStation, line: params.line, goal: 'FINAL_EXIT' }],
     coverage: { nextTransferDoorGuide: 'not_applicable', finalExitDoorGuide: finalStatus },
-    recommendRequestPatch: { line: params.line, destinationLine: params.line, transferStations: [], direction: params.direction },
+    recommendRequestPatch: { line: params.line, destinationLine: params.line, transferStations: [], direction: effectiveDirection },
     reasonCodes: ['DIRECT_LINE', finalStatus === 'available' ? 'FINAL_EXIT_AVAILABLE' : 'FINAL_EXIT_LIMITED'],
     safetyNote: '환승 없이 가는 후보입니다. 실제 열차 운행과 승강장 안내는 현장에서 한 번 더 확인해 주세요.',
   };
@@ -120,10 +123,12 @@ async function buildTransferCandidate(params: {
   direction?: string;
   userSpecified?: boolean;
 }): Promise<RoutePlanCandidate> {
+  const inferred = params.direction ? undefined : inferLineDirection({ line: params.fromLine, originStation: params.originStation, targetStation: params.transferStation });
+  const effectiveDirection = params.direction ?? inferred?.doorGuideDirection;
   const transferGuide = await lookupDoorGuide({
     line: params.fromLine,
     toStation: params.transferStation,
-    direction: params.direction,
+    direction: effectiveDirection,
     goal: 'NEXT_TRANSFER',
     targetLine: params.toLine,
   });
@@ -141,7 +146,7 @@ async function buildTransferCandidate(params: {
     badge: params.userSpecified ? '직접 설정' : transferStatus === 'available' ? '환승 위치 반영' : '환승 후보',
     title: params.userSpecified ? `${params.transferStation} 경유로 볼게요` : `${params.transferStation}에서 환승`,
     summary: transferStatus === 'available'
-      ? `${params.transferStation}에서 갈아타기 가까운 위치 주변과 쾌적도를 함께 비교할 수 있어요.`
+      ? `${params.transferStation}에서 갈아타기 가까운 위치 주변과 쾌적도를 함께 비교할 수 있어요.${inferred ? ` ${inferred.boardDirectionLabel}으로 계산했어요.` : ''}`
       : `${params.transferStation} 경유 후보예요. 문 위치 정보가 부족한 구간은 쾌적칸 중심으로 안내해요.`,
     originStation: params.originStation,
     destinationStation: params.destinationStation,
@@ -152,7 +157,7 @@ async function buildTransferCandidate(params: {
       { legNo: 2, fromStation: params.transferStation, toStation: params.destinationStation, line: params.toLine, goal: 'FINAL_EXIT' },
     ],
     coverage: { nextTransferDoorGuide: transferStatus, finalExitDoorGuide: finalStatus },
-    recommendRequestPatch: { line: params.fromLine, destinationLine: params.toLine, transferStations: [params.transferStation], direction: params.direction },
+    recommendRequestPatch: { line: params.fromLine, destinationLine: params.toLine, transferStations: [params.transferStation], direction: effectiveDirection },
     reasonCodes: [type, transferStatus === 'available' ? 'NEXT_TRANSFER_AVAILABLE' : transferStatus === 'needs_direction' ? 'DIRECTION_REQUIRED_FOR_TRANSFER' : 'TRANSFER_DOOR_LIMITED'],
     safetyNote: '가능한 환승 후보입니다. 실제 최단 경로나 소요시간은 지도 앱에서 함께 확인해 주세요.',
   };
@@ -186,9 +191,7 @@ function buildUnresolvedCandidate(params: {
 export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest): Promise<RoutePlansResponse> {
   const originStation = cleanStationName(request.originStation);
   const destinationStation = cleanStationName(request.destinationStation);
-  const warnings: RoutePlanWarning[] = [
-    { code: 'STATION_ORDER_UNAVAILABLE', message: '현재 후보는 역 순서·소요시간을 계산하지 않고 환승 가능 노선 기준으로 보여드려요.' },
-  ];
+  const warnings: RoutePlanWarning[] = [];
 
   const originLines = request.originLine || request.line
     ? [request.originLine ?? request.line as string]
@@ -248,9 +251,6 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
     .slice(0, maxCandidates);
 
   if (deduped.length === 0) warnings.push({ code: 'NO_CANDIDATES', message: '표시할 경로 후보가 없어 쾌적칸 중심 추천만 사용할 수 있어요.' });
-  if (deduped.some((candidate) => candidate.coverage.nextTransferDoorGuide !== 'available' || candidate.coverage.finalExitDoorGuide !== 'available')) {
-    warnings.push({ code: 'DOOR_GUIDE_LIMITED', message: '일부 구간은 칸·문 위치 데이터가 부족해 쾌적칸 중심으로 안내될 수 있어요.' });
-  }
 
   return { candidates: deduped, warnings, disclaimer: ROUTE_PLAN_DISCLAIMER };
 }

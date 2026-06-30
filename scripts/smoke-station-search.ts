@@ -1,6 +1,7 @@
 import { STATIONS, isSearchableMetroStation, searchStations } from '../src/lib/stations';
 
 const requiredQueries = ['역삼', '삼성', '시청', '잠실', '여의도', '강남'];
+const airportResults = searchStations('인천공항', { limit: 10 });
 const failures: string[] = [];
 
 for (const query of requiredQueries) {
@@ -34,6 +35,8 @@ for (const query of pollutedQueries) {
 }
 
 const guResults = searchStations('구', { limit: 50 });
+if (!airportResults.some((station) => station.name === '인천공항1터미널역' && station.line === '공항철도')) failures.push('인천공항 search missing 인천공항1터미널역/공항철도');
+if (!airportResults.some((station) => station.name === '인천공항2터미널역' && station.line === '공항철도')) failures.push('인천공항 search missing 인천공항2터미널역/공항철도');
 if (guResults.some((station) => station.name === '구남역')) failures.push('구 search returned polluted 구남역');
 if (guResults.some((station) => station.name === '구회의사당역')) failures.push('구 search returned typo 구회의사당역');
 if (!guResults.some((station) => station.name === '구로디지털단지역' && station.line === '2호선')) failures.push('구 search missing 구로디지털단지역/2호선');

@@ -16,7 +16,7 @@ function routePath(candidate: RoutePlanCandidate) {
 
 function coverageCopy(candidate: RoutePlanCandidate) {
   if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 반영';
-  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '방면 입력 선택';
+  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '쾌적칸 중심';
   if (candidate.type === 'DIRECT') return candidate.coverage.finalExitDoorGuide === 'available' ? '하차 위치 반영' : '쾌적칸 중심';
   if (candidate.type === 'UNRESOLVED') return '쾌적칸 중심';
   return '쾌적칸 중심';
@@ -40,9 +40,7 @@ export default function RoutePlansPage() {
   const [error, setError] = useState('');
   const [manualTransferInput, setManualTransferInput] = useState('');
   const [manualTransfers, setManualTransfers] = useState<string[]>([]);
-  const [manualDirection, setManualDirection] = useState('');
   const [manualLoading, setManualLoading] = useState(false);
-  const [directionInput, setDirectionInput] = useState('');
 
   useEffect(() => {
     const raw = window.sessionStorage.getItem('coolcar_pending_route_plan');
@@ -89,24 +87,18 @@ export default function RoutePlansPage() {
 
   const primaryCandidate = plans?.candidates.find((candidate) => candidate.type !== 'UNRESOLVED') ?? plans?.candidates[0];
   const otherCandidates = plans?.candidates.filter((candidate) => candidate.id !== primaryCandidate?.id && candidate.type !== 'UNRESOLVED') ?? [];
-  const canUseDirection = Boolean(primaryCandidate && primaryCandidate.type !== 'UNRESOLVED');
-  const cleanedDirectionInput = directionInput.trim();
 
-  function selectCandidate(candidate: RoutePlanCandidate, directionOverride?: string) {
+  function selectCandidate(candidate: RoutePlanCandidate) {
     if (!baseRequest) return;
-    const cleanDirection = directionOverride?.trim();
-    const patchedCandidate: RoutePlanCandidate = cleanDirection
-      ? { ...candidate, recommendRequestPatch: { ...candidate.recommendRequestPatch, direction: cleanDirection } }
-      : candidate;
-    const nextRequest = buildRecommendRequest(baseRequest, patchedCandidate);
-    window.sessionStorage.setItem('coolcar_selected_route_plan', JSON.stringify(patchedCandidate));
+    const nextRequest = buildRecommendRequest(baseRequest, candidate);
+    window.sessionStorage.setItem('coolcar_selected_route_plan', JSON.stringify(candidate));
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({
       request: nextRequest,
       context: {
         destinationLine: nextRequest.destinationLine,
-        selectedRoutePlanId: patchedCandidate.id,
-        selectedRoutePlanTitle: patchedCandidate.title,
-        selectedRoutePlanDirection: cleanDirection,
+        selectedRoutePlanId: candidate.id,
+        selectedRoutePlanTitle: candidate.title,
+        selectedRoutePlanDirection: candidate.recommendRequestPatch.direction,
       },
     }));
     router.push('/result?loading=1');
@@ -120,13 +112,13 @@ export default function RoutePlansPage() {
       const response = await fetch('/api/route-plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...baseRequest, direction: manualDirection.trim() || baseRequest.direction, transferStations: manualTransfers, maxCandidates: 3 }),
+        body: JSON.stringify({ ...baseRequest, transferStations: manualTransfers, maxCandidates: 3 }),
       });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error?.message ?? '직접 경로를 만들지 못했어요.');
       const manual = (json as RoutePlansResponse).candidates.find((candidate) => candidate.type === 'USER_SPECIFIED') ?? (json as RoutePlansResponse).candidates[0];
       if (!manual) throw new Error('선택할 수 있는 직접 경로가 없어요.');
-      selectCandidate(manual, manualDirection.trim() || undefined);
+      selectCandidate(manual);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '직접 경로를 만들지 못했어요.');
     } finally {
@@ -205,20 +197,8 @@ export default function RoutePlansPage() {
           <p className="route-plan-path">{routePath(primaryCandidate)}</p>
           <p className="route-plan-lines">{primaryCandidate.lines.join(' → ')}</p>
           <p className="microcopy">{primaryCandidate.summary}</p>
-          {canUseDirection && (
-            <label className="direction-input-card single-direction-card">
-              <span>방면을 알면 입력하세요</span>
-              <input
-                value={directionInput}
-                onChange={(event) => setDirectionInput(event.target.value)}
-                placeholder="예: 신도림, 잠실"
-                aria-label="방면 입력"
-              />
-              <small>모르면 비워도 돼요. 쾌적칸 중심으로 추천해요.</small>
-            </label>
-          )}
-          <button className="primary" type="button" onClick={() => selectCandidate(primaryCandidate, cleanedDirectionInput || undefined)}>
-            {cleanedDirectionInput ? '이 방면으로 칸 추천받기' : '이 경로로 추천받기'}
+          <button className="primary" type="button" onClick={() => selectCandidate(primaryCandidate)}>
+            이 경로로 추천받기
           </button>
         </section>
       )}
@@ -236,7 +216,7 @@ export default function RoutePlansPage() {
                 <h2>{candidate.title}</h2>
                 <p className="route-plan-path">{routePath(candidate)}</p>
                 <p className="route-plan-lines">{candidate.lines.join(' → ')}</p>
-                <button className="primary" type="button" onClick={() => selectCandidate(candidate, cleanedDirectionInput || undefined)}>{candidate.type === 'UNRESOLVED' ? '경로 없이 쾌적칸 보기' : '이 경로로 바꾸기'}</button>
+                <button className="primary" type="button" onClick={() => selectCandidate(candidate)}>{candidate.type === 'UNRESOLVED' ? '쾌적칸 먼저 보기' : '이 경로로 바꾸기'}</button>
               </article>
             ))}
           </section>
@@ -251,11 +231,6 @@ export default function RoutePlansPage() {
             <input value={manualTransferInput} onChange={(event) => setManualTransferInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addManualTransfer(); } }} placeholder="예: 당산역" aria-label="환승역 직접 입력" />
             <button type="button" onClick={addManualTransfer}>추가</button>
           </div>
-          <label className="direction-input-card manual-direction-input">
-            <span>첫 구간 방면</span>
-            <input value={manualDirection} onChange={(event) => setManualDirection(event.target.value)} placeholder="안내판에 보이는 방면명 입력" aria-label="직접 설정 경로 방면 입력" />
-            <small>방면을 입력하면 첫 환승역의 칸·문 위치를 더 정확히 확인해요. 모르면 비워둬도 됩니다.</small>
-          </label>
           <div className="manual-transfer-list">
             {manualTransfers.length === 0 && <p className="microcopy">환승역을 추가하지 않으면 위 추천 경로로 바로 진행하면 돼요.</p>}
             {manualTransfers.map((station, index) => (

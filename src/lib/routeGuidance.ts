@@ -1,5 +1,6 @@
 import type { CarComfort, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
 import { lookupDoorGuide } from './doorGuidance/resolver';
+import { inferLineDirection } from './routeDirection';
 
 export type RouteAnchor = {
   goal: 'FINAL_EXIT' | 'NEXT_TRANSFER';
@@ -137,10 +138,11 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
 
   if (!anchorTarget) return undefined;
 
+  const inferredDirection = request.direction ?? inferLineDirection({ line: request.line, originStation: origin, targetStation: anchorTarget.station })?.doorGuideDirection;
   const result = await lookupDoorGuide({
     line: request.line,
     toStation: anchorTarget.station,
-    direction: request.direction,
+    direction: inferredDirection,
     goal: anchorTarget.goal,
     targetLine: anchorTarget.targetLine,
   });
@@ -166,10 +168,11 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
   const disclaimer = '전체 이동 경로를 대신 정해주는 기능이 아니라, 선택한 이동 경로에서 타기 좋은 위치를 안내하는 참고 정보예요.';
 
   if (transfers.length === 0 && sameLine(request)) {
+    const effectiveDirection = request.direction ?? inferLineDirection({ line: request.line, originStation: origin, targetStation: destination })?.doorGuideDirection;
     const doorGuide = await applyDoorGuide({
       line: request.line,
       toStation: destination,
-      direction: request.direction,
+      direction: effectiveDirection,
       goal: 'FINAL_EXIT',
       fallbackCarNo: recommendedCar.carNo,
       fallbackMessage: '빠른하차 문 정보가 없으면 추천 칸을 기준으로 안내해요. 문 위치는 승강장에서 한 번 더 확인해 주세요.',
@@ -232,10 +235,11 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
     const isLast = index === waypoints.length - 2;
     const line = index === 0 ? request.line : (isLast ? request.destinationLine || '환승 후 노선' : '환승 후 노선');
     const goal = isLast ? 'FINAL_EXIT' : 'NEXT_TRANSFER';
+    const effectiveDirection = index === 0 ? (request.direction ?? inferLineDirection({ line, originStation: fromStation, targetStation: toStation })?.doorGuideDirection) : undefined;
     const doorGuide = await applyDoorGuide({
       line,
       toStation,
-      direction: index === 0 ? request.direction : undefined,
+      direction: effectiveDirection,
       goal,
       targetLine: !isLast && transfers.length === 1 ? request.destinationLine : undefined,
       fallbackCarNo: index === 0 ? recommendedCar.carNo : undefined,

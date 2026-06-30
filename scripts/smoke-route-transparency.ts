@@ -36,9 +36,9 @@ async function main() {
     comfortType: 'BALANCED',
   });
 
-  assert(gangnamTransferNoDirection.routeChoice.mode === 'COMFORT_ONLY', '방면 없으면 검증된 환승역이 있어도 COMFORT_ONLY여야 합니다.');
-  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'needs_direction', '방면 없으면 첫 환승 leg는 needs_direction이어야 합니다.');
-  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.anchorDoorNo == null, '방면 없으면 문번호를 확정하면 안 됩니다.');
+  assert(gangnamTransferNoDirection.routeChoice.mode === 'ANCHOR_WINDOW', '역 순서로 방면을 자동 추론해 검증된 환승역은 ANCHOR_WINDOW여야 합니다.');
+  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'available', '방면 자동 추론 후 첫 환승 leg는 available이어야 합니다.');
+  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.anchorDoorNo != null, '방면 자동 추론 후 검증된 문번호를 표시해야 합니다.');
 
   console.log(JSON.stringify({
     ok: true,

@@ -62,8 +62,8 @@ async function main() {
     comfortType: 'BALANCED',
   });
 
-  assert(gangnamTransferNoDirection.routeChoice.mode === 'COMFORT_ONLY', '강남역 방향이 없으면 환승 anchor를 적용하면 안 됩니다.');
-  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'needs_direction', '강남역 방향 누락은 needs_direction이어야 합니다.');
+  assert(gangnamTransferNoDirection.routeChoice.mode === 'ANCHOR_WINDOW', '강남역 방향은 역 순서로 자동 추론되어 환승 anchor를 적용해야 합니다.');
+  assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'available', '강남역 자동 방면 추론 후 available이어야 합니다.');
 
   console.log(JSON.stringify({
     ok: true,
