@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const comfortTypeSchema = z.enum(['HOT_SENSITIVE', 'COLD_SENSITIVE', 'CROWD_AVOIDER', 'BALANCED']);
+export const egressPreferenceSchema = z.enum(['ANY', 'STAIRS', 'ESCALATOR', 'ELEVATOR']);
 export const commuteTypeSchema = z.enum(['MORNING', 'EVENING', 'CUSTOM']);
 
 export const recommendRequestSchema = z.object({
@@ -10,6 +11,7 @@ export const recommendRequestSchema = z.object({
   destinationLine: z.string().optional(),
   direction: z.string().optional(),
   comfortType: comfortTypeSchema.default('BALANCED'),
+  egressPreference: egressPreferenceSchema.default('ANY'),
   targetTime: z.string().datetime({ offset: true }).optional(),
   waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
   avoidPrioritySeatArea: z.boolean().default(true),
@@ -32,6 +34,7 @@ export const routePlansRequestSchema = z.object({
   destinationLine: z.string().optional(),
   direction: z.string().optional(),
   comfortType: comfortTypeSchema.default('HOT_SENSITIVE'),
+  egressPreference: egressPreferenceSchema.default('ANY'),
   waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
   avoidPrioritySeatArea: z.boolean().default(true),
   anonymousId: z.string().uuid().optional(),

@@ -104,6 +104,29 @@ function legActionCopy(status: RecommendationResponse['routeGuidance']['legs'][n
   return '위치를 참고해 주세요';
 }
 
+function facilityLabel(facilityType?: RecommendationResponse['routeGuidance']['legs'][number]['facilityType'], facility?: string) {
+  if (facilityType === 'STAIRS') return '계단';
+  if (facilityType === 'ESCALATOR') return '에스컬레이터';
+  if (facilityType === 'ELEVATOR') return '엘리베이터';
+  if (facilityType === 'TRANSFER_PASSAGE') return '환승통로';
+  return facility;
+}
+
+function egressPreferenceLabel(value?: RecommendationResponse['request']['egressPreference']) {
+  if (value === 'STAIRS') return '계단 가까이';
+  if (value === 'ESCALATOR') return '에스컬레이터 가까이';
+  if (value === 'ELEVATOR') return '엘리베이터 가까이';
+  return '상관없음';
+}
+
+function egressResultCopy(leg?: RecommendationResponse['routeGuidance']['legs'][number]) {
+  if (!leg || leg.goal !== 'FINAL_EXIT') return undefined;
+  const label = facilityLabel(leg.facilityType, leg.facility);
+  if (leg.status === 'available' && label) return `도착역 ${label}와 가까운 위치 주변에서 쾌적한 칸을 골랐어요.`;
+  if (leg.egressPreference && leg.egressPreference !== 'ANY') return `이 역은 아직 ${egressPreferenceLabel(leg.egressPreference)} 위치 안내가 부족해서, 이번 구간은 쾌적칸 중심으로 안내해요.`;
+  return undefined;
+}
+
 export default function ResultPage() {
   const [stored, setStored] = useState<StoredResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -232,6 +255,7 @@ export default function ResultPage() {
   const activeMapCars = isPrimaryLeg
     ? result.cars.map((car) => ({ carNo: car.carNo, position: car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙' }))
     : mapCarsForLine(activeLeg?.line ?? result.request.line);
+  const activeEgressLabel = activeLeg?.goal === 'FINAL_EXIT' && activeLeg.facilityType ? `${facilityLabel(activeLeg.facilityType, activeLeg.facility)} 가까운 위치` : undefined;
   const activeHeading = activeRecommendedCarNo
     ? `${activeRecommendedCarNo}번째 칸으로 가세요`
     : activeLeg
@@ -239,11 +263,12 @@ export default function ResultPage() {
       : `${result.recommendedCar.carNo}번째 칸으로 가세요`;
   const activeEyebrow = activeHasAnchor ? '환승 가까운 쾌적칸' : activeLeg && !isPrimaryLeg ? '다음 구간 안내' : '지금 타기 좋은 위치';
   const activeRouteNote = activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legStatusCopy(activeLeg.status) : comfortCopy(result);
+  const activeEgressCopy = egressResultCopy(activeLeg);
   const activeReason = activeHasAnchor
-    ? friendlyReason(result, needsTransfer)
+    ? activeEgressCopy ?? friendlyReason(result, needsTransfer)
     : activeLeg && !isPrimaryLeg
-      ? activeLeg.message
-      : friendlyReason(result, needsTransfer);
+      ? activeEgressCopy ?? activeLeg.message
+      : egressResultCopy(activeLeg) ?? friendlyReason(result, needsTransfer);
   const activeBasis = activeHasAnchor
     ? routeBasis
     : activeLeg && !isPrimaryLeg
@@ -303,7 +328,7 @@ export default function ResultPage() {
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges compact-result-badges">
           <span>{isPrimaryLeg ? routeStatusLabel(result, needsTransfer) : legStatusCopy(activeLeg.status)}</span>
-          <span>{activeHasAnchor ? '쾌적도 비교' : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line}</span>
+          <span>{activeEgressLabel ?? (activeHasAnchor ? '쾌적도 비교' : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line)}</span>
         </div>
         <p className="eyebrow">{activeEyebrow}</p>
         <h1>{activeHeading}</h1>
@@ -329,7 +354,7 @@ export default function ResultPage() {
           <div className="train-map" aria-label="지하철 칸별 추천 위치">
             <div className="train-map-head">
               <span>칸 위치 보기</span>
-              <small>{activeHasAnchor ? '환승 가까운 범위 안에서 골랐어요' : '파란 칸으로 가면 돼요'}</small>
+              <small>{activeEgressLabel ? `${activeEgressLabel} 주변에서 골랐어요` : activeHasAnchor ? '환승 가까운 범위 안에서 골랐어요' : '파란 칸으로 가면 돼요'}</small>
             </div>
             <div className="cars result-cars">
               {activeMapCars.map((car) => {
@@ -379,6 +404,7 @@ export default function ResultPage() {
             <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승 기준' : '하차 기준'}</span>
             <strong>{activeLeg.positionLabel} {legActionCopy(activeLeg.status)}</strong>
             {activeLegIndex === 0 && result.routeChoice.mode === 'ANCHOR_WINDOW' && result.routeChoice.anchorDoorLabels?.length ? <small>{result.routeChoice.anchorDoorLabels.join(', ')} 근처가 편해요.</small> : activeLeg.anchorCarNo != null && activeLeg.anchorDoorNo != null && <small>{activeLeg.anchorCarNo}번째 칸 · {activeLeg.anchorDoorNo}번 문 근처가 편해요.</small>}
+            {activeLeg.facilityType && <small>{facilityLabel(activeLeg.facilityType, activeLeg.facility)}와 가까운 위치를 참고했어요.</small>}
             {activeLeg.candidateCarNos?.length ? <small>{activeLeg.candidateCarNos.join(', ')}번째 칸도 비슷한 범위예요.</small> : null}
           </div>
           <p className="microcopy">{activeLeg.message}</p>

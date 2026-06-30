@@ -27,6 +27,7 @@
     "test:direction-normalization": "tsx scripts/smoke-direction-normalization.ts",
     "test:route-direction": "tsx scripts/smoke-route-direction-inference.ts",
     "test:comfort-bias": "tsx scripts/smoke-comfort-only-bias.ts",
+    "test:egress-facility": "tsx scripts/smoke-egress-facility.ts",
     "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
   },

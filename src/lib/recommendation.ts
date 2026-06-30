@@ -198,6 +198,8 @@ function buildRouteChoice(params: {
     selectedCarNo: params.recommendedCar.carNo,
     station: params.anchor.station,
     facility: params.anchor.facility,
+    facilityType: params.anchor.facilityType,
+    egressPreference: params.anchor.egressPreference,
     message: `${params.anchor.station} ${anchorLabel} 주변 ${candidateCarNos.join(', ')}번째 칸 중에서 쾌적한 칸을 골랐어요.`,
   };
 }

@@ -56,6 +56,16 @@ export function makeDoorGuideKey(params: { line: string; stationName: string; go
   ].join('|');
 }
 
+export function normalizeFacilityType(value?: string) {
+  const text = (value ?? '').trim();
+  if (!text) return 'UNKNOWN' as const;
+  if (text.includes('에스컬레이터') || /escalator/i.test(text)) return 'ESCALATOR' as const;
+  if (text.includes('엘리베이터') || text.includes('승강기') || /elevator|lift/i.test(text)) return 'ELEVATOR' as const;
+  if (text.includes('계단') || /stair/i.test(text)) return 'STAIRS' as const;
+  if (text.includes('환승')) return 'TRANSFER_PASSAGE' as const;
+  return 'UNKNOWN' as const;
+}
+
 export function parseCarDoor(value: string) {
   const match = value.trim().match(/^(\d{1,2})-(\d)$/);
   if (!match) return undefined;

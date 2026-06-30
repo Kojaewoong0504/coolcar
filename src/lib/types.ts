@@ -1,3 +1,6 @@
+import type { DoorGuideFacilityType, EgressPreference } from './doorGuidance/types';
+export type { DoorGuideFacilityType, EgressPreference } from './doorGuidance/types';
+
 export type ComfortType = 'HOT_SENSITIVE' | 'COLD_SENSITIVE' | 'CROWD_AVOIDER' | 'BALANCED';
 export type SourceType = 'REALTIME_CAR' | 'STATISTICAL_CAR' | 'AVERAGE_STATION' | 'ESTIMATED' | 'USER_FEEDBACK';
 export type Confidence = 'HIGH' | 'MEDIUM' | 'LOW';
@@ -9,6 +12,7 @@ export type RecommendRequest = {
   destinationLine?: string;
   direction?: string;
   comfortType: ComfortType;
+  egressPreference?: EgressPreference;
   targetTime?: string;
   waitToleranceMin?: 0 | 3 | 5 | 10;
   avoidPrioritySeatArea?: boolean;
@@ -52,6 +56,8 @@ export type RouteChoice = {
   selectedCarNo: number;
   station?: string;
   facility?: string;
+  facilityType?: DoorGuideFacilityType;
+  egressPreference?: EgressPreference;
   message: string;
 };
 
@@ -86,6 +92,8 @@ export type RouteLegGuidance = {
   candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;
+  facilityType?: DoorGuideFacilityType;
+  egressPreference?: EgressPreference;
   message: string;
 };
 
@@ -128,6 +136,7 @@ export type RoutePlanCandidate = {
     destinationLine?: string;
     transferStations?: string[];
     direction?: string;
+    egressPreference?: EgressPreference;
   };
   reasonCodes: string[];
   safetyNote: string;

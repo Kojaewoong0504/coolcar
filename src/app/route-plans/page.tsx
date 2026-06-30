@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { RecommendRequest, RoutePlanCandidate, RoutePlansResponse } from '@/lib/types';
+import type { EgressPreference, RecommendRequest, RoutePlanCandidate, RoutePlansResponse } from '@/lib/types';
 
 type PendingRoutePlan = {
   request: RecommendRequest;
@@ -22,12 +22,24 @@ function coverageCopy(candidate: RoutePlanCandidate) {
   return '쾌적칸 중심';
 }
 
+const EGRESS_OPTIONS: Array<{ value: EgressPreference; label: string; description: string }> = [
+  { value: 'ANY', label: '상관없어요', description: '쾌적도와 내리는 동선을 함께 볼게요.' },
+  { value: 'STAIRS', label: '계단 가까이', description: '도착역 계단 위치를 확인할 수 있으면 반영해요.' },
+  { value: 'ESCALATOR', label: '에스컬레이터 가까이', description: '에스컬레이터 쪽으로 가기 쉬운 위치를 우선 볼게요.' },
+  { value: 'ELEVATOR', label: '엘리베이터 가까이', description: '엘리베이터 가까운 위치를 확인할 수 있으면 반영해요.' },
+];
+
+function egressDescription(value: EgressPreference) {
+  return EGRESS_OPTIONS.find((option) => option.value === value)?.description ?? EGRESS_OPTIONS[0].description;
+}
+
 function buildRecommendRequest(base: RecommendRequest, candidate: RoutePlanCandidate): RecommendRequest {
   return {
     ...base,
     line: candidate.recommendRequestPatch.line,
     destinationLine: candidate.recommendRequestPatch.destinationLine ?? base.destinationLine,
     direction: candidate.recommendRequestPatch.direction ?? base.direction,
+    egressPreference: candidate.recommendRequestPatch.egressPreference ?? base.egressPreference ?? 'ANY',
     transferStations: candidate.recommendRequestPatch.transferStations ?? [],
   };
 }
@@ -40,6 +52,7 @@ export default function RoutePlansPage() {
   const [error, setError] = useState('');
   const [manualTransferInput, setManualTransferInput] = useState('');
   const [manualTransfers, setManualTransfers] = useState<string[]>([]);
+  const [egressPreference, setEgressPreference] = useState<EgressPreference>('ANY');
   const [manualLoading, setManualLoading] = useState(false);
 
   useEffect(() => {
@@ -51,11 +64,13 @@ export default function RoutePlansPage() {
     }
     try {
       const parsed = JSON.parse(raw) as PendingRoutePlan;
+      const initialEgress = parsed.request.egressPreference ?? 'ANY';
       setPending(parsed);
+      setEgressPreference(initialEgress);
       fetch('/api/route-plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...parsed.request, maxCandidates: 4 }),
+        body: JSON.stringify({ ...parsed.request, egressPreference: initialEgress, maxCandidates: 4 }),
       })
         .then(async (response) => {
           const json = await response.json();
@@ -90,8 +105,11 @@ export default function RoutePlansPage() {
 
   function selectCandidate(candidate: RoutePlanCandidate) {
     if (!baseRequest) return;
-    const nextRequest = buildRecommendRequest(baseRequest, candidate);
-    window.sessionStorage.setItem('coolcar_selected_route_plan', JSON.stringify(candidate));
+    const nextRequest = { ...buildRecommendRequest(baseRequest, candidate), egressPreference };
+    window.sessionStorage.setItem('coolcar_selected_route_plan', JSON.stringify({
+      ...candidate,
+      recommendRequestPatch: { ...candidate.recommendRequestPatch, egressPreference },
+    }));
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify({
       request: nextRequest,
       context: {
@@ -112,7 +130,7 @@ export default function RoutePlansPage() {
       const response = await fetch('/api/route-plans', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...baseRequest, transferStations: manualTransfers, maxCandidates: 3 }),
+        body: JSON.stringify({ ...baseRequest, egressPreference, transferStations: manualTransfers, maxCandidates: 3 }),
       });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error?.message ?? '직접 경로를 만들지 못했어요.');
@@ -197,6 +215,24 @@ export default function RoutePlansPage() {
           <p className="route-plan-path">{routePath(primaryCandidate)}</p>
           <p className="route-plan-lines">{primaryCandidate.lines.join(' → ')}</p>
           <p className="microcopy">{primaryCandidate.summary}</p>
+          <div className="egress-preference-card" aria-label="내릴 때 이동 방식">
+            <div>
+              <strong>내릴 때 어디가 편하세요?</strong>
+              <p className="microcopy">{egressDescription(egressPreference)}</p>
+            </div>
+            <div className="egress-options" role="group" aria-label="하차 이동 방식 선택">
+              {EGRESS_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={egressPreference === option.value ? 'selected' : ''}
+                  onClick={() => setEgressPreference(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <button className="primary" type="button" onClick={() => selectCandidate(primaryCandidate)}>
             이 경로로 추천받기
           </button>

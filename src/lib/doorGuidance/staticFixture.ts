@@ -1,5 +1,5 @@
 import verifiedNextTransferGuides from '../../../data/door-guidance/verified-next-transfer-guides.json';
-import { normalizeDirection, parseCarDoor } from './normalize';
+import { normalizeDirection, normalizeFacilityType, parseCarDoor } from './normalize';
 import type { DoorGuideRecord } from './types';
 
 type SeoulOpenApiSampleRow = {
@@ -71,6 +71,7 @@ const FINAL_EXIT_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.flatMap((
     carNo: parsed.carNo,
     doorNo: parsed.doorNo,
     facility: row.plfmCmgFac || undefined,
+    facilityType: normalizeFacilityType(row.plfmCmgFac),
     source: 'SEOUL_OPENAPI_SAMPLE' as const,
     confidence: 'LOW' as const,
     updatedAt: row.crtrYmd,
@@ -153,8 +154,12 @@ const FIELD_VERIFIED_NEXT_TRANSFER_GUIDES: DoorGuideRecord[] = [
   },
 ];
 
+function withFacilityType(record: DoorGuideRecord): DoorGuideRecord {
+  return { ...record, facilityType: record.facilityType ?? normalizeFacilityType(record.facility) };
+}
+
 export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
   ...FINAL_EXIT_GUIDES,
   ...VERIFIED_NEXT_TRANSFER_GUIDES,
   ...FIELD_VERIFIED_NEXT_TRANSFER_GUIDES,
-];
+].map(withFacilityType);

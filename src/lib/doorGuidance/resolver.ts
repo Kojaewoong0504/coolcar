@@ -1,5 +1,5 @@
 import { isSameLineDirectionSide } from '../routeDirection';
-import { makeDoorGuideKey, normalizeDirection, normalizeLine, normalizeStationName } from './normalize';
+import { makeDoorGuideKey, normalizeDirection, normalizeFacilityType, normalizeLine, normalizeStationName } from './normalize';
 import { fetchPublicDoorGuideRecords } from './publicAdapter';
 import { STATIC_DOOR_GUIDES } from './staticFixture';
 import type { DoorGuideLookupInput, DoorGuideLookupResult, DoorGuideRecord } from './types';
@@ -43,6 +43,21 @@ function directionMatches(input: DoorGuideLookupInput, record: DoorGuideRecord, 
   });
 }
 
+function recordFacilityType(record: DoorGuideRecord) {
+  return record.facilityType ?? normalizeFacilityType(record.facility);
+}
+
+function facilityRank(input: DoorGuideLookupInput, record: DoorGuideRecord) {
+  const type = recordFacilityType(record);
+  const preference = input.goal === 'FINAL_EXIT' ? input.egressPreference ?? 'ANY' : 'ANY';
+  if (preference !== 'ANY') return type === preference ? 0 : 10;
+  if (type === 'ESCALATOR') return 0;
+  if (type === 'STAIRS') return 1;
+  if (type === 'ELEVATOR') return 2;
+  if (type === 'TRANSFER_PASSAGE') return 3;
+  return 4;
+}
+
 export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: DoorGuideRecord[]): DoorGuideLookupResult {
   const candidates = records.filter((record) => keyForRecord(record) === keyForInput(input));
   if (candidates.length === 0) {
@@ -64,16 +79,12 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
     return { status: 'needs_data', reason: '해당 방향의 문 위치 정보가 아직 없어요.' };
   }
 
-  // Prefer escalator/stair records over elevator-only records for a general commuter default.
-  const sorted = [...matched].sort((a, b) => {
-    const score = (record: DoorGuideRecord) => {
-      const facility = record.facility ?? '';
-      if (facility.includes('에스컬레이터')) return 0;
-      if (facility.includes('계단')) return 1;
-      if (facility.includes('엘리베이터')) return 2;
-      return 3;
-    };
-    return score(a) - score(b) || a.carNo - b.carNo || a.doorNo - b.doorNo;
+  const preferredMatched = input.goal === 'FINAL_EXIT' && input.egressPreference && input.egressPreference !== 'ANY'
+    ? matched.filter((record) => facilityRank(input, record) === 0)
+    : [];
+  const rankedRecords = preferredMatched.length > 0 ? preferredMatched : matched;
+  const sorted = [...rankedRecords].sort((a, b) => {
+    return facilityRank(input, a) - facilityRank(input, b) || a.carNo - b.carNo || a.doorNo - b.doorNo;
   });
 
   const best = sorted[0];

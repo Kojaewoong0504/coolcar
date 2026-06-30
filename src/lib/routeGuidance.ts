@@ -11,6 +11,8 @@ export type RouteAnchor = {
   doorNo?: number;
   records?: DoorGuideRecord[];
   facility?: string;
+  facilityType?: RouteLegGuidance['facilityType'];
+  egressPreference?: RouteLegGuidance['egressPreference'];
   message: string;
 };
 
@@ -79,6 +81,8 @@ function baseLeg(params: {
   candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;
+  facilityType?: RouteLegGuidance['facilityType'];
+  egressPreference?: RouteLegGuidance['egressPreference'];
   message: string;
 }): RouteLegGuidance {
   return {
@@ -96,6 +100,8 @@ function baseLeg(params: {
     candidateCarNos: params.candidateCarNos,
     positionLabel: params.positionLabel,
     facility: params.facility,
+    facilityType: params.facilityType,
+    egressPreference: params.egressPreference,
     message: params.message,
   };
 }
@@ -106,6 +112,7 @@ async function applyDoorGuide(params: {
   direction?: string;
   goal: RouteLegGuidance['goal'];
   targetLine?: string;
+  egressPreference?: RouteLegGuidance['egressPreference'];
   fallbackCarNo?: number;
   fallbackMessage: string;
 }) {
@@ -124,6 +131,7 @@ async function applyDoorGuide(params: {
     direction: params.direction,
     goal: params.goal,
     targetLine: params.targetLine,
+    egressPreference: params.egressPreference,
   });
 
   if (result.status === 'available') {
@@ -134,6 +142,8 @@ async function applyDoorGuide(params: {
       anchorRecords: result.records,
       positionLabel: `${result.record.carNo}번째 칸 · ${result.record.doorNo}번 문 근처`,
       facility: result.record.facility,
+      facilityType: result.record.facilityType,
+      egressPreference: params.egressPreference,
       message: result.record.facility
         ? `${result.record.facility}와 가까운 참고 위치예요.`
         : '내릴 때 이동하기 좋은 참고 위치예요.',
@@ -145,6 +155,7 @@ async function applyDoorGuide(params: {
       status: 'needs_direction' as const,
       recommendedCarNo: params.fallbackCarNo,
       positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '쾌적칸 중심',
+      egressPreference: params.egressPreference,
       message: '방면 자동 계산이 어려운 구간이라 쾌적칸 중심으로 안내해요. 승강장 안내를 함께 확인해 주세요.',
     };
   }
@@ -153,6 +164,7 @@ async function applyDoorGuide(params: {
     status: 'needs_data' as const,
     recommendedCarNo: params.fallbackCarNo,
     positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '탑승 위치 확인 필요',
+    egressPreference: params.egressPreference,
     message: params.fallbackMessage,
   };
 }
@@ -185,6 +197,7 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
     direction: inferredDirection,
     goal: anchorTarget.goal,
     targetLine: anchorTarget.targetLine,
+    egressPreference: anchorTarget.goal === 'FINAL_EXIT' ? request.egressPreference : undefined,
   });
 
   if (result.status !== 'available') return undefined;
@@ -196,6 +209,8 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
     doorNo: result.record.doorNo,
     records: result.records,
     facility: result.record.facility,
+    facilityType: result.record.facilityType,
+    egressPreference: anchorTarget.goal === 'FINAL_EXIT' ? request.egressPreference : undefined,
     message: result.record.facility
       ? `${result.record.facility}와 가까운 위치를 기준으로 주변 칸을 비교했어요.`
       : '환승·하차 위치와 가까운 칸 주변을 먼저 비교했어요.',
@@ -215,6 +230,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       toStation: destination,
       direction: effectiveDirection,
       goal: 'FINAL_EXIT',
+      egressPreference: request.egressPreference,
       fallbackCarNo: recommendedCar.carNo,
       fallbackMessage: '빠른하차 위치가 확인되지 않은 구간은 추천 칸을 기준으로 안내해요. 승강장에서 한 번 더 확인해 주세요.',
     });
@@ -240,6 +256,8 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
             ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
             : doorGuide.positionLabel,
           facility: doorGuide.facility,
+          facilityType: doorGuide.facilityType,
+          egressPreference: doorGuide.egressPreference,
           message: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
             : doorGuide.message,
@@ -285,6 +303,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       direction: effectiveDirection,
       goal,
       targetLine: !isLast && transfers.length === 1 ? request.destinationLine : undefined,
+      egressPreference: isLast ? request.egressPreference : undefined,
       fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0
         ? '이 환승 구간은 승강장 안내와 함께 확인해 주세요. 지금은 추천 칸을 기준으로 안내해요.'
@@ -307,6 +326,8 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
         ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
         : doorGuide.positionLabel,
       facility: doorGuide.facility,
+      facilityType: doorGuide.facilityType,
+      egressPreference: doorGuide.egressPreference,
       message: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
         ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
         : doorGuide.message,

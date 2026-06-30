@@ -1,4 +1,6 @@
 export type DoorGuideGoal = 'FINAL_EXIT' | 'NEXT_TRANSFER';
+export type DoorGuideFacilityType = 'STAIRS' | 'ESCALATOR' | 'ELEVATOR' | 'TRANSFER_PASSAGE' | 'UNKNOWN';
+export type EgressPreference = 'ANY' | 'STAIRS' | 'ESCALATOR' | 'ELEVATOR';
 export type DoorGuideSource =
   | 'SEOUL_OPENAPI_SAMPLE'
   | 'STATIC_CURATED'
@@ -16,6 +18,7 @@ export type DoorGuideRecord = {
   carNo: number;
   doorNo: number;
   facility?: string;
+  facilityType?: DoorGuideFacilityType;
   source: DoorGuideSource;
   confidence: 'MEDIUM' | 'LOW';
   updatedAt: string;
@@ -27,6 +30,7 @@ export type DoorGuideLookupInput = {
   direction?: string;
   goal: DoorGuideGoal;
   targetLine?: string;
+  egressPreference?: EgressPreference;
 };
 
 export type DoorGuideLookupResult =

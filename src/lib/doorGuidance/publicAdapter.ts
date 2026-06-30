@@ -1,5 +1,5 @@
 import { getSeoulOpenApiBaseUrl, getSeoulOpenApiKey, getSeoulOpenApiTimeoutMs } from './config';
-import { normalizeDirection, normalizeLine, normalizeStationName, parseCarDoor } from './normalize';
+import { normalizeDirection, normalizeFacilityType, normalizeLine, normalizeStationName, parseCarDoor } from './normalize';
 import type { DoorGuideLookupInput, DoorGuideRecord } from './types';
 
 type SeoulGetFstExitRow = {
@@ -54,6 +54,7 @@ export function rowToDoorGuideRecord(row: SeoulGetFstExitRow, input: DoorGuideLo
   const parsed = parseCarDoor(door);
   if (!parsed) return undefined;
 
+  const facility = asString(row.plfmCmgFac) || undefined;
   return {
     line,
     stationName,
@@ -62,7 +63,8 @@ export function rowToDoorGuideRecord(row: SeoulGetFstExitRow, input: DoorGuideLo
     goal: 'FINAL_EXIT',
     carNo: parsed.carNo,
     doorNo: parsed.doorNo,
-    facility: asString(row.plfmCmgFac) || undefined,
+    facility,
+    facilityType: normalizeFacilityType(facility),
     source: 'SEOUL_OPENAPI_GET_FST_EXIT',
     confidence: 'MEDIUM',
     updatedAt: asString(row.crtrYmd) || new Date().toISOString().slice(0, 10),
