@@ -50,6 +50,14 @@ function comfortCopy(result: RecommendationResponse) {
   return '전체적으로 무난한 기준';
 }
 
+function comfortShortCopy(result: RecommendationResponse) {
+  const type = result.request.comfortType;
+  if (type === 'HOT_SENSITIVE') return '더위형';
+  if (type === 'COLD_SENSITIVE') return '추위형';
+  if (type === 'CROWD_AVOIDER') return '혼잡회피';
+  return '밸런스';
+}
+
 function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') return needsTransfer ? '환승 위치 반영' : '하차 위치 반영';
   if (result.routeGuidance.status === 'needs_route') return '쾌적도 중심 추천';
@@ -327,7 +335,7 @@ export default function ResultPage() {
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges compact-result-badges">
           <span>{isPrimaryLeg ? routeStatusLabel(result, needsTransfer) : legStatusCopy(activeLeg.status, activeLeg)}</span>
-          <span>{activeEgressBadge ?? (activeHasAnchor ? '쾌적도 비교' : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line)}</span>
+          <span>{activeEgressBadge ?? (activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line)}</span>
         </div>
         <p className="eyebrow">{activeEyebrow}</p>
         <h1>{activeHeading}</h1>
@@ -338,7 +346,7 @@ export default function ResultPage() {
           </div>
           <div>
             <span>기준</span>
-            <strong>{activeHasAnchor ? '환승 + 쾌적도' : isFinalExitComfortFallback ? '쾌적도' : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
+            <strong>{activeHasAnchor ? `환승 + ${comfortShortCopy(result)}` : isFinalExitComfortFallback ? '쾌적도' : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
           </div>
         </div>
         {showTrainMap ? (
