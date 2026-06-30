@@ -626,7 +626,7 @@ export const STATIONS: Station[] = [
   { name: "고속터미널역", line: "9호선", operator: "서울시메트로9호선", lat: 37.50481, lng: 127.004943 },
   { name: "공항시장역", line: "9호선", operator: "서울시메트로9호선", lat: 37.563515, lng: 126.81095 },
   { name: "구반포역", line: "9호선", operator: "서울시메트로9호선", lat: 37.501364, lng: 126.987331 },
-  { name: "구회의사당역", line: "9호선", operator: "서울시메트로9호선", lat: 37.52827, lng: 126.9173 },
+  { name: "국회의사당역", line: "9호선", operator: "서울시메트로9호선", lat: 37.52827, lng: 126.9173 },
   { name: "김포공항역", line: "9호선", operator: "서울시메트로9호선", lat: 37.562434, lng: 126.801058 },
   { name: "노들역", line: "9호선", operator: "서울시메트로9호선", lat: 37.512887, lng: 126.952739 },
   { name: "노량진역", line: "9호선", operator: "서울시메트로9호선", lat: 37.5142, lng: 126.9425 },
@@ -744,11 +744,29 @@ export function normalizeStationName(value: string): string {
   return value.trim().replace(/\s+/g, '').replace(/역$/, '');
 }
 
+const SEARCH_SERVICE_AREA = {
+  minLat: 36.85,
+  maxLat: 38.35,
+  minLng: 126.0,
+  maxLng: 127.8,
+};
+
+// 시원칸의 역 검색은 서울·수도권 전철 입력용이다.
+// 원본 STATIONS에는 전국 도시철도 1~4호선이 같은 "1호선/2호선" 문자열로 섞여 있으므로
+// 검색 노출 전 좌표 기반 서비스 권역 필터를 적용한다. 예: 부산 구남역은 부산 2호선이지 서울 2호선이 아니다.
+export function isSearchableMetroStation(station: Station): boolean {
+  if (station.lat == null || station.lng == null) return true;
+  return station.lat >= SEARCH_SERVICE_AREA.minLat
+    && station.lat <= SEARCH_SERVICE_AREA.maxLat
+    && station.lng >= SEARCH_SERVICE_AREA.minLng
+    && station.lng <= SEARCH_SERVICE_AREA.maxLng;
+}
+
 export function searchStations(query: string, options: { line?: string; limit?: number } = {}): Station[] {
   const q = normalizeStationName(query);
   const limit = Math.min(Math.max(options.limit ?? 20, 1), 50);
   if (q.length < 1 && !options.line) return [];
-  const matches = STATIONS.filter((s) => {
+  const matches = STATIONS.filter(isSearchableMetroStation).filter((s) => {
     const stationName = normalizeStationName(s.name);
     const lineMatches = !options.line || s.line === options.line;
     const queryMatches = !q || stationName.includes(q) || s.line.includes(q);
