@@ -51,6 +51,24 @@ function directionStatusLabel(result: RecommendationResponse) {
   return result.request.direction ? `${result.request.line} · 이동 방향 자동 계산` : `${result.request.line} · 방면 미입력`;
 }
 
+function lineCarCount(line?: string) {
+  return line === '9호선' || line === '신분당선' ? 6 : 10;
+}
+
+function carPositionLabel(carNo: number, count: number) {
+  if (carNo <= 2) return '앞쪽';
+  if (carNo >= count - 1) return '뒤쪽';
+  return '중앙';
+}
+
+function mapCarsForLine(line: string) {
+  const count = lineCarCount(line);
+  return Array.from({ length: count }, (_, index) => ({
+    carNo: index + 1,
+    position: carPositionLabel(index + 1, count),
+  }));
+}
+
 function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
     const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
@@ -211,6 +229,9 @@ export default function ResultPage() {
     : (activeLeg?.anchorCarNo ? [activeLeg.anchorCarNo] : []);
   const activeHasAnchor = isPrimaryLeg && hasAnchorWindow;
   const showTrainMap = Boolean(activeRecommendedCarNo || activeCandidateCarNos.length || activeAnchorCarNos.length);
+  const activeMapCars = isPrimaryLeg
+    ? result.cars.map((car) => ({ carNo: car.carNo, position: car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙' }))
+    : mapCarsForLine(activeLeg?.line ?? result.request.line);
   const activeHeading = activeRecommendedCarNo
     ? `${activeRecommendedCarNo}번째 칸으로 가세요`
     : activeLeg
@@ -311,18 +332,18 @@ export default function ResultPage() {
               <small>{activeHasAnchor ? '환승 가까운 범위 안에서 골랐어요' : '파란 칸으로 가면 돼요'}</small>
             </div>
             <div className="cars result-cars">
-              {result.cars.map((car) => {
+              {activeMapCars.map((car) => {
                 const isBest = activeRecommendedCarNo != null && car.carNo === activeRecommendedCarNo;
                 const isAnchor = activeAnchorCarNos.includes(car.carNo);
                 const isCandidate = activeCandidateCarNos.includes(car.carNo);
-                const isAvoid = !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
+                const isAvoid = isPrimaryLeg && !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
                 const className = isBest ? 'car best' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : isAvoid ? 'car avoid' : 'car';
                 const label = isBest ? '추천' : isAnchor ? '환승' : isCandidate ? '가능' : isAvoid ? '피하기' : '';
                 return (
                   <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAnchor ? ' 환승 가까움' : isCandidate ? ' 허용 범위' : isAvoid ? ' 피하면 좋아요' : ''}`}>
                     {label && <span className="best-badge">{label}</span>}
                     <strong>{car.carNo}</strong>
-                    <em>{isBest ? '여기' : isAnchor ? '가까움' : isCandidate ? '주변' : isAvoid ? '피하기' : car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙'}</em>
+                    <em>{isBest ? '여기' : isAnchor ? '가까움' : isCandidate ? '주변' : isAvoid ? '피하기' : car.position}</em>
                   </div>
                 );
               })}

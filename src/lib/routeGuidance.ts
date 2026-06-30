@@ -1,6 +1,7 @@
 import type { DoorGuideRecord } from './doorGuidance/types';
-import type { CarComfort, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
+import type { CarComfort, ComfortType, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
 import { lookupDoorGuide } from './doorGuidance/resolver';
+import { generateCars } from './providers';
 import { inferLineDirection } from './routeDirection';
 
 export type RouteAnchor = {
@@ -25,6 +26,42 @@ function uniqueStations(stations: string[] | undefined, origin: string, destinat
 
 function sameLine(request: RecommendRequest) {
   return !request.destinationLine || request.destinationLine === request.line;
+}
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function scoreGeneratedCar(car: CarComfort, comfortType: ComfortType, avoidPrioritySeatArea?: boolean): CarComfort {
+  const weights = comfortType === 'HOT_SENSITIVE'
+    ? { cool: 0.48, crowd: 0.28, convenience: 0.24 }
+    : comfortType === 'COLD_SENSITIVE'
+      ? { cool: -0.28, crowd: 0.38, convenience: 0.34 }
+      : comfortType === 'CROWD_AVOIDER'
+        ? { cool: 0.22, crowd: 0.56, convenience: 0.22 }
+        : { cool: 0.34, crowd: 0.34, convenience: 0.32 };
+  const priorityPenalty = avoidPrioritySeatArea && car.isPrioritySeatArea ? 18 : 0;
+  const weakAcBonus = comfortType === 'COLD_SENSITIVE' && car.isWeakAc ? 12 : 0;
+  const total = (car.coolingScore * weights.cool) + (car.crowdScore * weights.crowd) + (car.convenienceScore * weights.convenience) + weakAcBonus - priorityPenalty;
+  return { ...car, totalComfortScore: clampScore(total) };
+}
+
+function fallbackCarForLeg(params: {
+  request: RecommendRequest;
+  line: string;
+  fromStation: string;
+  direction?: string;
+}) {
+  const cars = generateCars({
+    ...params.request,
+    line: params.line,
+    originStation: params.fromStation,
+    direction: params.direction,
+  }, 'estimated').map((car) => scoreGeneratedCar(car, params.request.comfortType, params.request.avoidPrioritySeatArea));
+  return [...cars].sort((a, b) => {
+    if (b.totalComfortScore !== a.totalComfortScore) return b.totalComfortScore - a.totalComfortScore;
+    return Math.abs(a.carNo - (cars.length + 1) / 2) - Math.abs(b.carNo - (cars.length + 1) / 2);
+  })[0];
 }
 
 function baseLeg(params: {
@@ -239,34 +276,36 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
     const isLast = index === waypoints.length - 2;
     const line = index === 0 ? request.line : (isLast ? request.destinationLine || '환승 후 노선' : '환승 후 노선');
     const goal = isLast ? 'FINAL_EXIT' : 'NEXT_TRANSFER';
-    const effectiveDirection = index === 0 ? (request.direction ?? inferLineDirection({ line, originStation: fromStation, targetStation: toStation })?.doorGuideDirection) : undefined;
+    const inferredDirection = inferLineDirection({ line, originStation: fromStation, targetStation: toStation })?.doorGuideDirection;
+    const effectiveDirection = index === 0 ? (request.direction ?? inferredDirection) : inferredDirection;
+    const legFallbackCar = index === 0 ? recommendedCar : fallbackCarForLeg({ request, line, fromStation, direction: effectiveDirection });
     const doorGuide = await applyDoorGuide({
       line,
       toStation,
       direction: effectiveDirection,
       goal,
       targetLine: !isLast && transfers.length === 1 ? request.destinationLine : undefined,
-      fallbackCarNo: index === 0 ? recommendedCar.carNo : undefined,
+      fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0
         ? '이 환승 구간은 승강장 안내와 함께 확인해 주세요. 지금은 추천 칸을 기준으로 안내해요.'
-        : '다음 노선의 방면에 따라 추천 위치가 달라질 수 있어요.',
+        : '정확한 하차문 정보는 아직 확인 중이라, 이 구간은 쾌적칸 중심으로 안내해요. 승강장 안내를 함께 확인해 주세요.',
     });
     return baseLeg({
       legNo: index + 1,
       fromStation,
       toStation,
       line,
-      direction: index === 0 ? request.direction : undefined,
+      direction: effectiveDirection,
       goal,
-      status: index === 0 ? doorGuide.status : (doorGuide.status === 'available' ? 'available' : 'needs_route'),
+      status: doorGuide.status,
       recommendedCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
       recommendedDoorNo: doorGuide.recommendedDoorNo,
       anchorCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available' ? doorGuide.recommendedCarNo : undefined,
-      anchorDoorNo: index === 0 ? doorGuide.recommendedDoorNo : undefined,
+      anchorDoorNo: doorGuide.status === 'available' ? doorGuide.recommendedDoorNo : undefined,
       candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.candidateCarNos : undefined,
       positionLabel: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
         ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
-        : index === 0 || doorGuide.status === 'available' ? doorGuide.positionLabel : '환승 후 탑승 위치 확인 필요',
+        : doorGuide.positionLabel,
       facility: doorGuide.facility,
       message: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
         ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`

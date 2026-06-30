@@ -133,9 +133,11 @@ async function buildTransferCandidate(params: {
     targetLine: params.toLine,
   });
   const transferStatus = doorCoverageStatus(transferGuide.status);
+  const finalInferred = inferLineDirection({ line: params.toLine, originStation: params.transferStation, targetStation: params.destinationStation });
   const finalExit = await lookupDoorGuide({
     line: params.toLine,
     toStation: params.destinationStation,
+    direction: finalInferred?.doorGuideDirection,
     goal: 'FINAL_EXIT',
   });
   const finalStatus = doorCoverageStatus(finalExit.status);
