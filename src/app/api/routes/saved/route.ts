@@ -2,6 +2,64 @@ import { NextResponse } from 'next/server';
 import { savedRouteSchema } from '@/lib/validation';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/supabase/server';
+import type { RecommendRequest } from '@/lib/types';
+
+type SavedRouteRow = {
+  id: string;
+  origin_station: string;
+  destination_station: string | null;
+  line: string;
+};
+
+function isRecommendRequest(value: unknown): value is RecommendRequest {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<RecommendRequest>;
+  return typeof candidate.line === 'string'
+    && typeof candidate.originStation === 'string'
+    && typeof candidate.comfortType === 'string';
+}
+
+async function attachRecentRecommendationRequests(
+  supabase: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  routes: SavedRouteRow[],
+  owner: { userId?: string; anonymousId?: string | null },
+) {
+  if (routes.length === 0) return routes;
+
+  let eventsQuery = supabase
+    .from('recommendation_events')
+    .select('station,destination_station,line,request_payload,created_at')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  eventsQuery = owner.userId
+    ? eventsQuery.eq('user_id', owner.userId)
+    : eventsQuery.eq('anonymous_id', owner.anonymousId ?? '');
+
+  const { data: events, error } = await eventsQuery;
+  if (error || !events) return routes;
+
+  return routes.map((route) => {
+    const match = events.find((event) => {
+      const payload = event.request_payload;
+      if (!isRecommendRequest(payload)) return false;
+      return event.station === route.origin_station
+        && event.destination_station === route.destination_station
+        && event.line === route.line
+        && payload.originStation === route.origin_station
+        && payload.destinationStation === (route.destination_station ?? undefined);
+    });
+
+    const requestPayload = match?.request_payload;
+    if (!isRecommendRequest(requestPayload)) return route;
+
+    return {
+      ...route,
+      recent_request: requestPayload,
+      recent_context: { destinationLine: requestPayload.destinationLine },
+    };
+  });
+}
 
 function requireSupabase() {
   const supabase = getSupabaseAdmin();
@@ -29,7 +87,8 @@ export async function GET(request: Request) {
   const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: { code: 'SAVED_ROUTES_READ_FAILED', message: '저장 경로를 불러오지 못했어요.' } }, { status: 500 });
-  return NextResponse.json({ routes: data ?? [], persisted: true });
+  const routes = await attachRecentRecommendationRequests(supabase, (data ?? []) as SavedRouteRow[], { userId: user?.id, anonymousId });
+  return NextResponse.json({ routes, persisted: true });
 }
 
 export async function POST(request: Request) {

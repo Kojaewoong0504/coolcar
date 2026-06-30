@@ -17,6 +17,8 @@ type SavedRoute = {
   comfort_type: string | null;
   commute_type: string | null;
   is_default: boolean;
+  recent_request?: RecommendRequest;
+  recent_context?: { destinationLine?: string };
 };
 
 type AuthMe = { authenticated: boolean; profile: NormalizedAuthProfile | null };
@@ -98,7 +100,10 @@ export default function SavedPage() {
 
   function startRecommendation(route: SavedRoute) {
     const anonymousId = getAnonymousId();
-    const stored = readStoredRoutineRequests()[route.id];
+    const localStored = readStoredRoutineRequests()[route.id];
+    const serverStored = route.recent_request
+      ? { request: route.recent_request, context: route.recent_context }
+      : undefined;
     const fallbackRequest: RecommendRequest = {
       line: route.line,
       originStation: route.origin_station,
@@ -109,8 +114,9 @@ export default function SavedPage() {
       waitToleranceMin: 3,
       anonymousId,
     };
-    const pending = stored
-      ? { request: { ...stored.request, anonymousId: stored.request.anonymousId ?? anonymousId }, context: stored.context }
+    const restored = localStored ?? serverStored;
+    const pending = restored
+      ? { request: { ...restored.request, anonymousId: restored.request.anonymousId ?? anonymousId }, context: restored.context }
       : { request: fallbackRequest, context: undefined };
     window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify(pending));
     window.location.href = '/result';
