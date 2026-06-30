@@ -27,28 +27,11 @@ function comfortCopy(result: RecommendationResponse) {
   return '전체적으로 무난한 기준';
 }
 
-function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) {
-  if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
-    const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
-    return `${station}에서 가까운 칸 주변 후보를 먼저 보고, 그 안에서 덜 덥고 덜 붐비는 쪽을 골랐어요.`;
-  }
-  if (result.routeGuidance.status === 'needs_route') return '환승역이 아직 정해지지 않아 빠른 환승문은 반영하지 못했어요. 이번 추천은 출발 구간의 쾌적도 기준이에요.';
-  if (needsTransfer) return '확인된 환승 위치가 없는 구간은 환승 가까운 칸이라고 확정하지 않고, 쾌적도 중심으로 추천해요.';
-  if (result.request.comfortType === 'HOT_SENSITIVE') return '더운 날에 덜 답답하고 비교적 시원하게 탈 수 있는 위치예요.';
-  if (result.request.comfortType === 'COLD_SENSITIVE') return '찬바람이 부담스러울 때 너무 춥지 않은 쪽을 우선했어요.';
-  if (result.request.comfortType === 'CROWD_AVOIDER') return '사람이 몰리는 구간을 피하기 쉬운 쪽을 우선했어요.';
-  return '시원함, 혼잡함, 내리는 동선을 함께 보고 무난한 위치를 골랐어요.';
-}
-
 function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') return needsTransfer ? '환승 위치 반영' : '하차 위치 반영';
   if (result.routeGuidance.status === 'needs_route') return '쾌적도 중심 추천';
   if (needsTransfer) return '쾌적도 중심 추천';
   return '쾌적칸 추천';
-}
-
-function directionStatusLabel(result: RecommendationResponse) {
-  return result.request.direction ? `${result.request.line} · 이동 방향 자동 계산` : `${result.request.line} · 방면 미입력`;
 }
 
 function lineCarCount(line?: string) {
@@ -69,21 +52,6 @@ function mapCarsForLine(line: string) {
   }));
 }
 
-function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
-  if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
-    const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
-    const anchorLabels = result.routeChoice.anchorDoorLabels?.length ? result.routeChoice.anchorDoorLabels.join(', ') : undefined;
-    const anchor = anchorLabels ?? (result.routeChoice.anchorCarNo ? `${result.routeChoice.anchorCarNo}번째 칸` : '가까운 칸');
-    const candidates = result.routeChoice.candidateCarNos.length ? `(${result.routeChoice.candidateCarNos.join(', ')}번째 칸)` : '';
-    return `${station} ${anchor} 주변 ${candidates}을 먼저 비교한 뒤, 그중 쾌적도가 나은 ${result.recommendedCar.label}을 골랐어요.`;
-  }
-  if (result.routeGuidance.status === 'needs_route') {
-    return `${result.request.destinationStation || '목적지'}까지는 환승이 필요할 수 있지만, 환승역이 아직 정해지지 않아 ${result.recommendedCar.label}이 빠른 환승에 가장 가깝다는 뜻은 아니에요.`;
-  }
-  if (needsTransfer) return '확인된 환승 위치가 없는 구간은 환승 거리보다 덜 덥고 덜 붐비는 위치를 우선했어요.';
-  return '선택한 구간에서 덜 덥고 덜 붐빌 가능성이 높은 칸을 비교했어요.';
-}
-
 function routePathCopy(result: RecommendationResponse) {
   const transfers = result.request.transferStations?.filter(Boolean) ?? [];
   if (transfers.length > 0) return [result.request.originStation, ...transfers, result.request.destinationStation || '목적지'].join(' → ');
@@ -100,14 +68,6 @@ function legStatusCopy(status: RouteLeg['status'], leg?: RouteLeg) {
   return '승강장 참고';
 }
 
-function legActionCopy(status: RouteLeg['status'], leg?: RouteLeg) {
-  if (status === 'available') return '타세요';
-  if (leg?.goal === 'FINAL_EXIT' && status === 'needs_data') return '확인해 주세요';
-  if (status === 'needs_direction') return '위치를 참고해 주세요';
-  if (status === 'needs_route') return '위치를 참고해 주세요';
-  return '위치를 참고해 주세요';
-}
-
 function facilityLabel(facilityType?: RecommendationResponse['routeGuidance']['legs'][number]['facilityType'], facility?: string) {
   if (facilityType === 'STAIRS') return '계단';
   if (facilityType === 'ESCALATOR') return '에스컬레이터';
@@ -116,38 +76,11 @@ function facilityLabel(facilityType?: RecommendationResponse['routeGuidance']['l
   return facility;
 }
 
-function egressPreferenceLabel(value?: RecommendationResponse['request']['egressPreference']) {
-  if (value === 'STAIRS') return '계단 가까이';
-  if (value === 'ESCALATOR') return '에스컬레이터 가까이';
-  if (value === 'ELEVATOR') return '엘리베이터 가까이';
-  return '상관없음';
-}
-
 function egressResultCopy(leg?: RecommendationResponse['routeGuidance']['legs'][number]) {
   if (!leg || leg.goal !== 'FINAL_EXIT') return undefined;
   const label = facilityLabel(leg.facilityType, leg.facility);
-  if (leg.status === 'available' && label) return `${label} 가까운 쪽에서 골랐어요.`;
-  return '도착역에서는 표지판 따라 이동하면 돼요.';
-}
-
-function heroOneLine(params: {
-  result: RecommendationResponse;
-  activeLeg?: RouteLeg;
-  activeHasAnchor: boolean;
-  isFinalExitComfortFallback: boolean;
-}) {
-  if (params.activeHasAnchor) {
-    const station = params.result.routeChoice.station ?? '환승역';
-    return `${station} 갈아타기 편한 범위에서 골랐어요.`;
-  }
-  if (params.activeLeg?.goal === 'FINAL_EXIT') {
-    if (params.activeLeg.status === 'available') return egressResultCopy(params.activeLeg) ?? '내릴 때 편한 쪽이에요.';
-    return '마지막 구간은 쾌적한 칸으로 가면 돼요.';
-  }
-  if (params.result.request.comfortType === 'HOT_SENSITIVE') return '더운 날 덜 답답한 쪽이에요.';
-  if (params.result.request.comfortType === 'COLD_SENSITIVE') return '찬바람 부담이 적은 쪽이에요.';
-  if (params.result.request.comfortType === 'CROWD_AVOIDER') return '덜 붐비는 쪽을 우선했어요.';
-  return '무난하게 타기 좋은 위치예요.';
+  if (leg.status === 'available' && label) return `${label} 가까운 쪽`;
+  return '쾌적도 기준';
 }
 
 export default function ResultPage() {
@@ -260,7 +193,6 @@ export default function ResultPage() {
   const anonymousId = getAnonymousId();
   const hasAnchorWindow = result.routeChoice?.mode === 'ANCHOR_WINDOW';
   const routePath = routePathCopy(result);
-  const routeBasis = routeBasisCopy(result, needsTransfer);
   const activeLeg = result.routeGuidance.legs[Math.min(activeLegIndex, Math.max(result.routeGuidance.legs.length - 1, 0))];
   const nextLeg = result.routeGuidance.legs[Math.min(activeLegIndex, Math.max(result.routeGuidance.legs.length - 1, 0)) + 1];
   const hasMultipleLegs = result.routeGuidance.legs.length > 1;
@@ -294,9 +226,8 @@ export default function ResultPage() {
     : activeLeg
       ? `${activeLeg.line} 탑승 위치를 확인해 주세요`
       : `${result.recommendedCar.carNo}번째 칸으로 가세요`;
-  const activeEyebrow = activeHasAnchor ? '환승 가까운 쾌적칸' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 구간 안내') : '지금 타기 좋은 위치';
+  const activeEyebrow = activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 구간 안내') : '지금 타기 좋은 위치';
   const activeRouteNote = activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legStatusCopy(activeLeg.status, activeLeg) : comfortCopy(result);
-  const activeReason = heroOneLine({ result, activeLeg, activeHasAnchor, isFinalExitComfortFallback });
   const displayReasons = activeLeg && !isPrimaryLeg
     ? [
         activeLeg.status === 'available'
@@ -373,15 +304,14 @@ export default function ResultPage() {
           </div>
           <div>
             <span>기준</span>
-            <strong>{activeHasAnchor ? '환승 동선 + 쾌적도' : isFinalExitComfortFallback ? '쾌적도' : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
+            <strong>{activeHasAnchor ? '환승 + 쾌적도' : isFinalExitComfortFallback ? '쾌적도' : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
           </div>
         </div>
-        <p className="source-message result-one-line-reason">{activeReason}</p>
         {showTrainMap ? (
           <div className="train-map" aria-label="지하철 칸별 추천 위치">
             <div className="train-map-head">
               <span>칸 위치 보기</span>
-              <small>{activeEgressLabel ? `${activeEgressLabel} 주변에서 골랐어요` : activeHasAnchor ? '환승 가까운 범위 안에서 골랐어요' : '파란 칸으로 가면 돼요'}</small>
+              <small>추천 칸만 확인하세요</small>
             </div>
             <div className="cars result-cars">
               {activeMapCars.map((car) => {
@@ -389,14 +319,13 @@ export default function ResultPage() {
                 const isAnchor = activeAnchorCarNos.includes(car.carNo);
                 const isCandidate = activeCandidateCarNos.includes(car.carNo);
                 const isAvoid = isPrimaryLeg && !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
-                const anchorWord = activeLeg?.goal === 'FINAL_EXIT' ? '하차' : '환승';
-                const className = isBest ? 'car best' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : isAvoid ? 'car avoid' : 'car';
-                const label = isBest ? '추천' : isAnchor ? anchorWord : isCandidate ? '가능' : isAvoid ? '피하기' : '';
+                const className = isBest ? 'car best' : isAvoid ? 'car avoid' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : 'car';
+                const label = isBest ? '추천' : isAvoid ? '피하기' : '';
                 return (
-                  <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAnchor ? ` ${anchorWord} 가까움` : isCandidate ? ' 허용 범위' : isAvoid ? ' 피하면 좋아요' : ''}`}>
+                  <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAvoid ? ' 피하면 좋아요' : ''}`}>
                     {label && <span className="best-badge">{label}</span>}
                     <strong>{car.carNo}</strong>
-                    <em>{isBest ? '여기' : isAnchor ? '가까움' : isCandidate ? '주변' : isAvoid ? '피하기' : car.position}</em>
+                    <em>{isBest ? '여기' : isAvoid ? '피하기' : car.position}</em>
                   </div>
                 );
               })}
@@ -409,17 +338,11 @@ export default function ResultPage() {
             <small>이전 구간 칸 정보를 그대로 쓰지 않아요.</small>
           </div>
         )}
-        {activeHasAnchor && <p className="transfer-note compact-tip">가까운 칸과 양옆까지 보고 골랐어요.</p>}
-        {!activeHasAnchor && needsTransfer && isPrimaryLeg && <p className="transfer-note compact-tip">쾌적도 기준으로 먼저 추천했어요.</p>}
         <div className="personalization-strip" aria-label="개인화 저장 상태">
           <span>✨ 개인화</span>
           <strong>{personalizationCopy}</strong>
         </div>
-        <div className="result-actions">
-          <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>{saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}</button>
-          <Link href={backHref}>다시 추천</Link>
-        </div>
-        {saveState === 'saved' && <p className="ok">퇴근 루틴에 저장했어요.</p>}
+        {saveState === 'saved' && <p className="ok">루틴에 저장했어요.</p>}
         {saveState === 'mock' && <p className="ok">저장했어요.</p>}
         {saveState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
       </section>
@@ -433,12 +356,9 @@ export default function ResultPage() {
           <h2>{activeLeg.fromStation} → {activeLeg.toStation}</h2>
           <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ' · 이동 방향 자동 계산' : ''}</p>
           <div className={activeLeg.status === 'available' ? 'door-tip available' : activeLeg.goal === 'FINAL_EXIT' ? 'door-tip neutral' : 'door-tip pending'}>
-            <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승 기준' : activeLeg.status === 'available' ? '하차 위치 반영' : '마지막 구간'}</span>
-            <strong>{activeLeg.positionLabel}</strong>
-            {activeLegIndex === 0 && result.routeChoice.mode === 'ANCHOR_WINDOW' && result.routeChoice.anchorDoorLabels?.length ? <small>{result.routeChoice.anchorDoorLabels.join(', ')} 근처가 편해요.</small> : activeLeg.anchorCarNo != null && activeLeg.anchorDoorNo != null && <small>{activeLeg.anchorCarNo}번째 칸 · {activeLeg.anchorDoorNo}번 문 근처가 편해요.</small>}
-            {activeLeg.facilityType && <small>{facilityLabel(activeLeg.facilityType, activeLeg.facility)}와 가까운 위치를 참고했어요.</small>}
+            <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 구간' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
+            <strong>{activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
             {!activeLeg.facilityType && activeLeg.goal === 'FINAL_EXIT' && <small>내리면 출구 표지판 따라 이동하면 돼요.</small>}
-            {activeLeg.candidateCarNos?.length ? <small>{activeLeg.candidateCarNos.join(', ')}번째 칸도 비슷한 범위예요.</small> : null}
           </div>
           {nextLeg ? (
             <div className="next-leg-preview">
@@ -485,6 +405,12 @@ export default function ResultPage() {
         {feedbackState === 'mock' && <p className="ok">피드백을 받았어요.</p>}
         {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
       </section>
+
+      <div className="sticky-save-bar" aria-label="루틴 저장 고정 버튼">
+        <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>
+          {saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}
+        </button>
+      </div>
 
       <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
     </main>
