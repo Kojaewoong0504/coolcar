@@ -46,6 +46,13 @@ function readStoredRoutineRequests(): StoredRoutineRequests {
   }
 }
 
+function removeStoredRoutineRequest(routeId: string) {
+  if (typeof window === 'undefined') return;
+  const current = readStoredRoutineRequests();
+  delete current[routeId];
+  window.localStorage.setItem('coolcar_saved_route_requests', JSON.stringify(current));
+}
+
 function getAnonymousId() {
   if (typeof window === 'undefined') return undefined;
   const key = 'coolcar_anonymous_id';
@@ -77,6 +84,8 @@ export default function SavedPage() {
   const [routes, setRoutes] = useState<SavedRoute[]>([]);
   const [auth, setAuth] = useState<AuthMe | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deletingIds, setDeletingIds] = useState<string[]>([]);
+  const [deleteError, setDeleteError] = useState('');
   const [pwaNoticeHidden, setPwaNoticeHidden] = useState(false);
   const isLoggedIn = Boolean(auth?.authenticated && auth.profile);
   const firstName = auth?.profile?.displayName?.split(' ')[0] ?? '나';
@@ -131,6 +140,29 @@ export default function SavedPage() {
     window.location.href = '/result';
   }
 
+  async function deleteRoute(route: SavedRoute) {
+    if (deletingIds.includes(route.id)) return;
+    setDeleteError('');
+    setDeletingIds((ids) => [...ids, route.id]);
+    const anonymousId = getAnonymousId();
+    const response = await fetch('/api/routes/saved', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: route.id, anonymousId }),
+    });
+
+    if (!response.ok) {
+      const json = await response.json().catch(() => ({}));
+      setDeleteError(json.error?.message ?? '루틴 삭제에 실패했어요.');
+      setDeletingIds((ids) => ids.filter((id) => id !== route.id));
+      return;
+    }
+
+    removeStoredRoutineRequest(route.id);
+    setRoutes((current) => current.filter((item) => item.id !== route.id));
+    setDeletingIds((ids) => ids.filter((id) => id !== route.id));
+  }
+
   return (
     <main className="shell with-tabbar">
       <header className="topbar">
@@ -165,7 +197,9 @@ export default function SavedPage() {
       )}
 
       <section className="route-list">
+        {deleteError && <p className="error">{deleteError}</p>}
         {routes.map((route, index) => {
+          const isDeleting = deletingIds.includes(route.id);
           return (
             <article className={`card saved-card-v2 ${route.is_default || index === 0 ? 'featured' : ''}`} key={route.id}>
               <div className="saved-card-top">
@@ -174,7 +208,10 @@ export default function SavedPage() {
               </div>
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
               <p className="saved-route-meta">{routeMeta(route)}</p>
-              <button className="primary saved-recommend-button" type="button" onClick={() => startRecommendation(route)}>지금 추천받기</button>
+              <div className="saved-card-actions">
+                <button className="primary saved-recommend-button" disabled={isDeleting} type="button" onClick={() => startRecommendation(route)}>지금 추천받기</button>
+                <button className="ghost saved-delete-button" disabled={isDeleting} type="button" onClick={() => deleteRoute(route)}>{isDeleting ? '삭제 중' : '삭제'}</button>
+              </div>
             </article>
           );
         })}

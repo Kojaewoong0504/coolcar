@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { savedRouteSchema } from '@/lib/validation';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/supabase/server';
@@ -10,6 +11,11 @@ type SavedRouteRow = {
   destination_station: string | null;
   line: string;
 };
+
+const deleteSavedRouteSchema = z.object({
+  id: z.string().uuid(),
+  anonymousId: z.string().uuid().optional(),
+});
 
 function isRecommendRequest(value: unknown): value is RecommendRequest {
   if (!value || typeof value !== 'object') return false;
@@ -128,4 +134,42 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: { code: 'SAVED_ROUTE_SAVE_FAILED', message: '경로 저장에 실패했어요.' } }, { status: 500 });
   return NextResponse.json({ ok: true, persisted: true, route: data });
+}
+
+export async function DELETE(request: Request) {
+  const json = await request.json().catch(() => null);
+  const parsed = deleteSavedRouteSchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json({ error: { code: 'INVALID_INPUT', message: '삭제할 루틴을 확인해 주세요.' } }, { status: 400 });
+  }
+
+  const supabase = requireSupabase();
+  if (!supabase) return NextResponse.json({ ok: true, persisted: false, deletedId: parsed.data.id, message: 'MVP 목업 모드로 삭제 요청을 받았어요.' });
+
+  const user = await getCurrentUser();
+  if (!user && !parsed.data.anonymousId) {
+    return NextResponse.json({ error: { code: 'AUTH_REQUIRED', message: '로그인 또는 익명 ID가 있어야 루틴을 삭제할 수 있어요.' } }, { status: 401 });
+  }
+
+  let deleteQuery = supabase
+    .from('saved_routes')
+    .delete()
+    .eq('id', parsed.data.id);
+
+  deleteQuery = user
+    ? deleteQuery.eq('user_id', user.id)
+    : deleteQuery.eq('anonymous_id', parsed.data.anonymousId ?? '');
+
+  const { data, error } = await deleteQuery.select('id').single();
+  if (error) {
+    const status = error.code === 'PGRST116' ? 404 : 500;
+    return NextResponse.json({
+      error: {
+        code: status === 404 ? 'SAVED_ROUTE_NOT_FOUND' : 'SAVED_ROUTE_DELETE_FAILED',
+        message: status === 404 ? '이미 삭제된 루틴이에요.' : '루틴 삭제에 실패했어요.',
+      },
+    }, { status });
+  }
+
+  return NextResponse.json({ ok: true, persisted: true, deletedId: data.id });
 }

@@ -214,6 +214,9 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .saved-card-top { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:12px; font-weight:900; }
 .saved-route-meta { margin:0; color:var(--muted); line-height:1.45; }
 .saved-card-v2 .primary { min-height:50px; }
+.saved-card-actions { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
+.saved-delete-button { min-height:50px; padding:0 16px; color:#dc2626; background:#fff7f7; border-color:#fecaca; }
+.saved-delete-button:disabled { color:#94a3b8; background:#f8fafc; border-color:var(--border); }
 .login-nudge h2, .pwa-nudge h2 { margin:0 0 8px; letter-spacing:-.04em; }
 .login-nudge p, .pwa-nudge p { color:var(--muted); line-height:1.55; margin:0 0 12px; }
 .pwa-nudge { position:relative; background: linear-gradient(135deg,#0f172a,#1e3a8a); color:#fff; border:0; }
