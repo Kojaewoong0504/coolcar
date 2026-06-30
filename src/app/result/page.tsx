@@ -362,10 +362,11 @@ export default function ResultPage() {
                 const isAnchor = activeAnchorCarNos.includes(car.carNo);
                 const isCandidate = activeCandidateCarNos.includes(car.carNo);
                 const isAvoid = isPrimaryLeg && !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
+                const anchorWord = activeLeg?.goal === 'FINAL_EXIT' ? '하차' : '환승';
                 const className = isBest ? 'car best' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : isAvoid ? 'car avoid' : 'car';
-                const label = isBest ? '추천' : isAnchor ? '환승' : isCandidate ? '가능' : isAvoid ? '피하기' : '';
+                const label = isBest ? '추천' : isAnchor ? anchorWord : isCandidate ? '가능' : isAvoid ? '피하기' : '';
                 return (
-                  <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAnchor ? ' 환승 가까움' : isCandidate ? ' 허용 범위' : isAvoid ? ' 피하면 좋아요' : ''}`}>
+                  <div key={car.carNo} className={className} aria-label={`${car.carNo}번째 칸${isBest ? ' 추천' : isAnchor ? ` ${anchorWord} 가까움` : isCandidate ? ' 허용 범위' : isAvoid ? ' 피하면 좋아요' : ''}`}>
                     {label && <span className="best-badge">{label}</span>}
                     <strong>{car.carNo}</strong>
                     <em>{isBest ? '여기' : isAnchor ? '가까움' : isCandidate ? '주변' : isAvoid ? '피하기' : car.position}</em>
