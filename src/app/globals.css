@@ -122,6 +122,11 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .result-kicker { color:#0369a1; background:#ecfeff; border-radius:999px; padding:9px 12px; font-size:13px; font-weight:950; }
 .consumer-badges span { background: rgba(255,255,255,.12); }
 .transfer-note { margin:12px 0 0; padding:12px; border-radius:16px; background:rgba(255,255,255,.1); color:#dbeafe; line-height:1.5; font-size:13px; }
+.route-proof-card { display:grid; gap:8px; margin:12px 0; padding:12px; border-radius:18px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); }
+.route-proof-card div { display:grid; grid-template-columns:72px 1fr; gap:8px; align-items:start; }
+.route-proof-card span { color:#93c5fd; font-size:12px; font-weight:950; }
+.route-proof-card strong { color:#fff; font-size:13px; line-height:1.35; letter-spacing:-.02em; }
+.transfer-proof-copy { margin:8px 0 0; color:#dbeafe; font-size:13px; line-height:1.5; font-weight:800; }
 .result-why-card { background: linear-gradient(180deg,#fff,#f8fdff); }
 .result-one-line-reason { font-size:15px; font-weight:850; }
 .compact-result-badges { margin-bottom:12px; }

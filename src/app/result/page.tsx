@@ -30,13 +30,45 @@ function comfortCopy(result: RecommendationResponse) {
 function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
     const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
-    return `${station}에서 가까운 칸 주변에서 덜 덥고 덜 붐비는 쪽을 골랐어요.`;
+    return `${station}에서 가까운 칸 주변 후보를 먼저 보고, 그 안에서 덜 덥고 덜 붐비는 쪽을 골랐어요.`;
   }
-  if (needsTransfer) return '환승문 정보가 부족해 쾌적도 중심으로 추천했어요. 승강장 안내를 함께 확인해 주세요.';
+  if (result.routeGuidance.status === 'needs_route') return '환승역이 아직 정해지지 않아 빠른 환승문은 반영하지 못했어요. 이번 추천은 출발 구간의 쾌적도 기준이에요.';
+  if (needsTransfer) return '환승문 데이터가 부족해 환승 가까운 칸이라고 확정하지 않고, 쾌적도 중심으로 추천했어요.';
   if (result.request.comfortType === 'HOT_SENSITIVE') return '더운 날에 덜 답답하고 비교적 시원하게 탈 수 있는 위치예요.';
   if (result.request.comfortType === 'COLD_SENSITIVE') return '찬바람이 부담스러울 때 너무 춥지 않은 쪽을 우선했어요.';
   if (result.request.comfortType === 'CROWD_AVOIDER') return '사람이 몰리는 구간을 피하기 쉬운 쪽을 우선했어요.';
   return '시원함, 혼잡함, 내리는 동선을 함께 보고 무난한 위치를 골랐어요.';
+}
+
+function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean) {
+  if (result.routeChoice?.mode === 'ANCHOR_WINDOW') return needsTransfer ? '환승 위치 반영' : '하차 위치 반영';
+  if (result.routeGuidance.status === 'needs_route') return '환승 경로 미확정';
+  if (needsTransfer) return '환승 데이터 확인 필요';
+  return '이동 경로 확인';
+}
+
+function directionStatusLabel(result: RecommendationResponse) {
+  return result.request.direction ? `${result.request.line} · ${result.request.direction} 기준` : `${result.request.line} · 방면 확인 필요`;
+}
+
+function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
+  if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
+    const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
+    const anchor = result.routeChoice.anchorCarNo ? `${result.routeChoice.anchorCarNo}번째 칸` : '가까운 칸';
+    const candidates = result.routeChoice.candidateCarNos.length ? `(${result.routeChoice.candidateCarNos.join(', ')}번째 칸)` : '';
+    return `${station} ${anchor} 주변 ${candidates}을 먼저 비교한 뒤, 그중 쾌적도가 나은 ${result.recommendedCar.label}을 골랐어요.`;
+  }
+  if (result.routeGuidance.status === 'needs_route') {
+    return `${result.request.destinationStation || '목적지'}까지는 환승이 필요할 수 있지만, 환승역이 아직 정해지지 않아 ${result.recommendedCar.label}이 빠른 환승에 가장 가깝다는 뜻은 아니에요.`;
+  }
+  if (needsTransfer) return '환승문 위치를 확정할 데이터가 부족해서, 환승 거리보다 덜 덥고 덜 붐비는 위치를 우선했어요.';
+  return '선택한 구간에서 덜 덥고 덜 붐빌 가능성이 높은 칸을 비교했어요.';
+}
+
+function routePathCopy(result: RecommendationResponse) {
+  const transfers = result.request.transferStations?.filter(Boolean) ?? [];
+  if (transfers.length > 0) return [result.request.originStation, ...transfers, result.request.destinationStation || '목적지'].join(' → ');
+  return `${result.request.originStation} → ${result.request.destinationStation || '목적지'}`;
 }
 
 function legStatusCopy(status: RecommendationResponse['routeGuidance']['legs'][number]['status']) {
@@ -151,10 +183,16 @@ export default function ResultPage() {
   }
 
   const { result } = stored;
-  const destinationLine = stored.context?.destinationLine;
-  const needsTransfer = Boolean(destinationLine && destinationLine !== result.request.line);
+  const destinationLine = result.request.destinationLine ?? stored.context?.destinationLine;
+  const hasExplicitTransfers = Boolean(result.request.transferStations?.filter(Boolean).length);
+  const needsTransfer = result.routeGuidance.status === 'needs_route'
+    || result.routeGuidance.status === 'limited'
+    || hasExplicitTransfers
+    || Boolean(destinationLine && destinationLine !== result.request.line);
   const anonymousId = getAnonymousId();
   const hasAnchorWindow = result.routeChoice?.mode === 'ANCHOR_WINDOW';
+  const routePath = routePathCopy(result);
+  const routeBasis = routeBasisCopy(result, needsTransfer);
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'COLD' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
@@ -208,13 +246,28 @@ export default function ResultPage() {
 
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges compact-result-badges">
-          <span>{hasAnchorWindow ? '환승·하차 가까움' : needsTransfer ? '쾌적도 중심' : '추천 완료'}</span>
-          <span>{hasAnchorWindow ? '쾌적도 비교' : comfortCopy(result)}</span>
+          <span>{routeStatusLabel(result, needsTransfer)}</span>
+          <span>{hasAnchorWindow ? '쾌적도 비교' : result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result)}</span>
         </div>
-        <p className="eyebrow">{hasAnchorWindow ? '환승 가까운 쾌적칸' : '지금 타기 좋은 위치'}</p>
+        <p className="eyebrow">{hasAnchorWindow ? '환승 가까운 쾌적칸' : result.routeGuidance.status === 'needs_route' ? '환승 확인이 필요한 추천' : '지금 타기 좋은 위치'}</p>
         <h1>{result.recommendedCar.label}으로 가세요</h1>
-        <p className="score">{result.request.originStation} → {result.request.destinationStation || '목적지'} · {hasAnchorWindow ? '가까운 칸 주변에서 선택' : comfortCopy(result)}</p>
+        <div className="route-proof-card" aria-label="추천 기준과 경로 확인 상태">
+          <div>
+            <span>경로</span>
+            <strong>{routePath}</strong>
+          </div>
+          <div>
+            <span>방면</span>
+            <strong>{directionStatusLabel(result)}</strong>
+          </div>
+          <div>
+            <span>추천 기준</span>
+            <strong>{hasAnchorWindow ? '환승·하차 위치 주변 + 쾌적도' : result.routeGuidance.status === 'needs_route' ? '환승문 미반영 · 쾌적도 중심' : comfortCopy(result)}</strong>
+          </div>
+        </div>
+        <p className="score">{routePath} · {hasAnchorWindow ? '가까운 칸 주변에서 선택' : comfortCopy(result)}</p>
         <p className="source-message result-one-line-reason">{friendlyReason(result, needsTransfer)}</p>
+        <p className="transfer-proof-copy">{routeBasis}</p>
         <p className="microcopy">실시간 온도 측정이 아니라 공공·정적 규칙, 시간대 패턴, 이용자 제보를 바탕으로 한 참고용 추천이에요.</p>
         <div className="train-map" aria-label="지하철 칸별 추천 위치">
           <div className="train-map-head">
