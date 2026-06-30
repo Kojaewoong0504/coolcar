@@ -719,9 +719,26 @@ export const STATIONS: Station[] = [
   { name: "한대앞역", line: "수인분당선", operator: "코레일", lat: 37.3095, lng: 126.8539 },
   { name: "한티역", line: "수인분당선", operator: "코레일", lat: 37.4967, lng: 127.0524 },
   { name: "호구포역", line: "수인분당선", operator: "코레일", lat: 37.4016, lng: 126.7087 },
+  // Supplemental Seoul transfer rows: station/line inventory only, not door-guide anchors.
+  // These rows let search and transfer inventory include major interchange lines while car/door recommendations still require verified DoorGuideRecord evidence.
+  { name: "서울역", line: "공항철도", operator: "공항철도", lat: 37.5546, lng: 126.9706 },
+  { name: "서울역", line: "경의중앙선", operator: "코레일", lat: 37.5546, lng: 126.9706 },
+  { name: "공덕역", line: "공항철도", operator: "공항철도", lat: 37.5444, lng: 126.9516 },
+  { name: "공덕역", line: "경의중앙선", operator: "코레일", lat: 37.5444, lng: 126.9516 },
+  { name: "김포공항역", line: "공항철도", operator: "공항철도", lat: 37.5622, lng: 126.8019 },
+  { name: "김포공항역", line: "김포골드라인", operator: "김포골드라인", lat: 37.5622, lng: 126.8019 },
+  { name: "김포공항역", line: "서해선", operator: "서해철도", lat: 37.5622, lng: 126.8019 },
+  { name: "왕십리역", line: "경의중앙선", operator: "코레일", lat: 37.5612, lng: 127.0371 },
+  { name: "홍대입구역", line: "경의중앙선", operator: "코레일", lat: 37.5568, lng: 126.9237 },
+  { name: "홍대입구역", line: "공항철도", operator: "공항철도", lat: 37.5568, lng: 126.9237 },
+  { name: "강남역", line: "신분당선", operator: "신분당선", lat: 37.4979, lng: 127.0276 },
+  { name: "사당역", line: "2호선", operator: "서울교통공사", lat: 37.4765, lng: 126.9816 },
+  { name: "사당역", line: "4호선", operator: "서울교통공사", lat: 37.4765, lng: 126.9816 },
+  { name: "신설동역", line: "우이신설선", operator: "우이신설경전철", lat: 37.5761, lng: 127.0245 },
+  { name: "선릉역", line: "수인분당선", operator: "코레일", lat: 37.5045, lng: 127.049 },
 ];
 
-export const SUPPORTED_LINES = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선'] as const;
+export const SUPPORTED_LINES = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '공항철도', '경의중앙선', '김포골드라인', '서해선', '우이신설선'] as const;
 
 export function normalizeStationName(value: string): string {
   return value.trim().replace(/\s+/g, '').replace(/역$/, '');

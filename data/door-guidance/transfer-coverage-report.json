@@ -1,23 +1,39 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T00:36:41.507Z",
+  "generatedAt": "2026-06-30T00:38:10.887Z",
+  "sourceInventoryGeneratedAt": "2026-06-30T00:36:41.507Z",
   "policy": {
-    "purpose": "Inventory of Seoul metro transfer station/line pairs that need NEXT_TRANSFER anchor verification.",
-    "safety": "This file is not a production door guide. Do not use inventory rows to create carNo/doorNo anchors without official source evidence or manual field verification.",
-    "productionRule": "Only verified DoorGuideRecord rows may be used by lookupDoorGuide() for NEXT_TRANSFER ANCHOR_WINDOW recommendations."
+    "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
+    "safety": "Missing coverage is acceptable; fake or unverified car/door anchors are release blockers.",
+    "supportedRecommendationModes": [
+      "ANCHOR_WINDOW only for verified DoorGuideRecord",
+      "COMFORT_ONLY for missing/ambiguous transfer anchors"
+    ]
   },
-  "stats": {
+  "summary": {
     "totalStations": 69,
-    "p0": 16,
-    "p1": 17,
-    "p2": 36,
+    "totalDirectedTransferPairs": 206,
+    "verifiedNextTransferPairs": 0,
+    "missingNextTransferPairs": 206,
+    "coverageRatio": 0,
+    "p0Stations": 16,
+    "p1Stations": 17,
+    "p2Stations": 36,
     "needsMasterData": 0,
-    "totalDirectedTransferPairs": 206
+    "finalExitStaticRecords": 4,
+    "nextTransferStaticRecords": 0
   },
-  "inventory": [
+  "blockers": [
+    {
+      "code": "NO_VERIFIED_NEXT_TRANSFER_ANCHORS",
+      "message": "No verified NEXT_TRANSFER door anchors are available yet; product must stay in COMFORT_ONLY for these pairs."
+    }
+  ],
+  "stations": [
     {
       "stationName": "김포공항역",
-      "normalizedName": "김포공항",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "5호선",
         "9호선",
@@ -25,7 +41,11 @@
         "김포골드라인",
         "서해선"
       ],
-      "linePairs": [
+      "totalPairs": 20,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 20,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "9호선"
@@ -107,26 +127,23 @@
           "toLine": "김포골드라인"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.562294,
-      "lng": 126.801563,
       "notes": []
     },
     {
       "stationName": "공덕역",
-      "normalizedName": "공덕",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "5호선",
         "6호선",
         "경의중앙선",
         "공항철도"
       ],
-      "linePairs": [
+      "totalPairs": 12,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 12,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "6호선"
@@ -176,26 +193,23 @@
           "toLine": "경의중앙선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5442,
-      "lng": 126.95155,
       "notes": []
     },
     {
       "stationName": "서울역",
-      "normalizedName": "서울",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "1호선",
         "4호선",
         "경의중앙선",
         "공항철도"
       ],
-      "linePairs": [
+      "totalPairs": 12,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 12,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "4호선"
@@ -245,26 +259,23 @@
           "toLine": "경의중앙선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.554612,
-      "lng": 126.971125,
       "notes": []
     },
     {
       "stationName": "왕십리역",
-      "normalizedName": "왕십리",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "5호선",
         "경의중앙선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 12,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 12,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "5호선"
@@ -314,25 +325,22 @@
           "toLine": "경의중앙선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.561275,
-      "lng": 127.03755,
       "notes": []
     },
     {
       "stationName": "고속터미널역",
-      "normalizedName": "고속터미널",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "3호선",
         "7호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 6,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "7호선"
@@ -358,25 +366,22 @@
           "toLine": "7호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.50481,
-      "lng": 127.004943,
       "notes": []
     },
     {
       "stationName": "동대문역사문화공원역",
-      "normalizedName": "동대문역사문화공원",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "4호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 6,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "4호선"
@@ -402,25 +407,22 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5657,
-      "lng": 127.009,
       "notes": []
     },
     {
       "stationName": "종로3가역",
-      "normalizedName": "종로3가",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "1호선",
         "3호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 6,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "3호선"
@@ -446,25 +448,22 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.57161,
-      "lng": 126.9898,
       "notes": []
     },
     {
       "stationName": "홍대입구역",
-      "normalizedName": "홍대입구",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "경의중앙선",
         "공항철도"
       ],
-      "linePairs": [
+      "totalPairs": 6,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "경의중앙선"
@@ -490,24 +489,21 @@
           "toLine": "경의중앙선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.556933,
-      "lng": 126.924267,
       "notes": []
     },
     {
       "stationName": "강남역",
-      "normalizedName": "강남",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "신분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "신분당선"
@@ -517,24 +513,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.49745,
-      "lng": 127.0276,
       "notes": []
     },
     {
       "stationName": "건대입구역",
-      "normalizedName": "건대입구",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "7호선"
@@ -544,24 +537,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.540693,
-      "lng": 127.07023,
       "notes": []
     },
     {
       "stationName": "교대역",
-      "normalizedName": "교대",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "3호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "3호선"
@@ -571,24 +561,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.4939,
-      "lng": 127.0144,
       "notes": []
     },
     {
       "stationName": "사당역",
-      "normalizedName": "사당",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "4호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "4호선"
@@ -598,24 +585,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.4765,
-      "lng": 126.9816,
       "notes": []
     },
     {
       "stationName": "신도림역",
-      "normalizedName": "신도림",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "1호선",
         "2호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "2호선"
@@ -625,24 +609,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5083,
-      "lng": 126.8911,
       "notes": []
     },
     {
       "stationName": "여의도역",
-      "normalizedName": "여의도",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "5호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "9호선"
@@ -652,24 +633,21 @@
           "toLine": "5호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5216,
-      "lng": 126.9241,
       "notes": []
     },
     {
       "stationName": "잠실역",
-      "normalizedName": "잠실",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "8호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "8호선"
@@ -679,24 +657,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5133,
-      "lng": 127.1002,
       "notes": []
     },
     {
       "stationName": "합정역",
-      "normalizedName": "합정",
+      "priority": "P0",
+      "status": "candidate",
       "lines": [
         "2호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "6호선"
@@ -706,25 +681,22 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P0",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5495,
-      "lng": 126.9139,
       "notes": []
     },
     {
       "stationName": "신설동역",
-      "normalizedName": "신설동",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "1호선",
         "2호선",
         "우이신설선"
       ],
-      "linePairs": [
+      "totalPairs": 6,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 6,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "2호선"
@@ -750,24 +722,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.575565,
-      "lng": 127.024891,
       "notes": []
     },
     {
       "stationName": "가락시장역",
-      "normalizedName": "가락시장",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "8호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "8호선"
@@ -777,24 +746,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.49251,
-      "lng": 127.1183,
       "notes": []
     },
     {
       "stationName": "가산디지털단지역",
-      "normalizedName": "가산디지털단지",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "1호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "7호선"
@@ -804,24 +770,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.4816,
-      "lng": 126.8826,
       "notes": []
     },
     {
       "stationName": "군자역",
-      "normalizedName": "군자",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "5호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "7호선"
@@ -831,24 +794,21 @@
           "toLine": "5호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.557121,
-      "lng": 127.079542,
       "notes": []
     },
     {
       "stationName": "노량진역",
-      "normalizedName": "노량진",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "1호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "9호선"
@@ -858,24 +818,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5142,
-      "lng": 126.9425,
       "notes": []
     },
     {
       "stationName": "대림역",
-      "normalizedName": "대림",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "2호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "7호선"
@@ -885,24 +842,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.492785,
-      "lng": 126.89585,
       "notes": []
     },
     {
       "stationName": "동묘앞역",
-      "normalizedName": "동묘앞",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "1호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "6호선"
@@ -912,24 +866,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.57263,
-      "lng": 127.0153,
       "notes": []
     },
     {
       "stationName": "동작역",
-      "normalizedName": "동작",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "4호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "9호선"
@@ -939,24 +890,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.50247,
-      "lng": 126.9798,
       "notes": []
     },
     {
       "stationName": "불광역",
-      "normalizedName": "불광",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "6호선"
@@ -966,24 +914,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.6105,
-      "lng": 126.929,
       "notes": []
     },
     {
       "stationName": "선릉역",
-      "normalizedName": "선릉",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "2호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "수인분당선"
@@ -993,24 +938,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5045,
-      "lng": 127.04935,
       "notes": []
     },
     {
       "stationName": "수서역",
-      "normalizedName": "수서",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "수인분당선"
@@ -1020,24 +962,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.4875,
-      "lng": 127.101,
       "notes": []
     },
     {
       "stationName": "약수역",
-      "normalizedName": "약수",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "6호선"
@@ -1047,24 +986,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5543,
-      "lng": 127.011,
       "notes": []
     },
     {
       "stationName": "연신내역",
-      "normalizedName": "연신내",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "6호선"
@@ -1074,24 +1010,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.619,
-      "lng": 126.9213,
       "notes": []
     },
     {
       "stationName": "을지로3가역",
-      "normalizedName": "을지로3가",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "2호선",
         "3호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "3호선"
@@ -1101,24 +1034,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5663,
-      "lng": 126.9911,
       "notes": []
     },
     {
       "stationName": "천호역",
-      "normalizedName": "천호",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "5호선",
         "8호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "8호선"
@@ -1128,24 +1058,21 @@
           "toLine": "5호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5384,
-      "lng": 127.1237,
       "notes": []
     },
     {
       "stationName": "청구역",
-      "normalizedName": "청구",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "5호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "6호선"
@@ -1155,24 +1082,21 @@
           "toLine": "5호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.5602,
-      "lng": 127.0138,
       "notes": []
     },
     {
       "stationName": "충무로역",
-      "normalizedName": "충무로",
+      "priority": "P1",
+      "status": "candidate",
       "lines": [
         "3호선",
         "4호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "4호선"
@@ -1182,24 +1106,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P1",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED",
-        "MAJOR_TRANSFER_SEED"
-      ],
-      "lat": 37.561,
-      "lng": 126.9947,
       "notes": []
     },
     {
       "stationName": "강남구청역",
-      "normalizedName": "강남구청",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "7호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "7호선",
           "toLine": "수인분당선"
@@ -1209,23 +1130,21 @@
           "toLine": "7호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5171,
-      "lng": 127.0413,
       "notes": []
     },
     {
       "stationName": "고잔역",
-      "normalizedName": "고잔",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1235,23 +1154,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3168,
-      "lng": 126.8231,
       "notes": []
     },
     {
       "stationName": "금정역",
-      "normalizedName": "금정",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "4호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "4호선"
@@ -1261,23 +1178,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.372,
-      "lng": 126.9436,
       "notes": []
     },
     {
       "stationName": "까치산역",
-      "normalizedName": "까치산",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "5호선"
@@ -1287,23 +1202,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.531768,
-      "lng": 126.846683,
       "notes": []
     },
     {
       "stationName": "노원역",
-      "normalizedName": "노원",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "7호선"
@@ -1313,23 +1226,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.6543,
-      "lng": 127.0606,
       "notes": []
     },
     {
       "stationName": "당산역",
-      "normalizedName": "당산",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "9호선"
@@ -1339,23 +1250,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.53452,
-      "lng": 126.9025,
       "notes": []
     },
     {
       "stationName": "도곡역",
-      "normalizedName": "도곡",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "3호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "수인분당선"
@@ -1365,23 +1274,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.490858,
-      "lng": 127.055381,
       "notes": []
     },
     {
       "stationName": "도봉산역",
-      "normalizedName": "도봉산",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "7호선"
@@ -1391,23 +1298,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.689313,
-      "lng": 127.046222,
       "notes": []
     },
     {
       "stationName": "동대문역",
-      "normalizedName": "동대문",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "4호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "4호선"
@@ -1417,23 +1322,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.57142,
-      "lng": 127.0094,
       "notes": []
     },
     {
       "stationName": "모란역",
-      "normalizedName": "모란",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "8호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "8호선",
           "toLine": "수인분당선"
@@ -1443,23 +1346,21 @@
           "toLine": "8호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.43267,
-      "lng": 127.1295,
       "notes": []
     },
     {
       "stationName": "미금역",
-      "normalizedName": "미금",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "수인분당선",
         "신분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "수인분당선",
           "toLine": "신분당선"
@@ -1469,23 +1370,21 @@
           "toLine": "수인분당선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3508,
-      "lng": 127.1089,
       "notes": []
     },
     {
       "stationName": "복정역",
-      "normalizedName": "복정",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "8호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "8호선",
           "toLine": "수인분당선"
@@ -1495,23 +1394,21 @@
           "toLine": "8호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.47105,
-      "lng": 127.1265,
       "notes": []
     },
     {
       "stationName": "삼각지역",
-      "normalizedName": "삼각지",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "6호선"
@@ -1521,23 +1418,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5352,
-      "lng": 126.9737,
       "notes": []
     },
     {
       "stationName": "석계역",
-      "normalizedName": "석계",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "6호선"
@@ -1547,23 +1442,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.61485,
-      "lng": 127.06515,
       "notes": []
     },
     {
       "stationName": "석촌역",
-      "normalizedName": "석촌",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "8호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "8호선",
           "toLine": "9호선"
@@ -1573,23 +1466,21 @@
           "toLine": "8호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5054,
-      "lng": 127.1071,
       "notes": []
     },
     {
       "stationName": "시청역",
-      "normalizedName": "시청",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "2호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "2호선"
@@ -1599,23 +1490,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.56472,
-      "lng": 126.9771,
       "notes": []
     },
     {
       "stationName": "신길역",
-      "normalizedName": "신길",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "5호선"
@@ -1625,23 +1514,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.51712,
-      "lng": 126.9172,
       "notes": []
     },
     {
       "stationName": "신길온천역",
-      "normalizedName": "신길온천",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1651,23 +1538,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3375,
-      "lng": 126.7673,
       "notes": []
     },
     {
       "stationName": "신당역",
-      "normalizedName": "신당",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "6호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "6호선"
@@ -1677,23 +1562,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.56587,
-      "lng": 127.0176,
       "notes": []
     },
     {
       "stationName": "안산역",
-      "normalizedName": "안산",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1703,23 +1586,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3268,
-      "lng": 126.7892,
       "notes": []
     },
     {
       "stationName": "영등포구청역",
-      "normalizedName": "영등포구청",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "5호선"
@@ -1729,23 +1610,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.52497,
-      "lng": 126.896,
       "notes": []
     },
     {
       "stationName": "오금역",
-      "normalizedName": "오금",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "3호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "3호선",
           "toLine": "5호선"
@@ -1755,23 +1634,21 @@
           "toLine": "3호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5027,
-      "lng": 127.1288,
       "notes": []
     },
     {
       "stationName": "오이도역",
-      "normalizedName": "오이도",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1781,23 +1658,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3618,
-      "lng": 126.7384,
       "notes": []
     },
     {
       "stationName": "을지로4가역",
-      "normalizedName": "을지로4가",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "5호선"
@@ -1807,23 +1682,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5666,
-      "lng": 126.9977,
       "notes": []
     },
     {
       "stationName": "이수역",
-      "normalizedName": "이수",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "7호선"
@@ -1833,23 +1706,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.486,
-      "lng": 126.9816,
       "notes": []
     },
     {
       "stationName": "장한평역",
-      "normalizedName": "장한평",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "5호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "5호선",
           "toLine": "7호선"
@@ -1859,23 +1730,21 @@
           "toLine": "5호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.56137,
-      "lng": 127.064461,
       "notes": []
     },
     {
       "stationName": "정왕역",
-      "normalizedName": "정왕",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1885,23 +1754,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3518,
-      "lng": 126.7429,
       "notes": []
     },
     {
       "stationName": "정자역",
-      "normalizedName": "정자",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "수인분당선",
         "신분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "수인분당선",
           "toLine": "신분당선"
@@ -1911,23 +1778,21 @@
           "toLine": "수인분당선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3661,
-      "lng": 127.1081,
       "notes": []
     },
     {
       "stationName": "종합운동장역",
-      "normalizedName": "종합운동장",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "9호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "9호선"
@@ -1937,23 +1802,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.511,
-      "lng": 127.0736,
       "notes": []
     },
     {
       "stationName": "중앙역",
-      "normalizedName": "중앙",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -1963,23 +1826,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.316,
-      "lng": 126.8385,
       "notes": []
     },
     {
       "stationName": "창동역",
-      "normalizedName": "창동",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "4호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "4호선"
@@ -1989,23 +1850,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.6532,
-      "lng": 127.0473,
       "notes": []
     },
     {
       "stationName": "청량리역",
-      "normalizedName": "청량리",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "1호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "1호선",
           "toLine": "수인분당선"
@@ -2015,23 +1874,21 @@
           "toLine": "1호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.580178,
-      "lng": 127.046835,
       "notes": []
     },
     {
       "stationName": "초지역",
-      "normalizedName": "초지",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -2041,23 +1898,21 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3206,
-      "lng": 126.8061,
       "notes": []
     },
     {
       "stationName": "충정로역",
-      "normalizedName": "충정로",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "2호선",
         "5호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "2호선",
           "toLine": "5호선"
@@ -2067,23 +1922,21 @@
           "toLine": "2호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.5599,
-      "lng": 126.9637,
       "notes": []
     },
     {
       "stationName": "태릉입구역",
-      "normalizedName": "태릉입구",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "6호선",
         "7호선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "6호선",
           "toLine": "7호선"
@@ -2093,23 +1946,21 @@
           "toLine": "6호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.6173,
-      "lng": 127.0749,
       "notes": []
     },
     {
       "stationName": "한대앞역",
-      "normalizedName": "한대앞",
+      "priority": "P2",
+      "status": "candidate",
       "lines": [
         "4호선",
         "수인분당선"
       ],
-      "linePairs": [
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 0,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0,
+      "missingPairs": [
         {
           "fromLine": "4호선",
           "toLine": "수인분당선"
@@ -2119,13 +1970,6 @@
           "toLine": "4호선"
         }
       ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.3095,
-      "lng": 126.8539,
       "notes": []
     }
   ]

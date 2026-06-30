@@ -18,6 +18,9 @@
     "test:persona-scenarios": "tsx scripts/smoke-persona-scenarios.ts",
     "build:transfer-inventory": "tsx scripts/build-transfer-inventory.ts",
     "test:transfer-inventory": "tsx scripts/smoke-transfer-inventory.ts",
+    "report:transfer-coverage": "tsx scripts/report-transfer-coverage.ts",
+    "test:transfer-coverage": "tsx scripts/smoke-transfer-coverage-report.ts",
+    "test:no-fake-anchor": "tsx scripts/smoke-no-fake-anchor.ts",
     "test:public-door-guide": "tsx scripts/smoke-public-door-guide-adapter.ts",
     "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",
     "diagnose:tmap": "tsx scripts/diagnose-tmap.ts"
