@@ -370,7 +370,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <nav className="tabbar"><Link className="active" href="/">홈</Link><Link href="/saved">저장</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link className="active" href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
     </main>
   );
 }

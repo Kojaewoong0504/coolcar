@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
         <div className="section-title">기존 루틴 이어보기</div>
         <p className="notice">이 기기에 저장해 둔 루틴은 로그인 후 계정에서 이어서 볼 수 있어요.</p>
       </section>
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
     </main>
   );
 }

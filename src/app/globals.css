@@ -224,6 +224,36 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .pwa-nudge button { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:999px; border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.12); color:#fff; font-size:20px; }
 .settings-list { display:grid; gap:12px; } .settings-list div, .source-grid div { padding:14px; border:1px solid var(--border); border-radius:18px; background:#f8fdff; } .settings-list b, .settings-list span, .source-grid b, .source-grid p { display:block; } .settings-list span, .source-grid p { color:var(--muted); line-height:1.5; margin:5px 0 0; }
 .source-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.tips-page { display:grid; gap:14px; }
+.tips-hero { margin-bottom:0; background: radial-gradient(circle at 0% 0%, #fff 0%, #e0fbff 52%, #eef2ff 100%); }
+.tips-hero h1 { margin-bottom:8px; }
+.tips-today-card { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:center; min-height:92px; border-radius:28px; padding:18px; background:#0f172a; color:#fff; box-shadow:0 18px 45px rgba(15,23,42,.24); }
+.tips-today-card > span { width:46px; height:46px; border-radius:18px; display:grid; place-items:center; background:rgba(125,211,252,.18); font-size:24px; }
+.tips-today-card b { display:block; font-size:18px; letter-spacing:-.04em; }
+.tips-today-card p { margin:5px 0 0; color:#cbd5e1; font-size:13px; line-height:1.4; }
+.tips-section-head { display:flex; align-items:flex-end; justify-content:space-between; margin:8px 2px -2px; }
+.tips-section-head b { font-size:17px; letter-spacing:-.04em; }
+.tips-section-head span { color:var(--muted); font-size:12px; font-weight:850; }
+.tips-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.tip-tile { min-height:118px; border:1px solid var(--border); background:#fff; border-radius:26px; padding:16px; display:grid; align-content:start; gap:6px; box-shadow:0 12px 30px rgba(14,165,233,.08); transition:transform 140ms ease, box-shadow 140ms ease; }
+.tip-tile:active { transform:scale(.97); }
+.tip-icon { font-size:26px; line-height:1; }
+.tip-tile b { font-size:18px; letter-spacing:-.04em; }
+.tip-tile small { color:var(--muted); line-height:1.35; }
+.tips-check-card, .tip-route-cta { min-height:78px; border:1px solid #bae6fd; background:#ecfeff; border-radius:26px; padding:17px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 12px 30px rgba(14,165,233,.08); }
+.tips-check-card b, .tip-route-cta b { display:block; font-size:18px; letter-spacing:-.04em; }
+.tips-check-card p { margin:5px 0 0; color:var(--muted); font-size:13px; }
+.tips-check-card > span, .tip-route-cta > span { font-size:34px; color:#0284c7; font-weight:900; }
+.tip-detail-page { display:grid; gap:14px; }
+.tip-detail-hero { margin:0; background:radial-gradient(circle at 15% 0%, #1e3a8a 0%, #0f172a 58%, #020617 100%); color:#fff; border-color:rgba(255,255,255,.16); }
+.tip-detail-hero .eyebrow { color:#7dd3fc; }
+.tip-detail-hero h1 { font-size:38px; line-height:1.04; margin-bottom:12px; }
+.tip-detail-hero p { color:#cbd5e1; line-height:1.5; margin:0; }
+.tip-step-list { display:grid; gap:10px; }
+.tip-step-card { border:1px solid var(--border); background:#fff; border-radius:24px; padding:16px; display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; box-shadow:0 12px 30px rgba(14,165,233,.08); }
+.tip-step-card > span { width:42px; height:42px; border-radius:16px; display:grid; place-items:center; background:#e0f7ff; color:#0284c7; font-size:12px; font-weight:950; }
+.tip-step-card b { display:block; font-size:17px; letter-spacing:-.04em; }
+.tip-step-card p { margin:6px 0 0; color:var(--muted); line-height:1.45; font-size:13px; }
 .auth-buttons { display:grid; gap:10px; margin-top:12px; }
 .auth-button { min-height:52px; border-radius:18px; border:1px solid var(--border); background:#fff; color:var(--text); font-weight:950; display:flex; align-items:center; justify-content:center; gap:10px; }
 .auth-button span { width:24px; height:24px; display:grid; place-items:center; border-radius:999px; background:#ecfeff; color:#0369a1; font-weight:950; }

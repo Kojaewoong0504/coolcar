@@ -36,7 +36,7 @@ export default async function SettingsPage() {
         )}
       </section>
       <section className="card"><div className="section-title">앱 안내</div><p className="notice">시원칸은 공개 데이터와 시간대 패턴을 함께 참고해 더 시원하게 탈 가능성이 높은 칸을 안내해요. 실제 객실 온도와 혼잡은 열차 상황에 따라 달라질 수 있어요.</p><div className="result-actions"><Link href="/data-source">추천 기준 보기</Link><Link href="/privacy">개인정보 안내</Link></div></section>
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link className="active" href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link className="active" href="/settings">내 정보</Link></nav>
     </main>
   );
 }
