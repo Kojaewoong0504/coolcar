@@ -15,11 +15,11 @@ function routePath(candidate: RoutePlanCandidate) {
 }
 
 function coverageCopy(candidate: RoutePlanCandidate) {
-  if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 안내 가능';
-  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '방면 확인 필요';
-  if (candidate.type === 'DIRECT') return candidate.coverage.finalExitDoorGuide === 'available' ? '하차 위치 안내 가능' : '쾌적칸 중심';
-  if (candidate.type === 'UNRESOLVED') return '환승문 미반영';
-  return '일부 구간 안내 가능';
+  if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 반영';
+  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '방면 입력 선택';
+  if (candidate.type === 'DIRECT') return candidate.coverage.finalExitDoorGuide === 'available' ? '하차 위치 반영' : '쾌적칸 중심';
+  if (candidate.type === 'UNRESOLVED') return '쾌적칸 중심';
+  return '쾌적칸 중심';
 }
 
 function buildRecommendRequest(base: RecommendRequest, candidate: RoutePlanCandidate): RecommendRequest {
@@ -88,8 +88,7 @@ export default function RoutePlansPage() {
   }, [baseRequest]);
 
   const primaryCandidate = plans?.candidates.find((candidate) => candidate.type !== 'UNRESOLVED') ?? plans?.candidates[0];
-  const otherCandidates = plans?.candidates.filter((candidate) => candidate.id !== primaryCandidate?.id) ?? [];
-  const needsDirection = primaryCandidate?.coverage.nextTransferDoorGuide === 'needs_direction';
+  const otherCandidates = plans?.candidates.filter((candidate) => candidate.id !== primaryCandidate?.id && candidate.type !== 'UNRESOLVED') ?? [];
   const canUseDirection = Boolean(primaryCandidate && primaryCandidate.type !== 'UNRESOLVED');
   const cleanedDirectionInput = directionInput.trim();
 
@@ -184,14 +183,14 @@ export default function RoutePlansPage() {
     <main className="shell with-tabbar route-plans-page">
       <header className="topbar app-topbar">
         <Link className="ghost" href={backHref}>← 출발·도착 수정</Link>
-        <span className="result-kicker">경로 후보</span>
+        <span className="result-kicker">경로 확인</span>
       </header>
 
       <section className="card route-plan-hero">
-        <p className="eyebrow">가는 길 확인</p>
-        <h1>이 경로로 칸을 추천할게요</h1>
+        <p className="eyebrow">추천 환승 경로</p>
+        <h1>이 경로로 추천할게요</h1>
         <p><b>{baseRequest.originStation}</b> → <b>{baseRequest.destinationStation || '목적지'}</b></p>
-        <p className="microcopy">먼저 가장 자연스러운 경로 하나만 보여드려요. 다른 경로가 필요하면 아래에서 바꿀 수 있어요.</p>
+        <p className="microcopy">추천 경로를 먼저 보여드려요. 필요하면 다른 환승역으로 바꿀 수 있어요.</p>
       </section>
 
       {error && <p className="error">{error}</p>}
@@ -208,14 +207,14 @@ export default function RoutePlansPage() {
           <p className="microcopy">{primaryCandidate.summary}</p>
           {canUseDirection && (
             <label className="direction-input-card single-direction-card">
-              <span>{needsDirection ? '방면을 알면 더 정확해요' : '방면을 알고 있다면 확인해 주세요'}</span>
+              <span>방면을 알면 입력하세요</span>
               <input
                 value={directionInput}
                 onChange={(event) => setDirectionInput(event.target.value)}
-                placeholder="승강장 안내판에 보이는 이름 입력"
+                placeholder="예: 신도림, 잠실"
                 aria-label="방면 입력"
               />
-              <small>예: 잠실, 신도림, 교대. 모르면 비워도 추천은 받을 수 있고, 그땐 쾌적칸 중심으로 안내해요.</small>
+              <small>모르면 비워도 돼요. 쾌적칸 중심으로 추천해요.</small>
             </label>
           )}
           <button className="primary" type="button" onClick={() => selectCandidate(primaryCandidate, cleanedDirectionInput || undefined)}>

@@ -138,8 +138,8 @@ async function buildTransferCandidate(params: {
   return {
     id: candidateId([type, params.fromLine, params.transferStation, params.toLine, params.originStation, params.destinationStation]),
     type,
-    badge: params.userSpecified ? '직접 설정' : transferStatus === 'available' ? '환승 위치 안내 가능' : '환승 후보',
-    title: params.userSpecified ? `${params.transferStation} 경유로 볼게요` : `${params.transferStation} 경유 후보예요`,
+    badge: params.userSpecified ? '직접 설정' : transferStatus === 'available' ? '환승 위치 반영' : '환승 후보',
+    title: params.userSpecified ? `${params.transferStation} 경유로 볼게요` : `${params.transferStation}에서 환승`,
     summary: transferStatus === 'available'
       ? `${params.transferStation}에서 갈아타기 가까운 위치 주변과 쾌적도를 함께 비교할 수 있어요.`
       : `${params.transferStation} 경유 후보예요. 문 위치 정보가 부족한 구간은 쾌적칸 중심으로 안내해요.`,
@@ -238,7 +238,9 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
 
   const fallbackLine = originLines[0] ?? request.line ?? '2호선';
   const fallbackDestinationLine = destinationLines[0] ?? request.destinationLine;
-  candidates.push(buildUnresolvedCandidate({ originStation, destinationStation, line: fallbackLine, destinationLine: fallbackDestinationLine, direction: request.direction }));
+  if (candidates.length === 0) {
+    candidates.push(buildUnresolvedCandidate({ originStation, destinationStation, line: fallbackLine, destinationLine: fallbackDestinationLine, direction: request.direction }));
+  }
 
   const deduped = candidates
     .filter((candidate, index, list) => list.findIndex((item) => item.id === candidate.id) === index)

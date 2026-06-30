@@ -75,7 +75,6 @@ export default function HomePage() {
   const [avoidPrioritySeatArea, setAvoidPrioritySeatArea] = useState(true);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const [preferenceMessage, setPreferenceMessage] = useState('이 취향을 다음 추천에도 기억할게요.');
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
@@ -263,7 +262,6 @@ export default function HomePage() {
     setComfortType(route.comfortType);
     setTransferStationsInput(route.transferStations?.join(', ') ?? '');
     setDirection('');
-    setShowAdvancedOptions(Boolean(route.transferStations?.length));
   }
 
 
@@ -309,7 +307,7 @@ export default function HomePage() {
             <span className="route-badge subtle">변경</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
-          <p className="route-helper">노선은 역 선택으로 자동 맞춰져요. 환승역·방면은 알고 있을 때만 추가하세요.</p>
+          <p className="route-helper">환승역이나 방면을 몰라도 괜찮아요.</p>
         </div>
 
         <section className="preference-card" aria-label="내 취향">
@@ -329,26 +327,6 @@ export default function HomePage() {
           </div>
           <p className="preference-save-copy">{preferenceMessage}</p>
         </section>
-
-        <details className="advanced-options-shell" open={showAdvancedOptions} onToggle={(event) => setShowAdvancedOptions((event.currentTarget as HTMLDetailsElement).open)}>
-          <summary>{appliedConditionCount > 0 ? `추가 조건 ${appliedConditionCount}개 적용됨` : '필요할 때만 추가 설정'}</summary>
-          <section className="advanced-options" aria-label="추가 추천 조건">
-            <p className="microcopy">환승역이나 방면을 정확히 알고 있을 때만 넣어주세요. 모르면 비워도 추천은 받을 수 있어요.</p>
-            <label className="field optional-transfer-field">
-              <span>환승역을 아는 경우만 추가</span>
-              <input value={transferStationsInput} onChange={(event) => setTransferStationsInput(event.target.value)} placeholder="예: 강남역, 고속터미널역" />
-              <small>비워도 추천받을 수 있어요. 입력하면 확인된 구간에서 환승 가까운 칸을 함께 봅니다.</small>
-            </label>
-
-            <label className="field optional-transfer-field">
-              <span>방면을 알고 있다면 입력</span>
-              <input value={direction} onChange={(event) => setDirection(event.target.value)} placeholder="예: 교대, 선릉, 잠원 방면" />
-              <small>잘 모르겠으면 비워두세요. 문 위치는 방향까지 확인되는 경우에만 안내해요.</small>
-            </label>
-
-            <label className="toggle"><input type="checkbox" checked={avoidPrioritySeatArea} onChange={(e) => { preferenceTouchedRef.current = true; setAvoidPrioritySeatArea(e.target.checked); }} /> 교통약자석 주변은 배려해서 추천</label>
-          </section>
-        </details>
 
         {error && <p className="error">{error}</p>}
         <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />타기 좋은 칸을 찾고 있어요…</> : <>내 칸 추천받기 <span aria-hidden="true">→</span></>}</button>

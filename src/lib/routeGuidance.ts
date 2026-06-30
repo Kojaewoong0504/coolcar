@@ -103,8 +103,8 @@ async function applyDoorGuide(params: {
     return {
       status: 'needs_direction' as const,
       recommendedCarNo: params.fallbackCarNo,
-      positionLabel: '방향 확인 필요',
-      message: result.reason,
+      positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '쾌적칸 중심',
+      message: '방면을 비워둔 상태라 문 위치 대신 쾌적칸 중심으로 안내해요.',
     };
   }
 

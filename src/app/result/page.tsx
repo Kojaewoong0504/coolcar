@@ -42,13 +42,13 @@ function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) 
 
 function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') return needsTransfer ? '환승 위치 반영' : '하차 위치 반영';
-  if (result.routeGuidance.status === 'needs_route') return '환승 경로 미확정';
-  if (needsTransfer) return '환승 데이터 확인 필요';
-  return '이동 경로 확인';
+  if (result.routeGuidance.status === 'needs_route') return '쾌적도 중심 추천';
+  if (needsTransfer) return '쾌적도 중심 추천';
+  return '쾌적칸 추천';
 }
 
 function directionStatusLabel(result: RecommendationResponse) {
-  return result.request.direction ? `${result.request.line} · ${result.request.direction} 기준` : `${result.request.line} · 방면 확인 필요`;
+  return result.request.direction ? `${result.request.line} · ${result.request.direction} 기준` : `${result.request.line} · 방면 미입력`;
 }
 
 function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
@@ -73,15 +73,15 @@ function routePathCopy(result: RecommendationResponse) {
 
 function legStatusCopy(status: RecommendationResponse['routeGuidance']['legs'][number]['status']) {
   if (status === 'available') return '위치 안내 가능';
-  if (status === 'needs_direction') return '방면 확인 필요';
-  if (status === 'needs_route') return '경로 확인 필요';
-  return '승강장 확인 필요';
+  if (status === 'needs_direction') return '쾌적칸 중심';
+  if (status === 'needs_route') return '쾌적칸 중심';
+  return '승강장 참고';
 }
 
 function legActionCopy(status: RecommendationResponse['routeGuidance']['legs'][number]['status']) {
   if (status === 'available') return '근처에서 타세요';
-  if (status === 'needs_direction') return '방면을 확인해 주세요';
-  if (status === 'needs_route') return '환승 경로를 확인해 주세요';
+  if (status === 'needs_direction') return '위치를 참고해 주세요';
+  if (status === 'needs_route') return '위치를 참고해 주세요';
   return '위치를 참고해 주세요';
 }
 
@@ -255,8 +255,8 @@ export default function ResultPage() {
           <span>{routeStatusLabel(result, needsTransfer)}</span>
           <span>{hasAnchorWindow ? '쾌적도 비교' : result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result)}</span>
         </div>
-        <p className="eyebrow">{hasAnchorWindow ? '환승 가까운 쾌적칸' : result.routeGuidance.status === 'needs_route' ? '환승 확인이 필요한 추천' : '지금 타기 좋은 위치'}</p>
-        <h1>{result.recommendedCar.label}으로 가세요</h1>
+        <p className="eyebrow">{hasAnchorWindow ? '환승 가까운 쾌적칸' : '지금 타기 좋은 위치'}</p>
+        <h1>{result.recommendedCar.carNo}번째 칸으로 가세요</h1>
         <div className="route-proof-card" aria-label="추천 기준과 경로 확인 상태">
           <div>
             <span>경로</span>
@@ -268,7 +268,7 @@ export default function ResultPage() {
           </div>
           <div>
             <span>추천 기준</span>
-            <strong>{hasAnchorWindow ? '환승·하차 위치 주변 + 쾌적도' : result.routeGuidance.status === 'needs_route' ? '환승문 미반영 · 쾌적도 중심' : comfortCopy(result)}</strong>
+            <strong>{hasAnchorWindow ? '환승·하차 위치 주변 + 쾌적도' : result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result)}</strong>
           </div>
         </div>
         <p className="score">{routePath} · {hasAnchorWindow ? '가까운 칸 주변에서 선택' : comfortCopy(result)}</p>
@@ -338,70 +338,39 @@ export default function ResultPage() {
         </section>
       )}
 
-      <details className="card result-detail-accordion result-why-card">
-        <summary>
-          <span>왜 이 칸인가요?</span>
-          <em>추천 이유 보기</em>
-        </summary>
-        <div className="result-detail-body">
-          <ul className="reasons">
-            {result.reasons.map((reason) => <li key={reason}>{reason}</li>)}
-            {result.recommendedCar.isWeakAc && <li>약냉방칸이라 추위를 많이 타는 사람에게 더 편할 수 있어요.</li>}
-            {result.avoidCars.length > 0 && <li>피하면 좋은 위치: {result.avoidCars.map((car) => car.label).join(', ')}</li>}
-          </ul>
-        </div>
-      </details>
-
-      <details className="card result-detail-accordion route-guidance-card">
-        <summary>
-          <span>{result.routeGuidance.legs.length > 1 ? '환승 구간별 위치 보기' : '구간별 위치 안내'}</span>
-          <em>{result.routeGuidance.legs.length}개 구간</em>
-        </summary>
-        <div className="result-detail-body">
-          <p className="microcopy">{result.routeGuidance.summary}</p>
-          <div className="route-leg-list compact-route-leg-list">
-            {result.routeGuidance.legs.map((leg) => (
-              <article className="route-leg-card compact-route-leg-card" key={`${leg.legNo}-${leg.fromStation}-${leg.toStation}`}>
-                <div className="route-leg-head">
-                  <span>{leg.legNo}구간</span>
-                  <b>{leg.fromStation} → {leg.toStation}</b>
-                </div>
-                <p className="route-leg-meta">{leg.line}{leg.direction ? ` · ${leg.direction}` : ''}</p>
-                <div className={leg.status === 'available' ? 'door-tip available compact-door-tip' : 'door-tip pending compact-door-tip'}>
-                  <span>{legStatusCopy(leg.status)}</span>
-                  <strong>{leg.positionLabel} {legActionCopy(leg.status)}</strong>
-                  {leg.anchorCarNo != null && leg.anchorDoorNo != null && <small>{leg.anchorCarNo}번째 칸 · {leg.anchorDoorNo}번 문 근처가 편해요.</small>}
-                  {leg.candidateCarNos?.length ? <small>{leg.candidateCarNos.join(', ')}번째 칸도 비슷한 범위예요.</small> : null}
-                </div>
-                <p className="microcopy">{leg.message}</p>
-              </article>
-            ))}
+      <section className="card result-why-card result-info-card">
+        <div className="section-row">
+          <div>
+            <div className="section-title">왜 이 칸인가요?</div>
+            <p>핵심 이유만 짧게 정리했어요.</p>
           </div>
-          <p className="microcopy">{result.routeGuidance.disclaimer}</p>
         </div>
-      </details>
+        <ul className="reasons compact-reasons">
+          {result.reasons.slice(0, 2).map((reason) => <li key={reason}>{reason}</li>)}
+          {result.avoidCars.length > 0 && <li>피하면 좋은 위치: {result.avoidCars.map((car) => `${car.carNo}번째 칸`).join(', ')}</li>}
+        </ul>
+      </section>
 
-      <details className="card result-detail-accordion feedback">
-        <summary>
-          <span>추천이 맞았나요?</span>
-          <em>한 번만 눌러주세요</em>
-        </summary>
-        <div className="result-detail-body">
-          <p className="microcopy">탑승 후 느낌을 알려주면 다음 추천이 더 좋아져요.</p>
-          <div className="feedback-buttons">
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>🔁 환승이 멀었어요</button>
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
-            <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
+      <section className="card feedback result-info-card">
+        <div className="section-row">
+          <div>
+            <div className="section-title">추천이 어땠나요?</div>
+            <p>한 번만 눌러주면 다음 추천에 반영할게요.</p>
           </div>
-          {feedbackState === 'pending' && <p className="microcopy">반영 중이에요…</p>}
-          {feedbackState === 'sent' && <p className="ok">다음 추천에 반영했어요.</p>}
-          {feedbackState === 'mock' && <p className="ok">피드백을 받았어요.</p>}
-          {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
         </div>
-      </details>
+        <div className="feedback-buttons">
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('COLD')}>🥶 추웠어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>🔁 환승이 멀었어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
+          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
+        </div>
+        {feedbackState === 'pending' && <p className="microcopy">반영 중이에요…</p>}
+        {feedbackState === 'sent' && <p className="ok">다음 추천에 반영했어요.</p>}
+        {feedbackState === 'mock' && <p className="ok">피드백을 받았어요.</p>}
+        {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
+      </section>
 
       <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/data-source">데이터</Link><Link href="/settings">설정</Link></nav>
     </main>

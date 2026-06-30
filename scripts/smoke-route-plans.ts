@@ -22,9 +22,9 @@ async function main() {
     maxCandidates: 4,
   });
 
-  assert(guroToOlympic.candidates.length >= 2, '구로디지털단지역→올림픽공원역은 환승/미확정 후보를 보여줘야 합니다.');
+  assert(guroToOlympic.candidates.length >= 2, '구로디지털단지역→올림픽공원역은 실제 환승 후보를 보여줘야 합니다.');
   assert(guroToOlympic.candidates.some((candidate) => candidate.type === 'ONE_TRANSFER'), '1회 환승 후보가 있어야 합니다.');
-  assert(guroToOlympic.candidates.some((candidate) => candidate.type === 'UNRESOLVED'), '경로 미확정 후보가 있어야 합니다.');
+  assert(!guroToOlympic.candidates.some((candidate) => candidate.type === 'UNRESOLVED'), '실제 환승 후보가 있으면 경로 미확정 후보를 노출하지 않습니다.');
   assert(guroToOlympic.candidates.every((candidate) => candidate.originStation === '구로디지털단지역'), '출발역이 보존되어야 합니다.');
   assert(guroToOlympic.candidates.every((candidate) => candidate.destinationStation === '올림픽공원역'), '도착역이 보존되어야 합니다.');
   assert(guroToOlympic.candidates.every((candidate) => candidate.type === 'UNRESOLVED' || candidate.transferStations.length > 0), '환승 후보는 환승역을 포함해야 합니다.');
