@@ -33,7 +33,7 @@ function friendlyReason(result: RecommendationResponse, needsTransfer: boolean) 
     return `${station}에서 가까운 칸 주변 후보를 먼저 보고, 그 안에서 덜 덥고 덜 붐비는 쪽을 골랐어요.`;
   }
   if (result.routeGuidance.status === 'needs_route') return '환승역이 아직 정해지지 않아 빠른 환승문은 반영하지 못했어요. 이번 추천은 출발 구간의 쾌적도 기준이에요.';
-  if (needsTransfer) return '환승문 데이터가 부족해 환승 가까운 칸이라고 확정하지 않고, 쾌적도 중심으로 추천했어요.';
+  if (needsTransfer) return '확인된 환승 위치가 없는 구간은 환승 가까운 칸이라고 확정하지 않고, 쾌적도 중심으로 추천해요.';
   if (result.request.comfortType === 'HOT_SENSITIVE') return '더운 날에 덜 답답하고 비교적 시원하게 탈 수 있는 위치예요.';
   if (result.request.comfortType === 'COLD_SENSITIVE') return '찬바람이 부담스러울 때 너무 춥지 않은 쪽을 우선했어요.';
   if (result.request.comfortType === 'CROWD_AVOIDER') return '사람이 몰리는 구간을 피하기 쉬운 쪽을 우선했어요.';
@@ -61,7 +61,7 @@ function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) 
   if (result.routeGuidance.status === 'needs_route') {
     return `${result.request.destinationStation || '목적지'}까지는 환승이 필요할 수 있지만, 환승역이 아직 정해지지 않아 ${result.recommendedCar.label}이 빠른 환승에 가장 가깝다는 뜻은 아니에요.`;
   }
-  if (needsTransfer) return '환승문 위치를 확정할 데이터가 부족해서, 환승 거리보다 덜 덥고 덜 붐비는 위치를 우선했어요.';
+  if (needsTransfer) return '확인된 환승 위치가 없는 구간은 환승 거리보다 덜 덥고 덜 붐비는 위치를 우선했어요.';
   return '선택한 구간에서 덜 덥고 덜 붐빌 가능성이 높은 칸을 비교했어요.';
 }
 
@@ -79,7 +79,7 @@ function legStatusCopy(status: RecommendationResponse['routeGuidance']['legs'][n
 }
 
 function legActionCopy(status: RecommendationResponse['routeGuidance']['legs'][number]['status']) {
-  if (status === 'available') return '근처에서 타세요';
+  if (status === 'available') return '타세요';
   if (status === 'needs_direction') return '위치를 참고해 주세요';
   if (status === 'needs_route') return '위치를 참고해 주세요';
   return '위치를 참고해 주세요';
@@ -299,7 +299,7 @@ export default function ResultPage() {
           </div>
         </div>
         {hasAnchorWindow && <p className="transfer-note">가장 가까운 칸만 고르지 않고, 그 양옆 칸까지 비교해서 덜 덥고 덜 붐비는 쪽을 추천했어요.</p>}
-        {!hasAnchorWindow && needsTransfer && <p className="transfer-note">정확한 환승문 정보가 부족한 구간은 쾌적칸 중심으로 추천해요. 환승 가까운 칸 데이터는 지원 역부터 확대 중이에요.</p>}
+        {!hasAnchorWindow && needsTransfer && <p className="transfer-note">확인된 환승 위치가 없는 구간은 쾌적칸 중심으로 추천해요. 환승 가까운 칸 데이터는 지원 역부터 확대 중이에요.</p>}
         <div className="result-actions">
           <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>{saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}</button>
           <Link href={backHref}>다시 추천</Link>

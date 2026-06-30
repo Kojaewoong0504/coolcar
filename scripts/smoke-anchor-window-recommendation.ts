@@ -65,6 +65,25 @@ async function main() {
   assert(gangnamTransferNoDirection.routeChoice.mode === 'ANCHOR_WINDOW', '강남역 방향은 역 순서로 자동 추론되어 환승 anchor를 적용해야 합니다.');
   assert(gangnamTransferNoDirection.routeGuidance.legs[0]?.status === 'available', '강남역 자동 방면 추론 후 available이어야 합니다.');
 
+  const sportsTransfer = await recommend({
+    line: '2호선',
+    originStation: '구로디지털단지역',
+    destinationStation: '올림픽공원역',
+    destinationLine: '9호선',
+    transferStations: ['종합운동장역'],
+    comfortType: 'HOT_SENSITIVE',
+  });
+
+  assert(sportsTransfer.routeChoice.mode === 'ANCHOR_WINDOW', '종합운동장 2호선→9호선 환승 fixture는 자동 방면 추론 후 anchor window 모드여야 합니다.');
+  assert(sportsTransfer.routeChoice.goal === 'NEXT_TRANSFER', '종합운동장 anchor goal은 NEXT_TRANSFER여야 합니다.');
+  assert(sportsTransfer.routeChoice.anchorCarNo === 3, '구로디지털단지→종합운동장 진행 방향 기준칸은 3번째 칸이어야 합니다.');
+  assert(sportsTransfer.routeChoice.anchorDoorNo === 1, '구로디지털단지→종합운동장 진행 방향 기준 문은 1번 문이어야 합니다.');
+  assert(JSON.stringify(sportsTransfer.routeChoice.candidateCarNos) === JSON.stringify([2, 3, 4]), 'anchor 3의 후보는 2,3,4번째 칸이어야 합니다.');
+  assert(sportsTransfer.routeChoice.candidateCarNos.includes(sportsTransfer.recommendedCar.carNo), '종합운동장 최종 추천칸은 환승 anchor±1 후보 안에 있어야 합니다.');
+  assert(sportsTransfer.routeGuidance.legs[0]?.status === 'available', '종합운동장 첫 환승 leg는 available이어야 합니다.');
+  assert(sportsTransfer.routeGuidance.legs[0]?.recommendedDoorNo === 1, '종합운동장 첫 환승 leg는 1번 문을 유지해야 합니다.');
+  assert(!JSON.stringify(sportsTransfer).includes('환승문 데이터 부족'), '종합운동장 추천 응답에는 실패 문구가 없어야 합니다.');
+
   console.log(JSON.stringify({
     ok: true,
     anchored: {

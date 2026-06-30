@@ -105,7 +105,7 @@ async function applyDoorGuide(params: {
       status: 'needs_direction' as const,
       recommendedCarNo: params.fallbackCarNo,
       positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '쾌적칸 중심',
-      message: '방면을 비워둔 상태라 문 위치 대신 쾌적칸 중심으로 안내해요.',
+      message: '방면 자동 계산이 어려운 구간이라 쾌적칸 중심으로 안내해요. 승강장 안내를 함께 확인해 주세요.',
     };
   }
 
@@ -175,7 +175,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       direction: effectiveDirection,
       goal: 'FINAL_EXIT',
       fallbackCarNo: recommendedCar.carNo,
-      fallbackMessage: '빠른하차 문 정보가 없으면 추천 칸을 기준으로 안내해요. 문 위치는 승강장에서 한 번 더 확인해 주세요.',
+      fallbackMessage: '빠른하차 위치가 확인되지 않은 구간은 추천 칸을 기준으로 안내해요. 승강장에서 한 번 더 확인해 주세요.',
     });
     return {
       status: 'direct',
@@ -244,7 +244,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       targetLine: !isLast && transfers.length === 1 ? request.destinationLine : undefined,
       fallbackCarNo: index === 0 ? recommendedCar.carNo : undefined,
       fallbackMessage: index === 0
-        ? '이 환승 구간의 문 위치 정보가 아직 부족해요. 지금은 추천 칸을 기준으로 안내해요.'
+        ? '이 환승 구간은 승강장 안내와 함께 확인해 주세요. 지금은 추천 칸을 기준으로 안내해요.'
         : '다음 노선의 방면에 따라 추천 위치가 달라질 수 있어요.',
     });
     return baseLeg({

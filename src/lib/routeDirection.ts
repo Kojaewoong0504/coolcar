@@ -10,7 +10,7 @@ export type InferredDirection = {
   path: string[];
 };
 
-const LINE_ORDERS: Record<string, { circular?: boolean; stations: string[] }> = {
+export const LINE_ORDERS: Record<string, { circular?: boolean; stations: string[] }> = {
   '2호선': {
     circular: true,
     stations: [
@@ -45,6 +45,28 @@ function pathBetween(order: string[], fromIndex: number, toIndex: number, direct
     if (path.length > order.length + 1) return [];
   }
   return path;
+}
+
+function directionSide(order: string[], atStation: string, directionStation: string, circular: boolean) {
+  const atKey = stationKey(atStation);
+  const directionKey = stationKey(directionStation);
+  const atIndex = order.findIndex((station) => stationKey(station) === atKey);
+  const directionIndex = order.findIndex((station) => stationKey(station) === directionKey);
+  if (atIndex < 0 || directionIndex < 0 || atIndex === directionIndex) return undefined;
+
+  if (!circular) return directionIndex > atIndex ? 1 : -1;
+
+  const forwardDistance = (directionIndex - atIndex + order.length) % order.length;
+  const backwardDistance = (atIndex - directionIndex + order.length) % order.length;
+  return forwardDistance <= backwardDistance ? 1 : -1;
+}
+
+export function isSameLineDirectionSide(params: { line: string; atStation: string; inputDirection: string; recordDirection: string }) {
+  const config = LINE_ORDERS[params.line];
+  if (!config) return false;
+  const inputSide = directionSide(config.stations, params.atStation, params.inputDirection, Boolean(config.circular));
+  const recordSide = directionSide(config.stations, params.atStation, params.recordDirection, Boolean(config.circular));
+  return inputSide !== undefined && inputSide === recordSide;
 }
 
 export function inferLineDirection(params: { line: string; originStation: string; targetStation?: string }): InferredDirection | undefined {

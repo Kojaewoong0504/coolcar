@@ -1,5 +1,6 @@
 import { lookupDoorGuide } from '../src/lib/doorGuidance/resolver';
 import { normalizeDirection, normalizeLine, normalizeStationName, parseCarDoor } from '../src/lib/doorGuidance/normalize';
+import { inferLineDirection } from '../src/lib/routeDirection';
 import { buildRouteGuidance } from '../src/lib/routeGuidance';
 import type { CarComfort, RecommendRequest } from '../src/lib/types';
 
@@ -53,6 +54,22 @@ async function main() {
     targetLine: '신분당선',
   });
   assert(gangnamNoDirection.status === 'needs_direction', 'directional transfer data without direction should need direction');
+
+  const sportsDirection = inferLineDirection({
+    line: '2호선',
+    originStation: '구로디지털단지역',
+    targetStation: '종합운동장역',
+  });
+  assert(sportsDirection?.doorGuideDirection === '잠실새내', '구로디지털단지→종합운동장 inferred local direction should be 잠실새내');
+  const sportsTransfer = await lookupDoorGuide({
+    line: '2호선',
+    toStation: '종합운동장역',
+    direction: sportsDirection.doorGuideDirection,
+    goal: 'NEXT_TRANSFER',
+    targetLine: '9호선',
+  });
+  assert(sportsTransfer.status === 'available', '종합운동장역 2호선→9호선 자동 추론 방향 transfer anchor should be available');
+  assert(sportsTransfer.record.carNo === 3 && sportsTransfer.record.doorNo === 1, '종합운동장 건대입구 방면 side should map to 3-1');
 
   const noDirection = await lookupDoorGuide({ line: '1호선', toStation: '서울역', goal: 'FINAL_EXIT' });
   assert(noDirection.status === 'needs_direction', 'directional data without direction should need direction');

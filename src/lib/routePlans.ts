@@ -101,7 +101,7 @@ async function buildDirectCandidate(params: {
     title: '바로 가는 경로 후보예요',
     summary: finalStatus === 'available'
       ? '도착역 하차 위치와 쾌적도를 함께 볼 수 있어요.'
-      : '환승 없이 가는 후보예요. 하차 문 정보가 부족하면 쾌적칸 중심으로 안내해요.',
+      : '환승 없이 가는 후보예요. 하차 위치가 확인되지 않으면 쾌적칸 중심으로 안내해요.',
     originStation: params.originStation,
     destinationStation: params.destinationStation,
     transferStations: [],
@@ -147,7 +147,7 @@ async function buildTransferCandidate(params: {
     title: params.userSpecified ? `${params.transferStation} 경유로 볼게요` : `${params.transferStation}에서 환승`,
     summary: transferStatus === 'available'
       ? `${params.transferStation}에서 갈아타기 가까운 위치 주변과 쾌적도를 함께 비교할 수 있어요.${inferred ? ` ${inferred.boardDirectionLabel}으로 계산했어요.` : ''}`
-      : `${params.transferStation} 경유 후보예요. 문 위치 정보가 부족한 구간은 쾌적칸 중심으로 안내해요.`,
+      : `${params.transferStation} 경유 후보예요. 확인된 위치가 없는 구간은 쾌적칸 중심으로 안내해요.`,
     originStation: params.originStation,
     destinationStation: params.destinationStation,
     transferStations: [params.transferStation],

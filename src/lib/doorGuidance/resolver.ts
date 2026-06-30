@@ -1,4 +1,5 @@
-import { makeDoorGuideKey, normalizeDirection } from './normalize';
+import { isSameLineDirectionSide } from '../routeDirection';
+import { makeDoorGuideKey, normalizeDirection, normalizeLine, normalizeStationName } from './normalize';
 import { fetchPublicDoorGuideRecords } from './publicAdapter';
 import { STATIC_DOOR_GUIDES } from './staticFixture';
 import type { DoorGuideLookupInput, DoorGuideLookupResult, DoorGuideRecord } from './types';
@@ -21,6 +22,27 @@ function keyForInput(input: DoorGuideLookupInput) {
   });
 }
 
+function directionStationFromKey(directionKey?: string) {
+  return directionKey?.startsWith('TOWARD_') ? directionKey.replace(/^TOWARD_/, '') : undefined;
+}
+
+function directionMatches(input: DoorGuideLookupInput, record: DoorGuideRecord, directionKey?: string) {
+  if (!record.directionKey) return true;
+  if (!directionKey) return false;
+  if (record.directionKey === directionKey) return true;
+
+  const inputDirectionStation = directionStationFromKey(directionKey);
+  const recordDirectionStation = directionStationFromKey(record.directionKey);
+  if (!inputDirectionStation || !recordDirectionStation) return false;
+
+  return isSameLineDirectionSide({
+    line: normalizeLine(input.line),
+    atStation: normalizeStationName(input.toStation),
+    inputDirection: inputDirectionStation,
+    recordDirection: recordDirectionStation,
+  });
+}
+
 export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: DoorGuideRecord[]): DoorGuideLookupResult {
   const candidates = records.filter((record) => keyForRecord(record) === keyForInput(input));
   if (candidates.length === 0) {
@@ -35,7 +57,7 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
   }
 
   const matched = directionKey
-    ? candidates.filter((record) => !record.directionKey || record.directionKey === directionKey)
+    ? candidates.filter((record) => directionMatches(input, record, directionKey))
     : candidates;
 
   if (matched.length === 0) {
