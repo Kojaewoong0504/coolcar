@@ -54,7 +54,8 @@ function directionStatusLabel(result: RecommendationResponse) {
 function routeBasisCopy(result: RecommendationResponse, needsTransfer: boolean) {
   if (result.routeChoice?.mode === 'ANCHOR_WINDOW') {
     const station = result.routeChoice.station ?? (needsTransfer ? '환승역' : '도착역');
-    const anchor = result.routeChoice.anchorCarNo ? `${result.routeChoice.anchorCarNo}번째 칸` : '가까운 칸';
+    const anchorLabels = result.routeChoice.anchorDoorLabels?.length ? result.routeChoice.anchorDoorLabels.join(', ') : undefined;
+    const anchor = anchorLabels ?? (result.routeChoice.anchorCarNo ? `${result.routeChoice.anchorCarNo}번째 칸` : '가까운 칸');
     const candidates = result.routeChoice.candidateCarNos.length ? `(${result.routeChoice.candidateCarNos.join(', ')}번째 칸)` : '';
     return `${station} ${anchor} 주변 ${candidates}을 먼저 비교한 뒤, 그중 쾌적도가 나은 ${result.recommendedCar.label}을 골랐어요.`;
   }
@@ -283,7 +284,7 @@ export default function ResultPage() {
           <div className="cars result-cars">
             {result.cars.map((car) => {
               const isBest = car.carNo === result.recommendedCar.carNo;
-              const isAnchor = hasAnchorWindow && car.carNo === result.routeChoice.anchorCarNo;
+              const isAnchor = hasAnchorWindow && (result.routeChoice.anchorCarNos?.includes(car.carNo) ?? car.carNo === result.routeChoice.anchorCarNo);
               const isCandidate = hasAnchorWindow && result.routeChoice.candidateCarNos.includes(car.carNo);
               const isAvoid = !isCandidate && result.avoidCars.some((avoid) => avoid.carNo === car.carNo);
               const className = isBest ? 'car best' : isAnchor ? 'car anchor' : isCandidate ? 'car candidate' : isAvoid ? 'car avoid' : 'car';
@@ -320,7 +321,7 @@ export default function ResultPage() {
           <div className={activeLeg.status === 'available' ? 'door-tip available' : 'door-tip pending'}>
             <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승 기준' : '하차 기준'}</span>
             <strong>{activeLeg.positionLabel} {legActionCopy(activeLeg.status)}</strong>
-            {activeLeg.anchorCarNo != null && activeLeg.anchorDoorNo != null && <small>{activeLeg.anchorCarNo}번째 칸 · {activeLeg.anchorDoorNo}번 문 근처가 편해요.</small>}
+            {activeLegIndex === 0 && result.routeChoice.mode === 'ANCHOR_WINDOW' && result.routeChoice.anchorDoorLabels?.length ? <small>{result.routeChoice.anchorDoorLabels.join(', ')} 근처가 편해요.</small> : activeLeg.anchorCarNo != null && activeLeg.anchorDoorNo != null && <small>{activeLeg.anchorCarNo}번째 칸 · {activeLeg.anchorDoorNo}번 문 근처가 편해요.</small>}
             {activeLeg.candidateCarNos?.length ? <small>{activeLeg.candidateCarNos.join(', ')}번째 칸도 비슷한 범위예요.</small> : null}
           </div>
           <p className="microcopy">{activeLeg.message}</p>

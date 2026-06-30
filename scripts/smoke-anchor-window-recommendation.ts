@@ -84,6 +84,23 @@ async function main() {
   assert(sportsTransfer.routeGuidance.legs[0]?.recommendedDoorNo === 1, '종합운동장 첫 환승 leg는 1번 문을 유지해야 합니다.');
   assert(!JSON.stringify(sportsTransfer).includes('환승문 데이터 부족'), '종합운동장 추천 응답에는 실패 문구가 없어야 합니다.');
 
+  const hongdaeAirport = await recommend({
+    line: '2호선',
+    originStation: '구로디지털단지역',
+    destinationStation: '인천공항2터미널역',
+    destinationLine: '공항철도',
+    transferStations: ['홍대입구역'],
+    comfortType: 'HOT_SENSITIVE',
+  });
+
+  assert(hongdaeAirport.routeChoice.mode === 'ANCHOR_WINDOW', '홍대입구 2호선→공항철도 신촌 방면은 anchor window 모드여야 합니다.');
+  assert(JSON.stringify(hongdaeAirport.routeChoice.anchorDoorLabels) === JSON.stringify(['7-2', '9-2']), '홍대입구 신촌 방면 anchor labels should be 7-2 and 9-2');
+  assert(JSON.stringify(hongdaeAirport.routeChoice.candidateCarNos) === JSON.stringify([6, 7, 8, 9, 10]), '홍대입구 신촌 방면 후보는 7/9 주변 6~10번째 칸이어야 합니다.');
+  assert(hongdaeAirport.routeChoice.candidateCarNos.includes(hongdaeAirport.recommendedCar.carNo), '홍대입구 최종 추천칸은 7/9 anchor 주변 후보 안에 있어야 합니다.');
+  assert([7, 9].includes(hongdaeAirport.recommendedCar.carNo), '홍대입구 최종 추천칸은 실제 가까운 7번 또는 9번 칸이어야 합니다.');
+  assert(!hongdaeAirport.routeChoice.candidateCarNos.includes(2), '홍대입구 신촌 방면 후보에는 2번째 칸이 들어가면 안 됩니다.');
+  assert(!JSON.stringify(hongdaeAirport).includes('환승문 데이터 부족'), '홍대입구 추천 응답에는 실패 문구가 없어야 합니다.');
+
   console.log(JSON.stringify({
     ok: true,
     anchored: {

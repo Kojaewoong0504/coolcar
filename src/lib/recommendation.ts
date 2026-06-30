@@ -148,9 +148,24 @@ function sortByRecommendationScore(cars: CarComfort[]) {
   });
 }
 
-function candidateCarsAroundAnchor(cars: CarComfort[], anchorCarNo: number) {
-  const allowed = new Set([anchorCarNo - 1, anchorCarNo, anchorCarNo + 1]);
+function candidateCarsAroundAnchors(cars: CarComfort[], anchorCarNos: number[]) {
+  const allowed = new Set(anchorCarNos.flatMap((anchorCarNo) => [anchorCarNo - 1, anchorCarNo, anchorCarNo + 1]));
   return cars.filter((car) => allowed.has(car.carNo));
+}
+
+function candidateCarsAroundAnchor(cars: CarComfort[], anchorCarNo: number) {
+  return candidateCarsAroundAnchors(cars, [anchorCarNo]);
+}
+
+function anchorRecordsForChoice(anchor: NonNullable<Awaited<ReturnType<typeof resolveRouteAnchor>>>) {
+  const records = anchor.records?.length ? anchor.records : [{ carNo: anchor.carNo, doorNo: anchor.doorNo }];
+  const unique = new Map<string, { carNo: number; doorNo?: number }>();
+  for (const record of records) unique.set(`${record.carNo}-${record.doorNo ?? ''}`, { carNo: record.carNo, doorNo: record.doorNo });
+  return [...unique.values()].sort((a, b) => a.carNo - b.carNo || (a.doorNo ?? 0) - (b.doorNo ?? 0));
+}
+
+function formatDoorLabels(records: Array<{ carNo: number; doorNo?: number }>) {
+  return records.map((record) => `${record.carNo}-${record.doorNo ?? '?'}`);
 }
 
 function buildRouteChoice(params: {
@@ -167,24 +182,31 @@ function buildRouteChoice(params: {
     };
   }
 
-  const candidateCarNos = candidateCarsAroundAnchor(params.cars, params.anchor.carNo).map((car) => car.carNo);
+  const anchorRecords = anchorRecordsForChoice(params.anchor);
+  const anchorCarNos = [...new Set(anchorRecords.map((record) => record.carNo))];
+  const anchorDoorLabels = formatDoorLabels(anchorRecords);
+  const candidateCarNos = candidateCarsAroundAnchors(params.cars, anchorCarNos).map((car) => car.carNo);
+  const anchorLabel = anchorDoorLabels.length > 1 ? `${anchorDoorLabels.join(', ')} 위치` : `${params.anchor.carNo}번째 칸${params.anchor.doorNo ? ` · ${params.anchor.doorNo}번 문` : ''}`;
   return {
     mode: 'ANCHOR_WINDOW',
     goal: params.anchor.goal,
     anchorCarNo: params.anchor.carNo,
     anchorDoorNo: params.anchor.doorNo,
+    anchorCarNos,
+    anchorDoorLabels,
     candidateCarNos,
     selectedCarNo: params.recommendedCar.carNo,
     station: params.anchor.station,
     facility: params.anchor.facility,
-    message: `${params.anchor.station} ${params.anchor.carNo}번째 칸${params.anchor.doorNo ? ` · ${params.anchor.doorNo}번 문` : ''} 주변 ${candidateCarNos.join(', ')}번째 칸 중에서 쾌적한 칸을 골랐어요.`,
+    message: `${params.anchor.station} ${anchorLabel} 주변 ${candidateCarNos.join(', ')}번째 칸 중에서 쾌적한 칸을 골랐어요.`,
   };
 }
 
 function reasons(car: CarComfort, request: RecommendRequest, fallbackUsed: boolean, feedback: FeedbackAdjustment, routeChoice: RouteChoice): string[] {
   const list: string[] = [];
   if (routeChoice.mode === 'ANCHOR_WINDOW') {
-    list.push(`환승·하차에 가까운 ${routeChoice.anchorCarNo}번째 칸 주변 ${routeChoice.candidateCarNos.join(', ')}번째 칸을 먼저 비교했어요.`);
+    const anchorLabel = routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸`;
+    list.push(`환승·하차에 가까운 ${anchorLabel} 주변 ${routeChoice.candidateCarNos.join(', ')}번째 칸을 먼저 비교했어요.`);
   }
   if (request.comfortType === 'HOT_SENSITIVE') list.push(`${car.label}은 더위 피하기에 유리한 쪽으로 추정돼요.`);
   if (request.comfortType === 'COLD_SENSITIVE') list.push(car.isWeakAc ? '약냉방칸이라 추위를 많이 타는 사용자에게 맞을 가능성이 높아요.' : '과냉방 가능성이 낮은 칸을 우선했어요.');
@@ -204,7 +226,10 @@ export async function recommend(request: RecommendRequest): Promise<Recommendati
     .map((c) => scoreCar(c, request));
   const sorted = sortByRecommendationScore(scored);
   const routeAnchor = await resolveRouteAnchor(request);
-  const anchorCandidates = routeAnchor ? candidateCarsAroundAnchor(scored, routeAnchor.carNo) : [];
+  const anchorCarNos = routeAnchor ? [...new Set(anchorRecordsForChoice(routeAnchor).map((record) => record.carNo))] : [];
+  const anchorCandidates = routeAnchor
+    ? (anchorCarNos.length > 1 ? scored.filter((car) => anchorCarNos.includes(car.carNo)) : candidateCarsAroundAnchors(scored, anchorCarNos))
+    : [];
   const recommendationPool = anchorCandidates.length > 0 ? anchorCandidates : scored;
   const recommendedCar = sortByRecommendationScore(recommendationPool)[0] ?? sorted[0];
   const routeChoice = buildRouteChoice({ cars: scored, recommendedCar, anchor: anchorCandidates.length > 0 ? routeAnchor : undefined });

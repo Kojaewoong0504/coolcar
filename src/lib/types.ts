@@ -46,6 +46,8 @@ export type RouteChoice = {
   goal?: 'FINAL_EXIT' | 'NEXT_TRANSFER';
   anchorCarNo?: number;
   anchorDoorNo?: number;
+  anchorCarNos?: number[];
+  anchorDoorLabels?: string[];
   candidateCarNos: number[];
   selectedCarNo: number;
   station?: string;

@@ -1,3 +1,4 @@
+import type { DoorGuideRecord } from './doorGuidance/types';
 import type { CarComfort, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
 import { lookupDoorGuide } from './doorGuidance/resolver';
 import { inferLineDirection } from './routeDirection';
@@ -7,6 +8,7 @@ export type RouteAnchor = {
   station: string;
   carNo: number;
   doorNo?: number;
+  records?: DoorGuideRecord[];
   facility?: string;
   message: string;
 };
@@ -92,6 +94,7 @@ async function applyDoorGuide(params: {
       status: 'available' as const,
       recommendedCarNo: result.record.carNo,
       recommendedDoorNo: result.record.doorNo,
+      anchorRecords: result.records,
       positionLabel: `${result.record.carNo}번째 칸 · ${result.record.doorNo}번 문 근처`,
       facility: result.record.facility,
       message: result.record.facility
@@ -154,6 +157,7 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
     station: anchorTarget.station,
     carNo: result.record.carNo,
     doorNo: result.record.doorNo,
+    records: result.records,
     facility: result.record.facility,
     message: result.record.facility
       ? `${result.record.facility}와 가까운 위치를 기준으로 주변 칸을 비교했어요.`
@@ -200,7 +204,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
             : doorGuide.positionLabel,
           facility: doorGuide.facility,
           message: routeChoice?.mode === 'ANCHOR_WINDOW'
-            ? `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
+            ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
             : doorGuide.message,
         }),
       ],
@@ -265,7 +269,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
         : index === 0 || doorGuide.status === 'available' ? doorGuide.positionLabel : '환승 후 탑승 위치 확인 필요',
       facility: doorGuide.facility,
       message: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
-        ? `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
+        ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
         : doorGuide.message,
     });
   }));

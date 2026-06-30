@@ -78,7 +78,7 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
 
   const best = sorted[0];
   if (!best) return { status: 'needs_data', reason: '문 위치 정보를 찾지 못했어요.' };
-  return { status: 'available', record: best };
+  return { status: 'available', record: best, records: sorted };
 }
 
 export function lookupStaticDoorGuide(input: DoorGuideLookupInput): DoorGuideLookupResult {

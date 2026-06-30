@@ -82,9 +82,79 @@ const FINAL_EXIT_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.flatMap((
 // - 국토교통부_철도역 빠른 환승 정보 (data.go.kr 15151816)
 // Generation policy: only public/official records with valid 1~12 car and 1~4 door values;
 // ambiguous same-key car/door conflicts are excluded from the generated JSON.
-const VERIFIED_NEXT_TRANSFER_GUIDES = verifiedNextTransferGuides.records as DoorGuideRecord[];
+const GENERATED_NEXT_TRANSFER_GUIDES = verifiedNextTransferGuides.records as DoorGuideRecord[];
+
+const SUPPRESSED_CONFLICTING_RECORD_IDS = new Set(['SEOUL_METRO_TRANSFER_CSV:126', 'MOLIT_QUICK_TRANSFER_CSV:654', 'SEOUL_METRO_TRANSFER_CSV:124']);
+
+const VERIFIED_NEXT_TRANSFER_GUIDES = GENERATED_NEXT_TRANSFER_GUIDES.filter((record) => {
+  const sourceId = 'sourceId' in record ? String((record as DoorGuideRecord & { sourceId?: string }).sourceId ?? '') : '';
+  return !SUPPRESSED_CONFLICTING_RECORD_IDS.has(`${record.source}:${sourceId}`);
+});
+
+// Field-verified override after user report: official/public Hongdae 2호선→공항철도 rows are
+// directionally inconsistent with observed platform stairs. Keep them suppressed above and expose
+// these separately so the conflict is auditable instead of silently pretending the generated source is correct.
+const FIELD_VERIFIED_NEXT_TRANSFER_GUIDES: DoorGuideRecord[] = [
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('신촌'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '공항철도',
+    carNo: 7,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-06-30',
+  },
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('신촌'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '공항철도',
+    carNo: 9,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-06-30',
+  },
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('합정'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '공항철도',
+    carNo: 2,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-06-30',
+  },
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('합정'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '공항철도',
+    carNo: 4,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-06-30',
+  },
+];
 
 export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
   ...FINAL_EXIT_GUIDES,
   ...VERIFIED_NEXT_TRANSFER_GUIDES,
+  ...FIELD_VERIFIED_NEXT_TRANSFER_GUIDES,
 ];

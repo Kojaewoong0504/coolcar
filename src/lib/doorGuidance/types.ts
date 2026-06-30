@@ -30,7 +30,7 @@ export type DoorGuideLookupInput = {
 };
 
 export type DoorGuideLookupResult =
-  | { status: 'available'; record: DoorGuideRecord }
+  | { status: 'available'; record: DoorGuideRecord; records?: DoorGuideRecord[] }
   | { status: 'needs_direction'; reason: string }
   | { status: 'needs_data'; reason: string }
   | { status: 'ambiguous'; reason: string };
