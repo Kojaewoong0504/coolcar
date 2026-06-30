@@ -85,6 +85,8 @@ async function main() {
   assert(typeof secondLeg.recommendedCarNo === 'number', '시설 데이터가 없어도 마지막 구간은 쾌적칸 fallback 추천이 있어야 합니다.');
   assert(secondLeg.recommendedDoorNo === undefined && secondLeg.anchorDoorNo === undefined, '검증되지 않은 하차문은 확정 노출하지 않아야 합니다.');
   assert(secondLeg.positionLabel.startsWith('쾌적도 기준'), 'FINAL_EXIT 데이터가 없는 구간은 하차 기준처럼 보이지 않도록 쾌적도 기준 문구를 써야 합니다.');
+  const visibleText = JSON.stringify(oneTransfer.routeGuidance);
+  assert(!/확인\s*중|확인중|정확한 하차문 정보|데이터가 아직 부족|데이터 부족/.test(visibleText), 'FINAL_EXIT fallback copy must stay short and not look unfinished.');
 
   console.log(JSON.stringify({
     ok: true,

@@ -280,7 +280,7 @@ export default function RoutePlansPage() {
               </div>
             ))}
           </div>
-          <button className="primary" type="button" onClick={() => void buildManualCandidate()} disabled={manualTransfers.length === 0 || manualLoading}>{manualLoading ? '직접 경로 확인 중…' : manualTransfers.length > 1 ? '이 환승 순서로 추천받기' : '이 환승역으로 추천받기'}</button>
+          <button className="primary" type="button" onClick={() => void buildManualCandidate()} disabled={manualTransfers.length === 0 || manualLoading}>{manualLoading ? '경로 불러오는 중…' : manualTransfers.length > 1 ? '이 환승 순서로 추천받기' : '이 환승역으로 추천받기'}</button>
         </section>
       </details>
 

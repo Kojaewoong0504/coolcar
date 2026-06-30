@@ -320,7 +320,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0
         ? '이 환승 구간은 승강장 안내와 함께 확인해 주세요. 지금은 추천 칸을 기준으로 안내해요.'
-        : '정확한 하차문 정보는 아직 확인 중이라, 이 구간은 쾌적칸 중심으로 안내해요. 승강장 안내를 함께 확인해 주세요.',
+        : '도착역에서는 표지판을 보며 이동하면 돼요.',
     });
     return baseLeg({
       legNo: index + 1,

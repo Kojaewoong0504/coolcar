@@ -263,6 +263,23 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .door-tip small { font-size:12px; font-weight:850; line-height:1.35; opacity:.82; }
 .door-tip.available { background:#e0f2fe; color:#075985; }
 .door-tip.pending { background:#fff7ed; color:#9a3412; }
+.door-tip.neutral { background:linear-gradient(135deg,#f8fafc,#eef9ff); color:#0f172a; border:1px solid #dbeafe; }
+.route-proof-compact { grid-template-columns:1fr; }
+.route-proof-compact div { grid-template-columns:48px 1fr; }
+.compact-tip { display:inline-flex; width:max-content; max-width:100%; margin-top:12px; padding:9px 11px; border-radius:999px; line-height:1.25; }
+.personalization-strip { margin-top:12px; padding:10px 12px; border-radius:18px; background:rgba(236,254,255,.13); border:1px solid rgba(103,232,249,.22); display:flex; align-items:center; gap:8px; color:#dff7ff; }
+.personalization-strip span { flex:0 0 auto; font-size:12px; font-weight:950; }
+.personalization-strip strong { font-size:12px; line-height:1.3; }
+.active-leg-card { display:grid; gap:12px; }
+.active-leg-card h2 { margin:0; font-size:22px; letter-spacing:-.06em; }
+.active-leg-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.active-leg-head span, .active-leg-head em { border-radius:999px; padding:7px 10px; font-size:12px; font-weight:950; font-style:normal; }
+.active-leg-head span { background:#0f172a; color:#fff; }
+.active-leg-head em { background:#ecfeff; color:#0369a1; }
+.next-leg-preview { display:grid; gap:7px; border:1px solid var(--border); border-radius:18px; padding:12px; background:#f8fdff; }
+.next-leg-preview span, .next-leg-preview small { color:var(--muted); font-size:12px; font-weight:900; }
+.next-leg-preview button { margin-top:2px; border:0; border-radius:999px; background:#0f172a; color:#fff; min-height:44px; font-weight:950; }
+.active-leg-back { justify-self:start; }
 .route-plan-hero { background: radial-gradient(circle at 0% 0%, #fff 0%, #e0fbff 46%, #f8fdff 100%); }
 .route-plan-hero h1 { font-size:clamp(28px,7vw,32px); line-height:1.12; letter-spacing:-.07em; margin:6px 0 10px; }
 .route-plan-hero p:not(.eyebrow) { color:var(--muted); line-height:1.55; margin:8px 0 0; }

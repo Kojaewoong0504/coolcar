@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const user = parsed.data.anonymousId ? null : await getCurrentUser();
 
   const recommendationId = data.recommendationId;
-  void supabase
+  const { error: insertError } = await supabase
       .from('recommendation_events')
       .insert({
         id: recommendationId,
@@ -40,5 +40,10 @@ export async function POST(request: Request) {
         response_payload: data,
       });
 
-  return NextResponse.json({ ...data, recommendationId, persisted: true, persistenceMode: 'best_effort' });
+  if (insertError) {
+    console.error('recommendation_events insert failed', { code: insertError.code, message: insertError.message });
+    return NextResponse.json({ ...data, recommendationId, persisted: false, persistenceMode: 'failed' });
+  }
+
+  return NextResponse.json({ ...data, recommendationId, persisted: true, persistenceMode: 'stored_for_personalization' });
 }
