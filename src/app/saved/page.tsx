@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import type { NormalizedAuthProfile } from '@/lib/auth/profile';
+import type { RecommendRequest } from '@/lib/types';
 
 type SavedRoute = {
   id: string;
@@ -20,12 +21,28 @@ type SavedRoute = {
 
 type AuthMe = { authenticated: boolean; profile: NormalizedAuthProfile | null };
 
+type StoredRoutineRequest = {
+  request: RecommendRequest;
+  context?: { destinationLine?: string };
+};
+
+type StoredRoutineRequests = Record<string, StoredRoutineRequest>;
+
 const comfortLabels: Record<string, string> = {
   HOT_SENSITIVE: '더위형',
   COLD_SENSITIVE: '추위형',
   CROWD_AVOIDER: '혼잡회피',
   BALANCED: '밸런스',
 };
+
+function readStoredRoutineRequests(): StoredRoutineRequests {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(window.localStorage.getItem('coolcar_saved_route_requests') ?? '{}') as StoredRoutineRequests;
+  } catch {
+    return {};
+  }
+}
 
 function getAnonymousId() {
   if (typeof window === 'undefined') return undefined;
@@ -79,6 +96,26 @@ export default function SavedPage() {
     window.localStorage.setItem('coolcar_pwa_notice_hidden', '1');
   }
 
+  function startRecommendation(route: SavedRoute) {
+    const anonymousId = getAnonymousId();
+    const stored = readStoredRoutineRequests()[route.id];
+    const fallbackRequest: RecommendRequest = {
+      line: route.line,
+      originStation: route.origin_station,
+      destinationStation: route.destination_station ?? undefined,
+      direction: route.direction ?? undefined,
+      comfortType: (route.comfort_type as RecommendRequest['comfortType']) ?? 'BALANCED',
+      avoidPrioritySeatArea: true,
+      waitToleranceMin: 3,
+      anonymousId,
+    };
+    const pending = stored
+      ? { request: { ...stored.request, anonymousId: stored.request.anonymousId ?? anonymousId }, context: stored.context }
+      : { request: fallbackRequest, context: undefined };
+    window.sessionStorage.setItem('coolcar_pending_recommendation', JSON.stringify(pending));
+    window.location.href = '/result';
+  }
+
   return (
     <main className="shell with-tabbar">
       <header className="topbar">
@@ -114,13 +151,6 @@ export default function SavedPage() {
 
       <section className="route-list">
         {routes.map((route, index) => {
-          const params = new URLSearchParams({
-            line: route.line,
-            originStation: route.origin_station,
-          });
-          if (route.destination_station) params.set('destinationStation', route.destination_station);
-          if (route.direction) params.set('direction', route.direction);
-          if (route.comfort_type) params.set('comfortType', route.comfort_type);
           return (
             <article className={`card saved-card-v2 ${route.is_default || index === 0 ? 'featured' : ''}`} key={route.id}>
               <div className="saved-card-top">
@@ -129,7 +159,7 @@ export default function SavedPage() {
               </div>
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
               <p className="saved-route-meta">{route.line} · {route.direction ?? '방향 선택 전'} · {comfortLabel(route.comfort_type)} 기준</p>
-              <Link className="primary" href={`/?${params.toString()}`}>지금 추천받기</Link>
+              <button className="primary saved-recommend-button" type="button" onClick={() => startRecommendation(route)}>지금 추천받기</button>
             </article>
           );
         })}

@@ -14,6 +14,29 @@ type PendingRecommendation = {
   context?: { destinationLine?: string };
 };
 
+type StoredRoutineRequest = {
+  request: RecommendRequest;
+  context?: { destinationLine?: string };
+};
+
+type StoredRoutineRequests = Record<string, StoredRoutineRequest>;
+
+function readStoredRoutineRequests(): StoredRoutineRequests {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(window.localStorage.getItem('coolcar_saved_route_requests') ?? '{}') as StoredRoutineRequests;
+  } catch {
+    return {};
+  }
+}
+
+function writeStoredRoutineRequest(routeId: string, payload: StoredRoutineRequest) {
+  if (typeof window === 'undefined') return;
+  const current = readStoredRoutineRequests();
+  current[routeId] = payload;
+  window.localStorage.setItem('coolcar_saved_route_requests', JSON.stringify(current));
+}
+
 function getAnonymousId() {
   if (typeof window === 'undefined') return undefined;
   return window.localStorage.getItem('coolcar_anonymous_id') ?? undefined;
@@ -280,6 +303,12 @@ export default function ResultPage() {
     });
     if (!response.ok) return setSaveState('error');
     const json = await response.json().catch(() => ({}));
+    if (json.route?.id) {
+      writeStoredRoutineRequest(json.route.id, {
+        request: result.request,
+        context: { destinationLine: destinationLine ?? result.request.destinationLine },
+      });
+    }
     setSaveState(json.persisted === false ? 'mock' : 'saved');
   }
 
