@@ -64,6 +64,15 @@ function routeTitle(route: SavedRoute) {
   return `${route.origin_station} → ${route.destination_station ?? '목적지'}`;
 }
 
+function routeMeta(route: SavedRoute) {
+  const request = route.recent_request;
+  const destinationLine = request?.destinationLine ?? route.recent_context?.destinationLine;
+  const transfers = request?.transferStations?.filter(Boolean) ?? [];
+  const lineCopy = destinationLine && destinationLine !== route.line ? `${route.line} → ${destinationLine}` : route.line;
+  const transferCopy = transfers.length > 0 ? ` · ${transfers.join(', ')} 환승` : '';
+  return `${lineCopy}${transferCopy} · ${comfortLabel(route.comfort_type ?? request?.comfortType)} 기준`;
+}
+
 export default function SavedPage() {
   const [routes, setRoutes] = useState<SavedRoute[]>([]);
   const [auth, setAuth] = useState<AuthMe | null>(null);
@@ -164,7 +173,7 @@ export default function SavedPage() {
                 <span>{route.commute_type === 'WORK' ? '출근' : route.commute_type === 'HOME' ? '퇴근' : '매일'}</span>
               </div>
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
-              <p className="saved-route-meta">{route.line} · {route.direction ?? '방향 선택 전'} · {comfortLabel(route.comfort_type)} 기준</p>
+              <p className="saved-route-meta">{routeMeta(route)}</p>
               <button className="primary saved-recommend-button" type="button" onClick={() => startRecommendation(route)}>지금 추천받기</button>
             </article>
           );
