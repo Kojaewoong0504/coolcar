@@ -16,6 +16,21 @@ function routeStops(candidate: RoutePlanCandidate) {
   return [candidate.originStation, ...candidate.transferStations, candidate.destinationStation];
 }
 
+function lineColorClass(line?: string) {
+  if (!line) return 'line-default';
+  if (line.includes('1호선')) return 'line-1';
+  if (line.includes('2호선')) return 'line-2';
+  if (line.includes('3호선')) return 'line-3';
+  if (line.includes('4호선')) return 'line-4';
+  if (line.includes('5호선')) return 'line-5';
+  if (line.includes('6호선')) return 'line-6';
+  if (line.includes('7호선')) return 'line-7';
+  if (line.includes('8호선')) return 'line-8';
+  if (line.includes('9호선')) return 'line-9';
+  if (line.includes('공항')) return 'line-airport';
+  return 'line-default';
+}
+
 function coverageCopy(candidate: RoutePlanCandidate) {
   if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 반영';
   if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '쾌적칸 중심';
@@ -199,8 +214,8 @@ export default function RoutePlansPage() {
       </header>
 
       <section className="card route-plan-hero">
-        <p className="eyebrow">추천 환승 경로</p>
-        <h1>이 경로로 추천할게요</h1>
+        <p className="eyebrow">경로 선택</p>
+        <h1>노선 흐름을 보고<br />고르세요</h1>
         <p><b>{baseRequest.originStation}</b> → <b>{baseRequest.destinationStation || '목적지'}</b></p>
         <p className="microcopy">추천 경로를 먼저 보여드려요. 필요하면 다른 환승역으로 바꿀 수 있어요.</p>
       </section>
@@ -210,17 +225,20 @@ export default function RoutePlansPage() {
       {primaryCandidate && (
         <section className="card route-plan-card primary-plan-card" aria-label="추천 경로">
           <div className="route-plan-card-head">
-            <span>추천 경로</span>
+            <span>BEST 덜 더운 선택</span>
             <em>{coverageCopy(primaryCandidate)}</em>
           </div>
           <h2>{primaryCandidate.title}</h2>
           <div className="route-timeline" aria-label="추천 경로 순서">
             {routeStops(primaryCandidate).map((station, index) => (
               <div className="route-timeline-stop" key={`${station}-${index}`}>
-                <span>{primaryCandidate.lines[Math.min(index, primaryCandidate.lines.length - 1)] ?? primaryCandidate.lines[0]}</span>
+                <span className={`metro-line-pill ${lineColorClass(primaryCandidate.lines[Math.min(index, primaryCandidate.lines.length - 1)] ?? primaryCandidate.lines[0])}`}>{primaryCandidate.lines[Math.min(index, primaryCandidate.lines.length - 1)] ?? primaryCandidate.lines[0]}</span>
                 <strong>{station}</strong>
               </div>
             ))}
+          </div>
+          <div className="metro-route-strip" aria-hidden="true">
+            {primaryCandidate.lines.map((item) => <span className={lineColorClass(item)} key={item} />)}
           </div>
           <p className="route-plan-lines">{primaryCandidate.lines.join(' → ')}</p>
           <p className="microcopy">{primaryCandidate.summary}</p>
@@ -262,10 +280,13 @@ export default function RoutePlansPage() {
                 <div className="route-timeline compact" aria-label="다른 경로 순서">
                   {routeStops(candidate).map((station, index) => (
                     <div className="route-timeline-stop" key={`${station}-${index}`}>
-                      <span>{candidate.lines[Math.min(index, candidate.lines.length - 1)] ?? candidate.lines[0]}</span>
+                      <span className={`metro-line-pill ${lineColorClass(candidate.lines[Math.min(index, candidate.lines.length - 1)] ?? candidate.lines[0])}`}>{candidate.lines[Math.min(index, candidate.lines.length - 1)] ?? candidate.lines[0]}</span>
                       <strong>{station}</strong>
                     </div>
                   ))}
+                </div>
+                <div className="metro-route-strip" aria-hidden="true">
+                  {candidate.lines.map((item) => <span className={lineColorClass(item)} key={item} />)}
                 </div>
                 <p className="route-plan-lines">{candidate.lines.join(' → ')}</p>
                 <button className="primary" type="button" onClick={() => selectCandidate(candidate)}>{candidate.type === 'UNRESOLVED' ? '쾌적칸 먼저 보기' : '이 경로로 바꾸기'}</button>

@@ -272,22 +272,22 @@ export default function HomePage() {
           <img className="brand-app-icon" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />
           <div>
             <p className="brand-name">시원칸</p>
-            <p className="brand-subtitle">지하철 쾌적칸 추천 앱</p>
+            <p className="brand-subtitle">지하철 칸 내비게이션</p>
           </div>
         </div>
         <div className="hero-pill-row" aria-label="시원칸 핵심 기능">
-          <span>10초 추천</span>
-          <span>더위 민감 기준</span>
+          <span>노선색 경로</span>
+          <span>시원칸 추천</span>
         </div>
-        <h1>오늘 어디까지<br />가세요?</h1>
-        <p>출발역과 도착역만 고르면 덜 더운 칸을 바로 추천해요.</p>
+        <h1>오늘도 덜 더운<br />칸으로 갈까요?</h1>
+        <p>경로를 고르면 이동 중 보기 쉽게 탈 칸을 알려드려요.</p>
       </section>
 
       <form className="card form trip-card simple-trip-card" onSubmit={submit}>
         <div className="section-row trip-title-row">
           <div>
-            <div className="section-title">경로만 고르면 끝</div>
-            <p>환승역을 몰라도 괜찮아요.</p>
+            <div className="section-title">출발·도착 선택</div>
+            <p>경로와 추천 칸을 한 번에 볼게요.</p>
           </div>
         </div>
 
@@ -306,13 +306,13 @@ export default function HomePage() {
             <span className="route-badge subtle">선택</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
-          <p className="route-helper">모르면 비워도 돼요. 추천할 때 필요한 것만 볼게요.</p>
+          <p className="route-helper">노선색과 환승 흐름을 함께 보여드려요.</p>
         </div>
 
         <section className="cool-mode-strip fixed-cool-card" aria-label="추천 기준">
           <span aria-hidden="true">🧊</span>
           <div>
-            <b>시원한 칸 기준</b>
+            <b>덜 더운 선택 우선</b>
             <p>{preferenceMessage}</p>
           </div>
         </section>
@@ -322,7 +322,7 @@ export default function HomePage() {
       </form>
 
       <section className="card recent-route-card">
-        <div className="section-row"><div><div className="section-title">바로 불러오기</div><p>자주 쓰는 길은 한 번에 시작해요.</p></div></div>
+        <div className="section-row"><div><div className="section-title">최근 경로</div><p>자주 쓰는 길은 바로 다시 볼 수 있어요.</p></div></div>
         <div className="recent-route-list">
           {recentRoutes.map((route) => (
             <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
