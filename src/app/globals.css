@@ -295,6 +295,8 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .saved-delete-button:disabled { color:#94a3b8; background:#f8fafc; border-color:var(--border); }
 .login-nudge h2, .pwa-nudge h2 { margin:0 0 8px; letter-spacing:-.04em; }
 .login-nudge p, .pwa-nudge p { color:var(--muted); line-height:1.55; margin:0 0 12px; }
+.saved-login-primary { border:0 !important; background:var(--navy) !important; color:#fff !important; box-shadow:0 12px 26px rgba(15,23,42,.18); }
+.saved-login-nudge .result-actions a { min-height:52px; display:inline-flex; align-items:center; justify-content:center; }
 .pwa-nudge { position:relative; background: linear-gradient(135deg,#0f172a,#1e3a8a); color:#fff; border:0; }
 .pwa-nudge p, .pwa-nudge small { color:#dbeafe; line-height:1.55; }
 .pwa-nudge button { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:999px; border:1px solid rgba(255,255,255,.24); background:rgba(255,255,255,.12); color:#fff; font-size:20px; }

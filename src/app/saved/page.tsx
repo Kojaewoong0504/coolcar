@@ -178,19 +178,28 @@ export default function SavedPage() {
   return (
     <main className="shell with-tabbar">
       <header className="topbar">
-        <div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />저장 루틴</div>
+        <div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />내 경로</div>
         <UserProfilePill profile={auth?.profile ?? null} loaded={!loading} />
       </header>
 
       <section className="hero-card compact saved-hero">
-        <p className="eyebrow">저장 루틴</p>
-        <h1>{isLoggedIn ? `${firstName}님의 경로` : '내 경로를'}<br />바로 불러와요.</h1>
-        <p>{isLoggedIn ? '자주 타는 길을 노선색으로 정리했어요.' : '자주 타는 길을 저장하면 다음부터 바로 볼 수 있어요.'}</p>
+        <p className="eyebrow">내 경로</p>
+        <h1>{isLoggedIn ? `${firstName}님의 경로` : '자주 타는 경로를'}<br />바로 불러와요.</h1>
+        <p>{isLoggedIn ? '저장한 경로를 계정에서 이어보고, 출발 전 바로 시원한 칸을 확인해요.' : '추천은 로그인 없이도 쓸 수 있어요. 로그인하면 저장한 경로를 다른 기기에서도 이어볼 수 있습니다.'}</p>
       </section>
 
       {isLoggedIn && <AuthMergeOnLoad />}
 
-      {loading && <section className="card skeleton"><h2>저장 루틴을 불러오는 중이에요</h2><div /></section>}
+      {!isLoggedIn && !loading && (
+        <section className="card login-nudge saved-login-nudge">
+          <span className="summary-kicker">선택 로그인</span>
+          <h2>내 경로를 안전하게 이어볼까요?</h2>
+          <p>{routes.length > 0 ? '이 기기에 저장한 경로를 계정에 이어두면, 다른 기기에서도 바로 추천받을 수 있어요.' : '자주 타는 경로를 저장해두고, 로그인하면 다른 기기에서도 같은 경로를 이어볼 수 있어요.'}</p>
+          <div className="result-actions"><Link className="saved-login-primary" href="/login?next=/saved">로그인하고 경로 이어보기</Link><Link href="/privacy">개인정보 안내</Link></div>
+        </section>
+      )}
+
+      {loading && <section className="card skeleton"><h2>내 경로를 불러오는 중이에요</h2><div /></section>}
 
       {!loading && routes.length === 0 && (
         <section className="card empty">
@@ -236,14 +245,6 @@ export default function SavedPage() {
           );
         })}
       </section>
-
-      {!isLoggedIn && !loading && routes.length > 0 && (
-        <section className="card login-nudge">
-          <h2>다른 기기에서도 보려면</h2>
-          <p>Google 또는 Kakao로 5초 만에 로그인하고 저장 루틴을 이어서 볼 수 있어요.</p>
-          <Link className="ghost" href="/login?next=/saved">로그인하고 루틴 이어보기</Link>
-        </section>
-      )}
 
       {showInstallNotice && (
         <section className="card pwa-nudge">
