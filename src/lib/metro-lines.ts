@@ -20,6 +20,23 @@ export function lineShortLabel(line?: string | null) {
   return line.replace('수도권 ', '').replace('전철 ', '');
 }
 
+export function lineColorValue(line?: string | null) {
+  const className = lineColorClass(line);
+  if (className === 'line-1') return 'var(--line-1)';
+  if (className === 'line-2') return 'var(--line-2)';
+  if (className === 'line-3') return 'var(--line-3)';
+  if (className === 'line-4') return 'var(--line-4)';
+  if (className === 'line-5') return 'var(--line-5)';
+  if (className === 'line-6') return 'var(--line-6)';
+  if (className === 'line-7') return 'var(--line-7)';
+  if (className === 'line-8') return 'var(--line-8)';
+  if (className === 'line-9') return 'var(--line-9)';
+  if (className === 'line-airport') return 'var(--airport)';
+  if (className === 'line-shinbundang') return 'var(--shinbundang)';
+  if (className === 'line-suinbundang') return 'var(--suinbundang)';
+  return '#cbd5e1';
+}
+
 export function routeLineLabels(lines: Array<string | undefined | null>) {
   return lines.filter((line): line is string => Boolean(line));
 }

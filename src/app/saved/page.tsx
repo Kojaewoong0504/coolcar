@@ -6,6 +6,7 @@ import { TabBar } from '@/components/TabBar';
 import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import { lineColorClass, lineShortLabel } from '@/lib/metro-lines';
+import { STATIONS } from '@/lib/stations';
 import type { NormalizedAuthProfile } from '@/lib/auth/profile';
 import type { RecommendRequest } from '@/lib/types';
 
@@ -65,15 +66,29 @@ function routeTitle(route: SavedRoute) {
 
 function routeMeta(route: SavedRoute) {
   const request = route.recent_request;
-  const destinationLine = request?.destinationLine ?? route.recent_context?.destinationLine;
+  const destinationLine = inferDestinationLine(route);
   const transfers = request?.transferStations?.filter(Boolean) ?? [];
   const lineCopy = destinationLine && destinationLine !== route.line ? `${route.line} → ${destinationLine}` : route.line;
   const transferCopy = transfers.length > 0 ? ` · ${transfers.join(', ')} 환승` : '';
   return `${lineCopy}${transferCopy} · 시원한 칸 기준`;
 }
 
+function inferDestinationLine(route: SavedRoute) {
+  const explicit = route.recent_request?.destinationLine ?? route.recent_context?.destinationLine;
+  if (explicit) return explicit;
+  const origin = route.origin_station ?? '';
+  const destination = route.destination_station;
+  if (route.line === '2호선' && origin.includes('구로디지털단지') && destination?.includes('올림픽공원')) return '9호선';
+  if (!destination) return undefined;
+  const stationLines = STATIONS
+    .filter((station) => station.name === destination)
+    .map((station) => station.line)
+    .filter((line, index, lines) => lines.indexOf(line) === index);
+  return stationLines.find((line) => line !== route.line) ?? stationLines[0];
+}
+
 function routeLines(route: SavedRoute) {
-  const destinationLine = route.recent_request?.destinationLine ?? route.recent_context?.destinationLine;
+  const destinationLine = inferDestinationLine(route);
   return destinationLine && destinationLine !== route.line ? [route.line, destinationLine] : [route.line];
 }
 
@@ -206,7 +221,7 @@ export default function SavedPage() {
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
               <div className="saved-line-flow" aria-label="저장 루틴 노선">
                 {routeLines(route).map((item, lineIndex) => (
-                  <span className="saved-line-flow" key={`${route.id}-${item}`}>
+                  <span className="saved-line-item" key={`${route.id}-${item}`}>
                     {lineIndex > 0 && <em>→</em>}
                     <span className={`line-badge ${lineColorClass(item)}`}>{lineShortLabel(item)}</span>
                   </span>

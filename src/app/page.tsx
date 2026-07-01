@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TabBar } from '@/components/TabBar';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
-import { lineColorClass, lineShortLabel } from '@/lib/metro-lines';
+import { lineColorClass, lineColorValue, lineShortLabel } from '@/lib/metro-lines';
 import { MAJOR_STATIONS_BY_LINE, SUPPORTED_LINES } from '@/lib/stations';
 import type { Station } from '@/lib/stations';
 import type { ComfortType } from '@/lib/types';
@@ -195,8 +195,10 @@ export default function HomePage() {
     Boolean(direction.trim()),
     !avoidPrioritySeatArea,
   ].filter(Boolean).length;
-  const originLineClass = lineColorClass(line);
-  const destinationLineClass = lineColorClass(destinationLine || line);
+  const originLineClass = originStation ? lineColorClass(line) : 'line-neutral';
+  const destinationLineClass = destinationStation ? lineColorClass(destinationLine || line) : 'line-neutral';
+  const originRailColor = originStation ? lineColorValue(line) : '#cbd5e1';
+  const destinationRailColor = destinationStation ? lineColorValue(destinationLine || line) : '#cbd5e1';
 
   async function runRecommendation() {
     setError('');
@@ -299,12 +301,12 @@ export default function HomePage() {
           <div className="metro-mini-map" aria-label="선택한 지하철 경로">
             <div className="metro-rail" aria-hidden="true">
               <span className={`metro-rail-dot ${originLineClass}`} />
-              <span className="metro-rail-line" />
+              <span className="metro-rail-line" style={{ background: `linear-gradient(180deg, ${originRailColor}, ${destinationRailColor})` }} />
               <span className={`metro-rail-dot ${destinationLineClass}`} />
             </div>
             <div className="metro-mini-copy">
               <div className="metro-mini-row">
-                <span className={`line-badge ${originLineClass}`}>{lineShortLabel(line)}</span>
+                <span className={`line-badge ${originLineClass}`}>{originStation ? lineShortLabel(line) : '출발'}</span>
                 <strong>{originStation || '출발역 선택'}</strong>
               </div>
               <div className="metro-mini-row">

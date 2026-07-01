@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { TabBar } from '@/components/TabBar';
+import { lineColorClass, lineShortLabel } from '@/lib/metro-lines';
 import type { RecommendRequest, RecommendationResponse } from '@/lib/types';
 
 type StoredResult = {
@@ -264,6 +265,8 @@ export default function ResultPage() {
       ]
     : result.reasons.slice(0, 2);
   const saveNudgeCopy = '이 경로를 저장하면 다음엔 바로 추천받아요.';
+  const activeLine = activeLeg?.line ?? result.request.line;
+  const activeLineClass = lineColorClass(activeLine);
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
@@ -329,8 +332,9 @@ export default function ResultPage() {
 
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges compact-result-badges">
+          <span className={`line-badge ${activeLineClass}`}>{lineShortLabel(activeLine)}</span>
           <span>{isPrimaryLeg ? routeStatusLabel(result, needsTransfer) : legStatusCopy(activeLeg.status, activeLeg)}</span>
-          <span>{activeEgressBadge ?? (activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line)}</span>
+          <span>{activeEgressBadge ?? (activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeRouteNote)}</span>
         </div>
         <p className="eyebrow">{activeEyebrow}</p>
         {activeRecommendedCarNo ? (
