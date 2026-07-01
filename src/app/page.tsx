@@ -130,10 +130,6 @@ export default function HomePage() {
         // Ignore stale local session data.
       }
     }
-    routes.push(
-      { label: '구로디지털단지 → 올림픽공원', line: '2호선', originStation: '구로디지털단지역', destinationStation: '올림픽공원역', destinationLine: '9호선', comfortType: fixedComfortType },
-      { label: '홍대입구 → 인천공항', line: '공항철도', originStation: '홍대입구역', destinationStation: '인천공항1터미널역', destinationLine: '공항철도', comfortType: fixedComfortType },
-    );
     const deduped = routes.filter((route, index, arr) => arr.findIndex((item) => item.label === route.label) === index).slice(0, 3);
     setRecentRoutes(deduped);
     router.prefetch('/result?loading=1');
@@ -344,24 +340,26 @@ export default function HomePage() {
         <button className="primary sticky-cta" type="submit" disabled={loading}>{loading ? <><span className="button-spinner" aria-hidden="true" />타기 좋은 칸을 찾고 있어요…</> : <>내 칸 추천받기 <span aria-hidden="true">→</span></>}</button>
       </form>
 
-      <section className="card recent-route-card">
-        <div className="section-row"><div><div className="section-title">최근 경로</div><p>자주 쓰는 길은 바로 다시 볼 수 있어요.</p></div></div>
-        <div className="recent-route-list">
-          {recentRoutes.map((route) => (
-            <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
-              <span>
-                <b>{route.label}</b>
-                <small className="saved-line-flow">
-                  <span className={`line-badge ${lineColorClass(route.line)}`}>{lineShortLabel(route.line)}</span>
-                  {route.destinationLine && route.destinationLine !== route.line ? <><em>→</em><span className={`line-badge ${lineColorClass(route.destinationLine)}`}>{lineShortLabel(route.destinationLine)}</span></> : null}
-                  <em>시원칸</em>
-                </small>
-              </span>
-              <em>바로 선택</em>
-            </button>
-          ))}
-        </div>
-      </section>
+      {recentRoutes.length > 0 && (
+        <section className="card recent-route-card">
+          <div className="section-row"><div><div className="section-title">최근 경로</div><p>이 기기에서 방금 본 경로만 다시 볼 수 있어요.</p></div></div>
+          <div className="recent-route-list">
+            {recentRoutes.map((route) => (
+              <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
+                <span>
+                  <b>{route.label}</b>
+                  <small className="saved-line-flow">
+                    <span className={`line-badge ${lineColorClass(route.line)}`}>{lineShortLabel(route.line)}</span>
+                    {route.destinationLine && route.destinationLine !== route.line ? <><em>→</em><span className={`line-badge ${lineColorClass(route.destinationLine)}`}>{lineShortLabel(route.destinationLine)}</span></> : null}
+                    <em>시원칸</em>
+                  </small>
+                </span>
+                <em>바로 선택</em>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
       {pickerTarget && (
         <div className="station-picker-backdrop" role="presentation" onClick={() => setPickerTarget(null)}>
           <section className="station-picker-sheet" role="dialog" aria-modal="true" aria-label={pickerTarget === 'origin' ? '출발역 선택' : '도착역 선택'} onClick={(event) => event.stopPropagation()}>
