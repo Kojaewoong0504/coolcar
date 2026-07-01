@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T05:19:24.821658Z",
+  "generatedAt": "2026-07-01T08:33:13.263293Z",
   "policy": "Verified NEXT_TRANSFER anchors from public/official CSV sources only. Known field-verified conflicts are suppressed; broad same-direction anchor groups are recorded but recommendation uses a compact representative anchor window.",
   "sources": [
     {
@@ -21,11 +21,11 @@
     }
   ],
   "stats": {
-    "records": 1203,
+    "records": 1199,
     "directedPairs": 179,
-    "sourceRowsWithValidCarDoor": 1875,
+    "sourceRowsWithValidCarDoor": 1871,
     "outOfInventoryRowsSkipped": 672,
-    "suppressedKnownConflicts": 12,
+    "suppressedKnownConflicts": 16,
     "invalidRowsSkipped": 57,
     "duplicateRowsSkipped": 0,
     "broadAnchorGroups": 44
@@ -89,6 +89,16 @@
     {
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "128",
+      "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "129",
+      "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "130",
       "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
     },
     {
@@ -359,6 +369,16 @@
     {
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "656",
+      "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "657",
+      "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "659",
       "reason": "FIELD_VERIFIED_CONFLICT_SUPPRESSED"
     },
     {
@@ -23058,64 +23078,6 @@
       "goal": "NEXT_TRANSFER",
       "targetLine": "2호선",
       "carNo": 5,
-      "doorNo": 3,
-      "facility": "환승통로",
-      "confidence": "MEDIUM",
-      "updatedAt": "2025-09-23"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "129",
-      "line": "2호선",
-      "stationName": "홍대입구역",
-      "stationCode": "0239",
-      "directionKey": "TOWARD_신촌",
-      "goal": "NEXT_TRANSFER",
-      "targetLine": "경의중앙선",
-      "carNo": 3,
-      "doorNo": 3,
-      "facility": "환승통로",
-      "confidence": "MEDIUM",
-      "updatedAt": "2025-03-17"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "130",
-      "line": "2호선",
-      "stationName": "홍대입구역",
-      "stationCode": "0239",
-      "directionKey": "TOWARD_신촌",
-      "goal": "NEXT_TRANSFER",
-      "targetLine": "경의중앙선",
-      "carNo": 3,
-      "doorNo": 3,
-      "facility": "환승통로",
-      "confidence": "MEDIUM",
-      "updatedAt": "2025-03-17"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "657",
-      "line": "2호선",
-      "stationName": "홍대입구역",
-      "directionKey": "TOWARD_충정로",
-      "goal": "NEXT_TRANSFER",
-      "targetLine": "경의중앙선",
-      "carNo": 3,
-      "doorNo": 3,
-      "facility": "환승통로",
-      "confidence": "MEDIUM",
-      "updatedAt": "2025-09-23"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "659",
-      "line": "2호선",
-      "stationName": "홍대입구역",
-      "directionKey": "TOWARD_충정로",
-      "goal": "NEXT_TRANSFER",
-      "targetLine": "경의중앙선",
-      "carNo": 3,
       "doorNo": 3,
       "facility": "환승통로",
       "confidence": "MEDIUM",

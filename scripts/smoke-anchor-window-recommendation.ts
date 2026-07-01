@@ -102,6 +102,26 @@ async function main() {
   assert(!hongdaeAirport.routeChoice.candidateCarNos.includes(9), '홍대입구 신촌 방면 후보에는 다른 통로 anchor를 같은 추천창에 섞지 않습니다.');
   assert(!JSON.stringify(hongdaeAirport).includes('환승문 데이터 부족'), '홍대입구 추천 응답에는 실패 문구가 없어야 합니다.');
 
+  const hongdaeGyeongui = await recommend({
+    line: '2호선',
+    originStation: '구로디지털단지역',
+    destinationStation: '대곡역',
+    destinationLine: '3호선',
+    transferStations: ['홍대입구역', '대곡역'],
+    routeLines: ['2호선', '경의중앙선', '3호선'],
+    comfortType: 'HOT_SENSITIVE',
+  });
+
+  assert(hongdaeGyeongui.routeChoice.mode === 'ANCHOR_WINDOW', '홍대입구 2호선→경의중앙선 신촌 방면은 anchor window 모드여야 합니다.');
+  assert(JSON.stringify(hongdaeGyeongui.routeChoice.anchorDoorLabels) === JSON.stringify(['7-2']), '홍대입구 경의중앙선 신촌 방면은 대표 anchor 7-2만 한 추천창에 사용해야 합니다.');
+  assert(JSON.stringify(hongdaeGyeongui.routeChoice.candidateCarNos) === JSON.stringify([6, 7, 8]), '홍대입구 경의중앙선 신촌 방면 후보는 6~8번째 칸이어야 합니다.');
+  assert(hongdaeGyeongui.routeChoice.candidateCarNos.includes(hongdaeGyeongui.recommendedCar.carNo), '홍대입구 경의중앙선 최종 추천칸은 대표 anchor±1 후보 안에 있어야 합니다.');
+  assert(!hongdaeGyeongui.routeChoice.candidateCarNos.includes(2), '홍대입구 경의중앙선 신촌 방면 후보에는 2번째 칸이 들어가면 안 됩니다.');
+  assert(!hongdaeGyeongui.routeChoice.anchorDoorLabels?.includes('3-3'), '홍대입구 경의중앙선 신촌 방면에는 stale 3-3 anchor가 노출되면 안 됩니다.');
+  assert(hongdaeGyeongui.routeGuidance.legs[0]?.direction === '신촌', '구로디지털단지→홍대입구 진행 방향은 신촌으로 추론되어야 합니다.');
+  assert(hongdaeGyeongui.routeGuidance.legs[0]?.candidateCarNos?.every((carNo) => [6, 7, 8].includes(carNo)), 'routeGuidance 후보도 6~8번째 칸만 포함해야 합니다.');
+  assert(!JSON.stringify(hongdaeGyeongui).includes('환승문 데이터 부족'), '홍대입구 경의중앙선 추천 응답에는 실패 문구가 없어야 합니다.');
+
   console.log(JSON.stringify({
     ok: true,
     anchored: {

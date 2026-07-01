@@ -140,6 +140,18 @@ async function main() {
   assert(hongdaeToAirportHapjeong.record.carNo === 2 && hongdaeToAirportHapjeong.record.doorNo === 2, '홍대입구 합정 방면 primary transfer anchor should be 2-2');
   assert(hongdaeToAirportHapjeong.records?.some((record) => record.carNo === 4 && record.doorNo === 2), '홍대입구 합정 방면 secondary transfer anchor should include 4-2');
 
+  const hongdaeToGyeonguiSinchon = await lookupDoorGuide({
+    line: '2호선',
+    toStation: '홍대입구역',
+    direction: '신촌',
+    goal: 'NEXT_TRANSFER',
+    targetLine: '경의중앙선',
+  });
+  assert(hongdaeToGyeonguiSinchon.status === 'available', '홍대입구역 2호선→경의중앙선 신촌 방면 should be available');
+  assert(hongdaeToGyeonguiSinchon.record.carNo === 7 && hongdaeToGyeonguiSinchon.record.doorNo === 2, '홍대입구 경의중앙선 신촌 방면 primary transfer anchor should be 7-2');
+  assert(hongdaeToGyeonguiSinchon.records?.some((record) => record.carNo === 9 && record.doorNo === 2), '홍대입구 경의중앙선 신촌 방면 secondary transfer anchor should include 9-2');
+  assert(hongdaeToGyeonguiSinchon.records?.every((record) => record.carNo === 7 || record.carNo === 9), '홍대입구 경의중앙선 신촌 방면 matched records must not include stale 3-3 or 2~4 car anchors');
+
   const noDirection = await lookupDoorGuide({ line: '1호선', toStation: '서울역', goal: 'FINAL_EXIT' });
   assert(noDirection.status === 'needs_direction', 'directional data without direction should need direction');
 

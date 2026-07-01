@@ -62,6 +62,11 @@ SUPPRESSED_SOURCE_ROWS = {
     ("SEOUL_METRO_TRANSFER_CSV", "126"),
     ("SEOUL_METRO_TRANSFER_CSV", "127"),
     ("SEOUL_METRO_TRANSFER_CSV", "128"),
+    # Hongdae Line 2 -> Gyeongui-Jungang: public rows point Shinchon-side transfers to 3-3,
+    # but field verification/user report places the Shinchon-side transfer doors at 7-2/9-2.
+    # STATIC_CURATED records in staticFixture.ts are the production replacement.
+    ("SEOUL_METRO_TRANSFER_CSV", "129"),
+    ("SEOUL_METRO_TRANSFER_CSV", "130"),
     # Daegok Gyeongui-Jungang -> Line 3: Seoul CSV local-direction rows conflict with MOLIT terminal-direction rows.
     # Keep MOLIT 2025-09-23 rows because they match the previously verified Daegok anchor contract.
     ("SEOUL_METRO_TRANSFER_CSV", "138"),
@@ -72,6 +77,8 @@ SUPPRESSED_SOURCE_ROWS = {
     ("MOLIT_QUICK_TRANSFER_CSV", "654"),
     ("MOLIT_QUICK_TRANSFER_CSV", "655"),
     ("MOLIT_QUICK_TRANSFER_CSV", "656"),
+    ("MOLIT_QUICK_TRANSFER_CSV", "657"),
+    ("MOLIT_QUICK_TRANSFER_CSV", "659"),
 }
 
 

@@ -91,7 +91,15 @@ const GENERATED_FINAL_EXIT_GUIDES = verifiedFinalExitGuides.records as DoorGuide
 // ambiguous same-key car/door conflicts are excluded from the generated JSON.
 const GENERATED_NEXT_TRANSFER_GUIDES = verifiedNextTransferGuides.records as DoorGuideRecord[];
 
-const SUPPRESSED_CONFLICTING_RECORD_IDS = new Set(['SEOUL_METRO_TRANSFER_CSV:126', 'MOLIT_QUICK_TRANSFER_CSV:654', 'SEOUL_METRO_TRANSFER_CSV:124']);
+const SUPPRESSED_CONFLICTING_RECORD_IDS = new Set([
+  'SEOUL_METRO_TRANSFER_CSV:124',
+  'SEOUL_METRO_TRANSFER_CSV:126',
+  'SEOUL_METRO_TRANSFER_CSV:129',
+  'SEOUL_METRO_TRANSFER_CSV:130',
+  'MOLIT_QUICK_TRANSFER_CSV:654',
+  'MOLIT_QUICK_TRANSFER_CSV:657',
+  'MOLIT_QUICK_TRANSFER_CSV:659',
+]);
 
 const VERIFIED_NEXT_TRANSFER_GUIDES = GENERATED_NEXT_TRANSFER_GUIDES.filter((record) => {
   const sourceId = 'sourceId' in record ? String((record as DoorGuideRecord & { sourceId?: string }).sourceId ?? '') : '';
@@ -189,6 +197,38 @@ const FIELD_VERIFIED_NEXT_TRANSFER_GUIDES: DoorGuideRecord[] = [
     source: 'STATIC_CURATED',
     confidence: 'MEDIUM',
     updatedAt: '2026-06-30',
+  },
+  // Field-verified override after user report: public Hongdae 2호선→경의중앙선 rows pointed
+  // Shinchon-side trains to 3-3, which led the app to recommend the 2~4 car window. The
+  // field/user-verified Shinchon-side transfer doors are 7-2 and 9-2, so keep the stale public
+  // rows suppressed and expose these auditable replacements instead.
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('신촌'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '경의중앙선',
+    carNo: 7,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-07-01',
+  },
+  {
+    line: '2호선',
+    stationName: '홍대입구역',
+    stationCode: '0239',
+    directionKey: normalizeDirection('신촌'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '경의중앙선',
+    carNo: 9,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: '2026-07-01',
   },
 ];
 
