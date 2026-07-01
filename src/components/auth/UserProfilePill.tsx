@@ -8,10 +8,16 @@ let cachedProfile: NormalizedAuthProfile | null = null;
 let cachedLoaded = false;
 let profilePromise: Promise<NormalizedAuthProfile | null> | null = null;
 
+export function clearUserProfileCache() {
+  cachedProfile = null;
+  cachedLoaded = false;
+  profilePromise = null;
+}
+
 async function fetchProfile() {
   if (cachedLoaded) return cachedProfile;
   if (!profilePromise) {
-    profilePromise = fetch('/api/auth/me', { cache: 'no-store' })
+    profilePromise = fetch('/api/auth/me', { cache: 'no-store', credentials: 'same-origin' })
       .then((response) => response.json())
       .then((payload) => (payload.profile ?? null) as NormalizedAuthProfile | null)
       .catch(() => null)
@@ -35,6 +41,22 @@ export function UserProfilePill({ profile: providedProfile, loaded: providedLoad
   const [profile, setProfile] = useState<NormalizedAuthProfile | null>(providedProfile ?? cachedProfile);
   const [loaded, setLoaded] = useState(controlled ? Boolean(providedLoaded) : cachedLoaded);
   const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    if (controlled) return;
+
+    function handleAuthChanged() {
+      clearUserProfileCache();
+      setProfile(null);
+      setLoaded(false);
+      void fetchProfile()
+        .then((nextProfile) => setProfile(nextProfile))
+        .finally(() => setLoaded(true));
+    }
+
+    window.addEventListener('coolcar-auth-changed', handleAuthChanged);
+    return () => window.removeEventListener('coolcar-auth-changed', handleAuthChanged);
+  }, [controlled]);
 
   useEffect(() => {
     if (controlled) {

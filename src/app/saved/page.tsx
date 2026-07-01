@@ -106,7 +106,7 @@ export default function SavedPage() {
     const anonymousId = getAnonymousId();
     Promise.all([
       fetch('/api/auth/me', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ authenticated: false, profile: null })),
-      fetch(`/api/routes/saved?anonymousId=${anonymousId}`).then((r) => r.json()),
+      fetch(`/api/routes/saved?anonymousId=${anonymousId}`, { cache: 'no-store' }).then((r) => r.json()),
     ])
       .then(([authPayload, routesPayload]) => {
         setAuth(authPayload as AuthMe);
