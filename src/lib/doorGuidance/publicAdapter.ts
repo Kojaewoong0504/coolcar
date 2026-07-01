@@ -1,4 +1,4 @@
-import { getSeoulOpenApiBaseUrl, getSeoulOpenApiKey, getSeoulOpenApiTimeoutMs } from './config';
+import { getSeoulOpenApiBaseUrl, getSeoulOpenApiKey, getSeoulOpenApiTimeoutMs, isPublicDoorGuideEnabled } from './config';
 import { normalizeDirection, normalizeFacilityType, normalizeLine, normalizeStationName, parseCarDoor } from './normalize';
 import type { DoorGuideLookupInput, DoorGuideRecord } from './types';
 
@@ -82,7 +82,7 @@ function buildUrl(input: DoorGuideLookupInput) {
 
 export async function fetchPublicDoorGuideRecords(input: DoorGuideLookupInput, fetchImpl: FetchLike = fetch): Promise<DoorGuideRecord[]> {
   const key = getSeoulOpenApiKey();
-  if (!key || input.goal !== 'FINAL_EXIT') return [];
+  if (!isPublicDoorGuideEnabled() || !key || input.goal !== 'FINAL_EXIT') return [];
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), getSeoulOpenApiTimeoutMs());

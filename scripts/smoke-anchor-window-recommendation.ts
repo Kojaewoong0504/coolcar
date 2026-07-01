@@ -16,7 +16,7 @@ async function main() {
 
   assert(anchored.routeChoice.mode === 'ANCHOR_WINDOW', '서울역 빠른하차 fixture는 anchor window 모드여야 합니다.');
   assert(anchored.routeChoice.anchorCarNo === 9, '서울역 시청 방향 기준칸은 9번째 칸이어야 합니다.');
-  assert(anchored.routeChoice.anchorDoorNo === 3, '서울역 시청 방향 기준 문은 3번 문이어야 합니다.');
+  assert(anchored.routeChoice.anchorDoorNo === 2, '서울역 시청 방향 기준 문은 2번 문이어야 합니다.');
   assert(JSON.stringify(anchored.routeChoice.candidateCarNos) === JSON.stringify([8, 9, 10]), 'anchor 9의 후보는 8,9,10번째 칸이어야 합니다.');
   assert(anchored.routeChoice.candidateCarNos.includes(anchored.recommendedCar.carNo), '최종 추천칸은 anchor±1 후보 안에 있어야 합니다.');
   assert(anchored.routeChoice.selectedCarNo === anchored.recommendedCar.carNo, 'routeChoice selectedCarNo와 recommendedCar가 일치해야 합니다.');

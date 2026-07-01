@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T05:19:25.321Z",
+  "generatedAt": "2026-07-01T06:29:26.197Z",
   "sourceInventoryGeneratedAt": "2026-07-01T05:17:50.670Z",
   "policy": {
     "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
@@ -20,7 +20,7 @@
     "p1Stations": 18,
     "p2Stations": 37,
     "needsMasterData": 0,
-    "finalExitStaticRecords": 4,
+    "finalExitStaticRecords": 2149,
     "nextTransferStaticRecords": 1209
   },
   "blockers": [],

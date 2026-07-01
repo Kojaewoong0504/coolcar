@@ -13,5 +13,5 @@ export function getSeoulOpenApiTimeoutMs() {
 }
 
 export function isPublicDoorGuideEnabled() {
-  return Boolean(getSeoulOpenApiKey());
+  return Boolean(getSeoulOpenApiKey()) && process.env.SEOUL_OPENAPI_LIVE_ENABLED === 'true';
 }

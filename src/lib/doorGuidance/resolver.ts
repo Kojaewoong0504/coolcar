@@ -22,6 +22,14 @@ function keyForInput(input: DoorGuideLookupInput) {
   });
 }
 
+const STATIC_DOOR_GUIDE_INDEX = STATIC_DOOR_GUIDES.reduce((index, record) => {
+  const key = keyForRecord(record);
+  const bucket = index.get(key) ?? [];
+  bucket.push(record);
+  index.set(key, bucket);
+  return index;
+}, new Map<string, DoorGuideRecord[]>());
+
 function directionStationFromKey(directionKey?: string) {
   return directionKey?.startsWith('TOWARD_') ? directionKey.replace(/^TOWARD_/, '') : undefined;
 }
@@ -96,11 +104,13 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
 }
 
 export function lookupStaticDoorGuide(input: DoorGuideLookupInput): DoorGuideLookupResult {
-  return resolveDoorGuideRecords(input, STATIC_DOOR_GUIDES);
+  return resolveDoorGuideRecords(input, STATIC_DOOR_GUIDE_INDEX.get(keyForInput(input)) ?? []);
 }
 
 export async function lookupDoorGuide(input: DoorGuideLookupInput): Promise<DoorGuideLookupResult> {
   const staticResult = lookupStaticDoorGuide(input);
+  if (staticResult.status === 'available' || staticResult.status === 'needs_direction') return staticResult;
+
   const apiRecords = await fetchPublicDoorGuideRecords(input);
   if (apiRecords.length > 0) {
     const apiResult = resolveDoorGuideRecords(input, apiRecords);

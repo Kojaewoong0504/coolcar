@@ -18,6 +18,7 @@
     "test:persona-scenarios": "tsx scripts/smoke-persona-scenarios.ts",
     "build:transfer-inventory": "tsx scripts/build-transfer-inventory.ts",
     "import:transfer-guides": "python3 scripts/import-official-transfer-guides.py",
+    "import:final-exit-guides": "python3 scripts/import-final-exit-guides.py",
     "test:transfer-inventory": "tsx scripts/smoke-transfer-inventory.ts",
     "report:transfer-coverage": "tsx scripts/report-transfer-coverage.ts",
     "test:transfer-coverage": "tsx scripts/smoke-transfer-coverage-report.ts",

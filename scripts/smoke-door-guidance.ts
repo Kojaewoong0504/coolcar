@@ -35,7 +35,12 @@ async function main() {
 
   const available = await lookupDoorGuide({ line: '1호선', toStation: '서울역', direction: '시청', goal: 'FINAL_EXIT' });
   assert(available.status === 'available', '서울역 1호선 시청 방향 should be available');
-  assert(available.record.carNo === 9 && available.record.doorNo === 3, '서울역 시청 direction should map to 9-3');
+  assert(available.record.source === 'SEOUL_OPENAPI_GET_FST_EXIT', '서울역 final-exit should use generated getFstExit fixture');
+  assert(available.record.carNo === 9 && available.record.doorNo === 2, '서울역 시청 direction default final-exit anchor should map to 9-2');
+
+  const elevatorExit = await lookupDoorGuide({ line: '1호선', toStation: '서울역', direction: '시청', goal: 'FINAL_EXIT', egressPreference: 'ELEVATOR' });
+  assert(elevatorExit.status === 'available', '서울역 1호선 시청 방향 elevator final-exit should be available');
+  assert(elevatorExit.record.carNo === 5 && elevatorExit.record.doorNo === 1, '서울역 시청 elevator final-exit anchor should map to 5-1');
 
   const gangnamTransfer = await lookupDoorGuide({
     line: '2호선',
@@ -153,9 +158,9 @@ async function main() {
   assert(guidance.legs.length === 1, 'direct route should have one leg');
   assert(guidance.legs[0].status === 'available', 'direct Seoul Station fixture should be available');
   assert(guidance.legs[0].recommendedCarNo === 9, 'route guidance car should use door guide car');
-  assert(guidance.legs[0].recommendedDoorNo === 3, 'route guidance door should use door guide door');
+  assert(guidance.legs[0].recommendedDoorNo === 2, 'route guidance door should use door guide door');
   assert(guidance.legs[0].positionLabel.includes('9번째 칸'), 'position label should include car');
-  assert(guidance.legs[0].positionLabel.includes('3번 문'), 'position label should include door');
+  assert(guidance.legs[0].positionLabel.includes('2번 문'), 'position label should include door');
 
   const ambiguousRequest: RecommendRequest = {
     line: '1호선',
@@ -166,7 +171,7 @@ async function main() {
   };
   const ambiguousGuidance = await buildRouteGuidance(ambiguousRequest, car);
   assert(ambiguousGuidance.legs[0].status === 'available', '역 순서로 방면 추론 가능한 직통 구간은 빠른하차 기준을 적용해야 합니다.');
-  assert(ambiguousGuidance.legs[0].recommendedDoorNo === 3, '자동 방면 추론 후 문 번호를 유지해야 합니다.');
+  assert(ambiguousGuidance.legs[0].recommendedDoorNo === 2, '자동 방면 추론 후 문 번호를 유지해야 합니다.');
 
   console.log(JSON.stringify({
     ok: true,

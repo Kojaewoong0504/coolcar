@@ -1,3 +1,4 @@
+import verifiedFinalExitGuides from '../../../data/door-guidance/verified-final-exit-guides.json';
 import verifiedNextTransferGuides from '../../../data/door-guidance/verified-next-transfer-guides.json';
 import { normalizeDirection, normalizeFacilityType, parseCarDoor } from './normalize';
 import type { DoorGuideRecord } from './types';
@@ -77,6 +78,11 @@ const FINAL_EXIT_GUIDES: DoorGuideRecord[] = SEOUL_OPENAPI_SAMPLE_ROWS.flatMap((
     updatedAt: row.crtrYmd,
   }];
 });
+
+// Verified public final-exit records generated from Seoul OpenAPI getFstExit.
+// Generation policy: only public rows with valid car-door values; direction-specific data still requires
+// a matching/inferred direction before precise door guidance is exposed.
+const GENERATED_FINAL_EXIT_GUIDES = verifiedFinalExitGuides.records as DoorGuideRecord[];
 
 // Verified public transfer anchors generated from:
 // - 서울교통공사_서울 도시철도 환승정보 (서울 열린데이터광장 OA-22521)
@@ -191,6 +197,7 @@ function withFacilityType(record: DoorGuideRecord): DoorGuideRecord {
 }
 
 export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
+  ...GENERATED_FINAL_EXIT_GUIDES,
   ...FINAL_EXIT_GUIDES,
   ...VERIFIED_NEXT_TRANSFER_GUIDES,
   ...MOLIT_DAEGOK_NEXT_TRANSFER_GUIDES,
