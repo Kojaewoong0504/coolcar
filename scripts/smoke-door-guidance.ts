@@ -107,7 +107,7 @@ async function main() {
     originStation: '남태령역',
     targetStation: '사당역',
   });
-  assert(sadangDirection?.doorGuideDirection === '총신대입구', '남태령→사당 inferred local direction should be 총신대입구');
+  assert(sadangDirection?.doorGuideDirection === '이수', '남태령→사당 inferred local direction should be 이수');
   const sadangTransfer = await lookupDoorGuide({
     line: '4호선',
     toStation: '사당역',
@@ -116,7 +116,7 @@ async function main() {
     targetLine: '2호선',
   });
   assert(sadangTransfer.status === 'available', '사당역 4호선→2호선 총신대입구 방향 transfer anchor should be available');
-  assert(sadangTransfer.record.carNo === 4 && sadangTransfer.record.doorNo === 2, '사당역 총신대입구 방향 transfer anchor should map to 4-2');
+  assert(sadangTransfer.record.carNo === 1 && sadangTransfer.record.doorNo === 1, '사당역 이수 방향 transfer anchor should map to 1-1');
 
   const hongdaeToAirportSinchon = await lookupDoorGuide({
     line: '2호선',

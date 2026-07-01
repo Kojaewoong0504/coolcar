@@ -2,7 +2,7 @@ import type { DoorGuideRecord } from './doorGuidance/types';
 import type { CarComfort, ComfortType, RecommendRequest, RouteChoice, RouteGuidance, RouteLegGuidance } from './types';
 import { lookupDoorGuide } from './doorGuidance/resolver';
 import { generateCars } from './providers';
-import { inferLineDirection } from './routeDirection';
+import { inferLineDirection, isSameLineDirectionSide } from './routeDirection';
 
 export type RouteAnchor = {
   goal: 'FINAL_EXIT' | 'NEXT_TRANSFER';
@@ -70,6 +70,89 @@ function carCountForLine(line: string) {
   return line === '9호선' || line === '신분당선' ? 6 : 10;
 }
 
+type PlatformTransferRule = {
+  station: string;
+  line: string;
+  targetLine: string;
+  lineDirection: string;
+  targetDirection: string;
+  kind: 'CROSS_PLATFORM' | 'ALL_DOORS';
+  label: string;
+  message: string;
+};
+
+const PLATFORM_TRANSFER_RULES: PlatformTransferRule[] = [
+  {
+    station: '금정역',
+    line: '1호선',
+    targetLine: '4호선',
+    lineDirection: '청량리',
+    targetDirection: '당고개',
+    kind: 'CROSS_PLATFORM',
+    label: '같은 승강장 맞은편 열차',
+    message: '같은 방향 평면환승 구간이에요. 내린 뒤 같은 승강장 맞은편 4호선 열차를 타면 돼요.',
+  },
+  {
+    station: '금정역',
+    line: '1호선',
+    targetLine: '4호선',
+    lineDirection: '신창',
+    targetDirection: '오이도',
+    kind: 'CROSS_PLATFORM',
+    label: '같은 승강장 맞은편 열차',
+    message: '같은 방향 평면환승 구간이에요. 내린 뒤 같은 승강장 맞은편 4호선 열차를 타면 돼요.',
+  },
+  {
+    station: '금정역',
+    line: '4호선',
+    targetLine: '1호선',
+    lineDirection: '당고개',
+    targetDirection: '청량리',
+    kind: 'CROSS_PLATFORM',
+    label: '같은 승강장 맞은편 열차',
+    message: '같은 방향 평면환승 구간이에요. 내린 뒤 같은 승강장 맞은편 1호선 열차를 타면 돼요.',
+  },
+  {
+    station: '금정역',
+    line: '4호선',
+    targetLine: '1호선',
+    lineDirection: '오이도',
+    targetDirection: '신창',
+    kind: 'CROSS_PLATFORM',
+    label: '같은 승강장 맞은편 열차',
+    message: '같은 방향 평면환승 구간이에요. 내린 뒤 같은 승강장 맞은편 1호선 열차를 타면 돼요.',
+  },
+];
+
+function normalizeStation(value?: string) {
+  return (value ?? '').trim().replace(/\s+/g, '').replace(/역$/, '');
+}
+
+function normalizeLineName(value?: string) {
+  return (value ?? '').trim().replace(/\s+/g, '');
+}
+
+function platformTransferRule(params: {
+  line: string;
+  toStation: string;
+  direction?: string;
+  targetLine?: string;
+  targetDirection?: string;
+}) {
+  if (!params.targetLine || !params.direction || !params.targetDirection) return undefined;
+  return PLATFORM_TRANSFER_RULES.find((rule) => {
+    if (normalizeStation(rule.station) !== normalizeStation(params.toStation)) return false;
+    if (normalizeLineName(rule.line) !== normalizeLineName(params.line)) return false;
+    if (normalizeLineName(rule.targetLine) !== normalizeLineName(params.targetLine)) return false;
+    return isSameLineDirectionSide({ line: rule.line, atStation: rule.station, inputDirection: params.direction!, recordDirection: rule.lineDirection })
+      && isSameLineDirectionSide({ line: rule.targetLine, atStation: rule.station, inputDirection: params.targetDirection!, recordDirection: rule.targetDirection });
+  });
+}
+
+function allCarNosForLine(line: string) {
+  return Array.from({ length: carCountForLine(line) }, (_, index) => index + 1);
+}
+
 function candidateCarsAroundAnchor(line: string, anchorCarNo?: number) {
   if (!anchorCarNo) return undefined;
   const maxCarNo = carCountForLine(line);
@@ -102,6 +185,7 @@ function baseLeg(params: {
   facility?: string;
   facilityType?: RouteLegGuidance['facilityType'];
   egressPreference?: RouteLegGuidance['egressPreference'];
+  transferKind?: RouteLegGuidance['transferKind'];
   message: string;
 }): RouteLegGuidance {
   return {
@@ -122,6 +206,7 @@ function baseLeg(params: {
     facility: params.facility,
     facilityType: params.facilityType,
     egressPreference: params.egressPreference,
+    transferKind: params.transferKind,
     message: params.message,
   };
 }
@@ -132,6 +217,7 @@ async function applyDoorGuide(params: {
   direction?: string;
   goal: RouteLegGuidance['goal'];
   targetLine?: string;
+  targetDirection?: string;
   egressPreference?: RouteLegGuidance['egressPreference'];
   fallbackCarNo?: number;
   fallbackMessage: string;
@@ -143,6 +229,28 @@ async function applyDoorGuide(params: {
       positionLabel: params.fallbackCarNo ? `${params.fallbackCarNo}번째 칸 근처` : '환승 후 탑승 위치 확인 필요',
       message: params.fallbackMessage,
     };
+  }
+
+  if (params.goal === 'NEXT_TRANSFER') {
+    const samePlatform = platformTransferRule({
+      line: params.line,
+      toStation: params.toStation,
+      direction: params.direction,
+      targetLine: params.targetLine,
+      targetDirection: params.targetDirection,
+    });
+    if (samePlatform) {
+      return {
+        status: 'available' as const,
+        recommendedCarNo: params.fallbackCarNo,
+        candidateCarNos: allCarNosForLine(params.line),
+        positionLabel: samePlatform.label,
+        facility: '평면환승',
+        facilityType: 'TRANSFER_PASSAGE' as const,
+        transferKind: samePlatform.kind,
+        message: samePlatform.message,
+      };
+    }
   }
 
   const result = await lookupDoorGuide({
@@ -225,6 +333,18 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
   if (!anchorTarget) return undefined;
 
   const inferredDirection = request.direction ?? inferLineDirection({ line: request.line, originStation: origin, targetStation: anchorTarget.station })?.doorGuideDirection;
+  const firstTargetDirection = anchorTarget.goal === 'NEXT_TRANSFER' && anchorTarget.targetLine
+    ? inferLineDirection({ line: anchorTarget.targetLine, originStation: anchorTarget.station, targetStation: transfers[1] ?? destination })?.doorGuideDirection
+    : undefined;
+  if (anchorTarget.goal === 'NEXT_TRANSFER' && platformTransferRule({
+    line: request.line,
+    toStation: anchorTarget.station,
+    direction: inferredDirection,
+    targetLine: anchorTarget.targetLine,
+    targetDirection: firstTargetDirection,
+  })) {
+    return undefined;
+  }
   const result = await lookupDoorGuide({
     line: request.line,
     toStation: anchorTarget.station,
@@ -290,13 +410,14 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
           anchorCarNos: routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.anchorCarNos : undefined,
           candidateCarNos: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? routeChoice.candidateCarNos
-            : availableCandidateCars(request.line, doorGuide.status, doorGuide.recommendedCarNo),
+            : (doorGuide.candidateCarNos ?? availableCandidateCars(request.line, doorGuide.status, doorGuide.recommendedCarNo)),
           positionLabel: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
             : doorGuide.positionLabel,
           facility: doorGuide.facility,
           facilityType: doorGuide.facilityType,
           egressPreference: doorGuide.egressPreference,
+          transferKind: doorGuide.transferKind,
           message: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
             : doorGuide.message,
@@ -337,6 +458,9 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
     const inferredDirection = inferLineDirection({ line, originStation: fromStation, targetStation: toStation })?.doorGuideDirection;
     const effectiveDirection = index === 0 ? (request.direction ?? inferredDirection) : inferredDirection;
     const nextLine = routeLines[index + 1] ?? (!isLast && transfers.length === 1 ? request.destinationLine : undefined);
+    const targetDirection = !isLast && nextLine
+      ? inferLineDirection({ line: nextLine, originStation: toStation, targetStation: waypoints[index + 2] })?.doorGuideDirection
+      : undefined;
     const legFallbackCar = index === 0 ? recommendedCar : fallbackCarForLeg({ request, line, fromStation, direction: effectiveDirection });
     const doorGuide = await applyDoorGuide({
       line,
@@ -344,6 +468,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       direction: effectiveDirection,
       goal,
       targetLine: !isLast ? nextLine : undefined,
+      targetDirection,
       egressPreference: isLast ? request.egressPreference : undefined,
       fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0
@@ -352,6 +477,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
           ? '도착역에서는 표지판을 보며 이동하면 돼요.'
           : `${toStation} 환승 위치는 승강장에서 한 번 더 확인해 주세요. 이 구간은 쾌적칸 중심으로 안내해요.`,
     });
+    const usePrimaryRouteChoice = index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && !doorGuide.transferKind;
     return baseLeg({
       legNo: index + 1,
       fromStation,
@@ -360,23 +486,24 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       direction: effectiveDirection,
       goal,
       status: doorGuide.status,
-      recommendedCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
+      recommendedCarNo: usePrimaryRouteChoice ? recommendedCar.carNo : doorGuide.recommendedCarNo,
       recommendedDoorNo: doorGuide.recommendedDoorNo,
-      anchorCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available'
+      anchorCarNo: usePrimaryRouteChoice && doorGuide.status === 'available'
         ? doorGuide.recommendedCarNo
-        : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo),
-      anchorDoorNo: doorGuide.status === 'available' ? doorGuide.recommendedDoorNo : undefined,
-      anchorCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.anchorCarNos : undefined,
-      candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+        : (doorGuide.transferKind ? undefined : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo)),
+      anchorDoorNo: doorGuide.transferKind ? undefined : doorGuide.status === 'available' ? doorGuide.recommendedDoorNo : undefined,
+      anchorCarNos: usePrimaryRouteChoice ? routeChoice.anchorCarNos : undefined,
+      candidateCarNos: usePrimaryRouteChoice
         ? routeChoice.candidateCarNos
-        : availableCandidateCars(line, doorGuide.status, doorGuide.recommendedCarNo),
-      positionLabel: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+        : (doorGuide.candidateCarNos ?? availableCandidateCars(line, doorGuide.status, doorGuide.recommendedCarNo)),
+      positionLabel: usePrimaryRouteChoice
         ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
         : doorGuide.positionLabel,
       facility: doorGuide.facility,
       facilityType: doorGuide.facilityType,
       egressPreference: doorGuide.egressPreference,
-      message: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+      transferKind: doorGuide.transferKind,
+      message: usePrimaryRouteChoice
         ? `${routeChoice.anchorDoorLabels?.length ? routeChoice.anchorDoorLabels.join(', ') : `${routeChoice.anchorCarNo}번째 칸${routeChoice.anchorDoorNo ? ` · ${routeChoice.anchorDoorNo}번 문` : ''}`} 근처와 양옆 칸을 먼저 보고, 그 안에서 쾌적한 칸을 골랐어요.`
         : doorGuide.message,
     });

@@ -96,6 +96,7 @@ export type RouteLegGuidance = {
   facility?: string;
   facilityType?: DoorGuideFacilityType;
   egressPreference?: EgressPreference;
+  transferKind?: 'CAR_DOOR' | 'CROSS_PLATFORM' | 'ALL_DOORS';
   message: string;
 };
 

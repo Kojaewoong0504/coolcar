@@ -28,6 +28,7 @@
     "test:route-matrix-safety": "tsx scripts/smoke-route-matrix-safety.ts",
     "test:large-transfer-matrix": "tsx scripts/smoke-large-transfer-matrix.ts",
     "test:curated-major-transfers": "tsx scripts/smoke-curated-major-transfers.ts",
+    "test:platform-transfer": "tsx scripts/smoke-platform-transfer.ts",
     "test:public-door-guide": "tsx scripts/smoke-public-door-guide-adapter.ts",
     "test:route-transparency": "tsx scripts/smoke-route-transparency.ts",
     "test:route-plans": "tsx scripts/smoke-route-plans.ts",
