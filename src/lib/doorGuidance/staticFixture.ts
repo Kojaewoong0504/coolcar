@@ -232,6 +232,77 @@ const FIELD_VERIFIED_NEXT_TRANSFER_GUIDES: DoorGuideRecord[] = [
   },
 ];
 
+
+
+function curatedRecord(params: {
+  line: string;
+  stationName: string;
+  direction?: string;
+  targetLine: string;
+  carDoor: string;
+  updatedAt?: string;
+}): DoorGuideRecord {
+  const parsed = parseCarDoor(params.carDoor);
+  if (!parsed) throw new Error(`invalid curated car-door ${params.carDoor}`);
+  return {
+    line: params.line,
+    stationName: params.stationName,
+    directionKey: params.direction ? normalizeDirection(params.direction) : undefined,
+    goal: 'NEXT_TRANSFER',
+    targetLine: params.targetLine,
+    carNo: parsed.carNo,
+    doorNo: parsed.doorNo,
+    facility: '환승통로',
+    source: 'STATIC_CURATED',
+    confidence: 'MEDIUM',
+    updatedAt: params.updatedAt ?? '2026-07-01',
+  };
+}
+
+// Curated major-transfer supplements for pairs missing from the official Seoul/MOLIT CSVs.
+// Sources checked 2026-07-01:
+// - 나무위키 수도권 전철 환승 정보 1/2/4/5/7/9호선, 경의·중앙선, 수인·분당선 pages (CC BY-NC-SA 2.0 KR)
+// - Only rows with explicit car-door values and no unresolved "all doors"/target-direction ambiguity are exposed.
+// - Keep confidence MEDIUM and source auditable as STATIC_CURATED; do not use these as official guarantees.
+const CURATED_MAJOR_TRANSFER_GUIDES: DoorGuideRecord[] = [
+  // 김포공항역: 5호선 -> 김포골드라인/서해선. Source page groups both transfer targets with the same 5호선 door by direction.
+  ...['김포골드라인', '서해선'].flatMap((targetLine) => [
+    curatedRecord({ line: '5호선', stationName: '김포공항역', direction: '하남검단산', targetLine, carDoor: '1-4' }),
+    curatedRecord({ line: '5호선', stationName: '김포공항역', direction: '마천', targetLine, carDoor: '1-4' }),
+    curatedRecord({ line: '5호선', stationName: '김포공항역', direction: '방화', targetLine, carDoor: '7-1' }),
+  ]),
+  // 김포공항역: 9호선 -> 김포골드라인/서해선. Source page gives direct target rows by 9호선 direction.
+  ...['김포골드라인', '서해선'].flatMap((targetLine) => [
+    curatedRecord({ line: '9호선', stationName: '김포공항역', direction: '개화', targetLine, carDoor: '6-1' }),
+    curatedRecord({ line: '9호선', stationName: '김포공항역', direction: '중앙보훈병원', targetLine, carDoor: '4-4' }),
+  ]),
+  // 서울역 경의·중앙선 지선: source marks indirect transfer but gives one fast-exit door for 1/4/공항철도/GTX-A.
+  ...['1호선', '4호선', '공항철도'].map((targetLine) =>
+    curatedRecord({ line: '경의중앙선', stationName: '서울역', targetLine, carDoor: '4-4' }),
+  ),
+  // 신설동역: 1호선/2호선 -> 우이신설선.
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '소요산', targetLine: '우이신설선', carDoor: '9-4' }),
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '청량리', targetLine: '우이신설선', carDoor: '9-4' }),
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '광운대', targetLine: '우이신설선', carDoor: '9-4' }),
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '인천', targetLine: '우이신설선', carDoor: '2-1' }),
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '신창', targetLine: '우이신설선', carDoor: '2-1' }),
+  curatedRecord({ line: '1호선', stationName: '신설동역', direction: '서동탄', targetLine: '우이신설선', carDoor: '2-1' }),
+  curatedRecord({ line: '2호선', stationName: '신설동역', targetLine: '우이신설선', carDoor: '1-1' }),
+  // 이수/총신대입구: 4호선 <-> 7호선.
+  curatedRecord({ line: '4호선', stationName: '이수역', direction: '진접', targetLine: '7호선', carDoor: '10-4' }),
+  curatedRecord({ line: '4호선', stationName: '이수역', direction: '불암산', targetLine: '7호선', carDoor: '10-4' }),
+  curatedRecord({ line: '4호선', stationName: '이수역', direction: '사당', targetLine: '7호선', carDoor: '1-1' }),
+  curatedRecord({ line: '4호선', stationName: '이수역', direction: '오이도', targetLine: '7호선', carDoor: '1-1' }),
+  curatedRecord({ line: '7호선', stationName: '이수역', direction: '석남', targetLine: '4호선', carDoor: '8-4' }),
+  curatedRecord({ line: '7호선', stationName: '이수역', direction: '장암', targetLine: '4호선', carDoor: '2-2' }),
+  // 청량리: 1호선 -> 수인분당선. Source groups 경의중앙/경춘/수인분당 transfer target.
+  curatedRecord({ line: '1호선', stationName: '청량리역', direction: '소요산', targetLine: '수인분당선', carDoor: '1-1' }),
+  curatedRecord({ line: '1호선', stationName: '청량리역', direction: '광운대', targetLine: '수인분당선', carDoor: '1-1' }),
+  curatedRecord({ line: '1호선', stationName: '청량리역', direction: '인천', targetLine: '수인분당선', carDoor: '10-4' }),
+  curatedRecord({ line: '1호선', stationName: '청량리역', direction: '신창', targetLine: '수인분당선', carDoor: '10-4' }),
+  curatedRecord({ line: '1호선', stationName: '청량리역', direction: '서동탄', targetLine: '수인분당선', carDoor: '10-4' }),
+];
+
 function withFacilityType(record: DoorGuideRecord): DoorGuideRecord {
   return { ...record, facilityType: record.facilityType ?? normalizeFacilityType(record.facility) };
 }
@@ -242,4 +313,5 @@ export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
   ...VERIFIED_NEXT_TRANSFER_GUIDES,
   ...MOLIT_DAEGOK_NEXT_TRANSFER_GUIDES,
   ...FIELD_VERIFIED_NEXT_TRANSFER_GUIDES,
+  ...CURATED_MAJOR_TRANSFER_GUIDES,
 ].map(withFacilityType);

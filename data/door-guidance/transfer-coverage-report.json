@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T06:29:26.197Z",
+  "generatedAt": "2026-07-01T12:49:34.033Z",
   "sourceInventoryGeneratedAt": "2026-07-01T05:17:50.670Z",
   "policy": {
     "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
@@ -13,15 +13,15 @@
   "summary": {
     "totalStations": 71,
     "totalDirectedTransferPairs": 210,
-    "verifiedNextTransferPairs": 180,
-    "missingNextTransferPairs": 30,
-    "coverageRatio": 0.8571,
+    "verifiedNextTransferPairs": 191,
+    "missingNextTransferPairs": 19,
+    "coverageRatio": 0.9095,
     "p0Stations": 16,
     "p1Stations": 18,
     "p2Stations": 37,
     "needsMasterData": 0,
     "finalExitStaticRecords": 2149,
-    "nextTransferStaticRecords": 1209
+    "nextTransferStaticRecords": 1238
   },
   "blockers": [],
   "stations": [
@@ -37,26 +37,10 @@
         "서해선"
       ],
       "totalPairs": 20,
-      "verifiedNextTransferPairs": 6,
-      "missingNextTransferPairs": 14,
-      "coverageRatio": 0.3,
+      "verifiedNextTransferPairs": 10,
+      "missingNextTransferPairs": 10,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "김포골드라인"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "서해선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "김포골드라인"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "서해선"
-        },
         {
           "fromLine": "공항철도",
           "toLine": "김포골드라인"
@@ -128,23 +112,10 @@
         "공항철도"
       ],
       "totalPairs": 12,
-      "verifiedNextTransferPairs": 9,
-      "missingNextTransferPairs": 3,
-      "coverageRatio": 0.75,
-      "missingPairs": [
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "1호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "경의중앙선",
-          "toLine": "공항철도"
-        }
-      ],
+      "verifiedNextTransferPairs": 12,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -358,18 +329,10 @@
         "우이신설선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 2,
-      "missingNextTransferPairs": 4,
-      "coverageRatio": 0.3333,
+      "verifiedNextTransferPairs": 4,
+      "missingNextTransferPairs": 2,
+      "coverageRatio": 0.6667,
       "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "우이신설선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "우이신설선"
-        },
         {
           "fromLine": "우이신설선",
           "toLine": "1호선"
@@ -1038,15 +1001,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "7호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1157,15 +1115,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "수인분당선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
