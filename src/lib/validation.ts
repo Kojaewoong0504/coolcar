@@ -73,3 +73,40 @@ export const savedRouteSchema = z.object({
   commuteType: commuteTypeSchema.default('CUSTOM'),
   isDefault: z.boolean().default(false),
 });
+
+export const supportReportTypeSchema = z.enum([
+  'INCORRECT_RECOMMENDATION',
+  'ROUTE_INFO',
+  'APP_PROBLEM',
+  'IDEA',
+  'OTHER',
+]);
+
+const supportAppContextSchema = z.object({
+  entryPoint: z.enum(['settings', 'result', 'tips', 'home', 'direct']).default('direct'),
+  screen: z.string().max(80).optional(),
+  line: z.string().max(40).optional(),
+  originStation: z.string().max(80).optional(),
+  destinationStation: z.string().max(80).optional(),
+  direction: z.string().max(80).optional(),
+  selectedCar: z.number().int().min(1).max(12).optional(),
+  recommendationId: z.string().uuid().optional(),
+  pathSummary: z.string().max(300).optional(),
+}).strict();
+
+const supportClientContextSchema = z.object({
+  locale: z.string().max(30).optional(),
+  timezone: z.string().max(60).optional(),
+  viewport: z.string().max(40).optional(),
+  platform: z.string().max(80).optional(),
+}).strict();
+
+export const supportReportSchema = z.object({
+  type: supportReportTypeSchema,
+  message: z.string().trim().min(10, '내용을 조금만 더 적어주세요.').max(2000, '내용은 2000자 안으로 적어주세요.'),
+  contactEmail: z.string().trim().email('이메일 형식을 확인해 주세요.').max(160).optional().or(z.literal('')),
+  anonymousId: z.string().uuid().optional(),
+  appContext: supportAppContextSchema.default({ entryPoint: 'direct' }),
+  clientContext: supportClientContextSchema.default({}),
+  website: z.string().max(0).optional(),
+});

@@ -79,6 +79,11 @@ export default async function SettingsPage() {
       <section className="card settings-section-card">
         <div className="section-title">고객 지원 및 정보</div>
         <div className="settings-menu-list">
+          <Link className="settings-link-row" href="/support/new?from=settings">
+            <span className="settings-row-icon" aria-hidden="true">💬</span>
+            <span><b>문의 및 문제 제보</b><small>앱 사용 중 불편한 점이나 개선 의견을 보내주세요.</small></span>
+            <em aria-hidden="true">›</em>
+          </Link>
           <Link className="settings-link-row" href="/privacy">
             <span className="settings-row-icon" aria-hidden="true">🔒</span>
             <span><b>개인정보 안내</b><small>로그인 정보와 기기 저장 정보를 어떻게 쓰는지 확인해요.</small></span>

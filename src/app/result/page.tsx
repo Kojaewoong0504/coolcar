@@ -498,6 +498,14 @@ export default function ResultPage() {
         {feedbackState === 'error' && <p className="error">잠시 후 다시 시도해 주세요.</p>}
       </section>
 
+      <section className="card support-nudge-card result-info-card">
+        <div>
+          <div className="section-title">추천이 기대와 달랐나요?</div>
+          <p>실제 이용 중 불편했던 점을 알려주시면 더 나은 추천으로 개선할게요.</p>
+        </div>
+        <Link className="ghost support-nudge-link" href="/support/new?from=result">문제 제보하기</Link>
+      </section>
+
       <div className="sticky-save-bar" aria-label="루틴 저장 고정 버튼">
         <button type="button" onClick={() => void saveRoute()} disabled={saveState === 'pending' || saveState === 'saved'}>
           {saveState === 'pending' ? '저장 중…' : saveState === 'saved' ? '저장 완료' : '루틴 저장하기'}

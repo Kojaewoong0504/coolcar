@@ -38,6 +38,7 @@
     "test:hot-only-product": "tsx scripts/smoke-hot-only-product.ts",
     "test:settings-login-ia": "tsx scripts/smoke-settings-login-ia.ts",
     "test:auth-logout-cache": "tsx scripts/smoke-auth-logout-cache.ts",
+    "test:support-reports": "tsx scripts/smoke-support-reports.ts",
     "test:tips": "tsx scripts/smoke-tips.ts",
     "test:egress-facility": "tsx scripts/smoke-egress-facility.ts",
     "diagnose:door-guide": "tsx scripts/diagnose-door-guidance.ts",

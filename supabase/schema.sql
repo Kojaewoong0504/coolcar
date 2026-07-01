@@ -78,6 +78,27 @@ create table if not exists public.feedback_events (
   created_at timestamptz not null default now()
 );
 
+-- 문의 및 문제 제보
+create table if not exists public.support_reports (
+  id uuid primary key default gen_random_uuid(),
+  type text not null check (type in ('INCORRECT_RECOMMENDATION','ROUTE_INFO','APP_PROBLEM','IDEA','OTHER')),
+  status text not null default 'new' check (status in ('new','triaged','in_progress','resolved','closed','spam')),
+  priority text not null default 'normal' check (priority in ('low','normal','high','urgent')),
+  message text not null check (char_length(message) between 10 and 2000),
+  user_id uuid references auth.users(id) on delete set null,
+  anonymous_id uuid,
+  contact_email text,
+  wants_reply boolean not null default false,
+  app_context jsonb not null default '{}'::jsonb,
+  client_context jsonb not null default '{}'::jsonb,
+  submitter_hash text,
+  discord_notified_at timestamptz,
+  discord_notify_error text,
+  admin_note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 -- 로그인 사용자 개인화 요약
 create table if not exists public.user_preference_stats (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -161,6 +182,9 @@ create index if not exists idx_recommendation_events_user_created on public.reco
 create index if not exists idx_recommendation_events_anon_created on public.recommendation_events(anonymous_id, created_at desc);
 create index if not exists idx_feedback_events_user_created on public.feedback_events(user_id, created_at desc);
 create index if not exists idx_feedback_events_line_station_created on public.feedback_events(line, station, created_at desc);
+create index if not exists idx_support_reports_created on public.support_reports(created_at desc);
+create index if not exists idx_support_reports_status_created on public.support_reports(status, created_at desc);
+create index if not exists idx_support_reports_type_created on public.support_reports(type, created_at desc);
 create index if not exists idx_saved_routes_user on public.saved_routes(user_id);
 create index if not exists idx_stations_search on public.stations(line, name);
 create index if not exists idx_provider_cache_entries_expires on public.provider_cache_entries(expires_at);
@@ -172,6 +196,7 @@ alter table public.user_profiles enable row level security;
 alter table public.saved_routes enable row level security;
 alter table public.recommendation_events enable row level security;
 alter table public.feedback_events enable row level security;
+alter table public.support_reports enable row level security;
 alter table public.user_preference_stats enable row level security;
 alter table public.provider_cache_entries enable row level security;
 alter table public.provider_diagnostic_events enable row level security;
