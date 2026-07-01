@@ -156,14 +156,14 @@ export default function SavedPage() {
   return (
     <main className="shell with-tabbar">
       <header className="topbar">
-        <div className="logo"><span className="logo-mark">🧊</span>저장 루틴</div>
+        <div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />저장 루틴</div>
         <UserProfilePill profile={auth?.profile ?? null} loaded={!loading} />
       </header>
 
       <section className="hero-card compact saved-hero">
-        <p className="eyebrow">저장 루틴</p>
-        <h1>{isLoggedIn ? `${firstName}님의 루틴` : '저장한 루틴'}<br />바로 추천받아요.</h1>
-        <p>{isLoggedIn ? '저장한 경로를 불러왔어요. 출발 전 한 번만 누르면 지금 타기 좋은 칸을 다시 계산해요.' : '로그인하지 않아도 이 기기에 루틴을 저장할 수 있어요. 로그인하면 다른 기기에서도 볼 수 있어요.'}</p>
+        <p className="eyebrow">매일 타는 길</p>
+        <h1>{isLoggedIn ? `${firstName}님의 루틴` : '오늘도 이 경로?'}<br />한 번에 시작해요.</h1>
+        <p>{isLoggedIn ? '저장한 경로를 바로 불러왔어요.' : '자주 타는 길을 저장하면 다음부터 바로 추천받아요.'}</p>
       </section>
 
       {isLoggedIn && <AuthMergeOnLoad />}
@@ -172,8 +172,8 @@ export default function SavedPage() {
 
       {!loading && routes.length === 0 && (
         <section className="card empty">
-          <h2>아직 저장한 루틴이 없어요</h2>
-          <p>홈에서 추천을 받은 뒤 “이 경로 저장”을 누르면 다음부터 여기서 바로 추천받을 수 있어요.</p>
+          <h2>아직 저장한 경로가 없어요</h2>
+          <p>자주 타는 길을 저장하면 다음부터 한 번에 시원한 칸을 볼 수 있어요.</p>
           <Link className="primary link-button" href="/">첫 루틴 추천받기</Link>
         </section>
       )}
@@ -182,7 +182,7 @@ export default function SavedPage() {
         <section className="card summary-card">
           <span className="summary-kicker">저장 루틴 {routes.length}개</span>
           <h2>{defaultRoute ? `오늘도 ${defaultRoute.origin_station}에서 출발하나요?` : '오늘도 자주 타는 경로로 가나요?'}</h2>
-          <p>{isLoggedIn ? '계정에 저장된 루틴이에요.' : '다른 기기에서도 보려면 로그인해 주세요.'}</p>
+          <p>출발 전 바로 눌러서 지금 타기 좋은 칸을 보세요.</p>
         </section>
       )}
 
@@ -224,7 +224,7 @@ export default function SavedPage() {
         </section>
       )}
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link className="active" href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link className="active" href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
     </main>
   );
 }

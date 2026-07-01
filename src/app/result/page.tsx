@@ -111,6 +111,7 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [feedbackState, setFeedbackState] = useState<'idle' | 'pending' | 'sent' | 'mock' | 'error'>('idle');
+  const [selectedFeedback, setSelectedFeedback] = useState<'GOOD' | 'HOT' | 'CROWDED' | 'WRONG' | null>(null);
   const [saveState, setSaveState] = useState<'idle' | 'pending' | 'saved' | 'mock' | 'error'>('idle');
   const [activeLegIndex, setActiveLegIndex] = useState(0);
   const recommendationStarted = useRef(false);
@@ -261,10 +262,11 @@ export default function ResultPage() {
           : '환승 동선과 쾌적도를 같이 봤어요.',
       ]
     : result.reasons.slice(0, 2);
-  const personalizationCopy = '추천·피드백은 다음 시원칸 추천에 반영돼요.';
+  const saveNudgeCopy = '이 경로를 저장하면 다음엔 바로 추천받아요.';
 
   async function sendFeedback(feedbackType: 'GOOD' | 'HOT' | 'CROWDED' | 'WRONG') {
     if (feedbackState === 'pending') return;
+    setSelectedFeedback(feedbackType);
     setFeedbackState('pending');
     const response = await fetch('/api/feedback', {
       method: 'POST',
@@ -330,7 +332,14 @@ export default function ResultPage() {
           <span>{activeEgressBadge ?? (activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeLeg.line)}</span>
         </div>
         <p className="eyebrow">{activeEyebrow}</p>
-        <h1>{activeHeading}</h1>
+        {activeRecommendedCarNo ? (
+          <div className="result-command" aria-label={activeHeading}>
+            <span>{activeRecommendedCarNo}</span>
+            <h1>{isFinalExitComfortFallback ? '쾌적도 기준 칸으로 가세요' : '번째 칸으로 가세요'}</h1>
+          </div>
+        ) : (
+          <h1>{activeHeading}</h1>
+        )}
         <div className="route-proof-card route-proof-compact" aria-label="추천 경로">
           <div>
             <span>경로</span>
@@ -364,6 +373,7 @@ export default function ResultPage() {
                 );
               })}
             </div>
+            <div className="train-axis" aria-hidden="true"><span>앞쪽</span><span>중앙</span><span>뒤쪽</span></div>
           </div>
         ) : (
           <div className="door-tip neutral result-leg-placeholder">
@@ -372,9 +382,9 @@ export default function ResultPage() {
             <small>이전 구간 칸 정보를 그대로 쓰지 않아요.</small>
           </div>
         )}
-        <div className="personalization-strip" aria-label="개인화 저장 상태">
-          <span>✨ 개인화</span>
-          <strong>{personalizationCopy}</strong>
+        <div className="personalization-strip save-nudge-strip" aria-label="루틴 저장 안내">
+          <span>★ 저장 팁</span>
+          <strong>{saveNudgeCopy}</strong>
         </div>
         {saveState === 'saved' && <p className="ok">루틴에 저장했어요.</p>}
         {saveState === 'mock' && <p className="ok">저장했어요.</p>}
@@ -427,11 +437,10 @@ export default function ResultPage() {
           </div>
         </div>
         <div className="feedback-buttons">
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>🔁 환승이 멀었어요</button>
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
-          <button disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
+          <button className={selectedFeedback === 'GOOD' ? 'selected' : ''} disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('GOOD')}>👍 좋았어요</button>
+          <button className={selectedFeedback === 'HOT' ? 'selected' : ''} disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('HOT')}>🥵 더웠어요</button>
+          <button className={selectedFeedback === 'CROWDED' ? 'selected' : ''} disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('CROWDED')}>👥 붐볐어요</button>
+          <button className={selectedFeedback === 'WRONG' ? 'selected' : ''} disabled={feedbackState === 'pending'} onClick={() => void sendFeedback('WRONG')}>위치가 달랐어요</button>
         </div>
         {feedbackState === 'pending' && <p className="microcopy">반영 중이에요…</p>}
         {feedbackState === 'sent' && <p className="ok">다음 추천에 반영했어요.</p>}
@@ -445,7 +454,7 @@ export default function ResultPage() {
         </button>
       </div>
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
     </main>
   );
 }

@@ -38,7 +38,7 @@ export default async function TipDetailPage({ params }: { params: Promise<{ slug
         <span aria-hidden="true">›</span>
       </Link>
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link className="active" href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link className="active" href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
     </main>
   );
 }

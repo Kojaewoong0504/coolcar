@@ -12,8 +12,8 @@ type PendingRoutePlan = {
   context?: { destinationLine?: string };
 };
 
-function routePath(candidate: RoutePlanCandidate) {
-  return [candidate.originStation, ...candidate.transferStations, candidate.destinationStation].join(' → ');
+function routeStops(candidate: RoutePlanCandidate) {
+  return [candidate.originStation, ...candidate.transferStations, candidate.destinationStation];
 }
 
 function coverageCopy(candidate: RoutePlanCandidate) {
@@ -214,7 +214,14 @@ export default function RoutePlansPage() {
             <em>{coverageCopy(primaryCandidate)}</em>
           </div>
           <h2>{primaryCandidate.title}</h2>
-          <p className="route-plan-path">{routePath(primaryCandidate)}</p>
+          <div className="route-timeline" aria-label="추천 경로 순서">
+            {routeStops(primaryCandidate).map((station, index) => (
+              <div className="route-timeline-stop" key={`${station}-${index}`}>
+                <span>{primaryCandidate.lines[Math.min(index, primaryCandidate.lines.length - 1)] ?? primaryCandidate.lines[0]}</span>
+                <strong>{station}</strong>
+              </div>
+            ))}
+          </div>
           <p className="route-plan-lines">{primaryCandidate.lines.join(' → ')}</p>
           <p className="microcopy">{primaryCandidate.summary}</p>
           <div className="egress-preference-card" aria-label="내릴 때 이동 방식">
@@ -252,7 +259,14 @@ export default function RoutePlansPage() {
                   <em>{coverageCopy(candidate)}</em>
                 </div>
                 <h2>{candidate.title}</h2>
-                <p className="route-plan-path">{routePath(candidate)}</p>
+                <div className="route-timeline compact" aria-label="다른 경로 순서">
+                  {routeStops(candidate).map((station, index) => (
+                    <div className="route-timeline-stop" key={`${station}-${index}`}>
+                      <span>{candidate.lines[Math.min(index, candidate.lines.length - 1)] ?? candidate.lines[0]}</span>
+                      <strong>{station}</strong>
+                    </div>
+                  ))}
+                </div>
                 <p className="route-plan-lines">{candidate.lines.join(' → ')}</p>
                 <button className="primary" type="button" onClick={() => selectCandidate(candidate)}>{candidate.type === 'UNRESOLVED' ? '쾌적칸 먼저 보기' : '이 경로로 바꾸기'}</button>
               </article>
@@ -294,7 +308,7 @@ export default function RoutePlansPage() {
         </section>
       ) : null}
 
-      <nav className="tabbar"><Link href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
     </main>
   );
 }

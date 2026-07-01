@@ -275,44 +275,46 @@ export default function HomePage() {
             <p className="brand-subtitle">지하철 쾌적칸 추천 앱</p>
           </div>
         </div>
-        <p className="eyebrow">10초 추천</p>
-        <h1>어디서 타고,<br />어디서 내리나요?</h1>
-        <p>출발역과 도착역만 고르면 가능한 환승 경로를 먼저 보여드릴게요.</p>
+        <div className="hero-pill-row" aria-label="시원칸 핵심 기능">
+          <span>10초 추천</span>
+          <span>더위 민감 기준</span>
+        </div>
+        <h1>오늘 어디까지<br />가세요?</h1>
+        <p>출발역과 도착역만 고르면 덜 더운 칸을 바로 추천해요.</p>
       </section>
 
       <form className="card form trip-card simple-trip-card" onSubmit={submit}>
         <div className="section-row trip-title-row">
           <div>
-            <div className="section-title">어디 탈지 추천받기</div>
-            <p>환승역이나 방면을 몰라도 괜찮아요. 필요한 경우만 짧게 확인할게요.</p>
+            <div className="section-title">경로만 고르면 끝</div>
+            <p>환승역을 몰라도 괜찮아요.</p>
           </div>
         </div>
 
         <div className="route-summary-card primary-route-card">
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('origin')} aria-label="출발역 선택">
+            <span className="route-dot origin-dot" aria-hidden="true" />
             <span className="route-label">출발</span>
             <span className="route-value">{originStation || '출발역 선택'}</span>
             <span className="route-badge">{originStation ? line : '노선 선택'}</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('destination')} aria-label="도착역 선택">
+            <span className="route-dot destination-dot" aria-hidden="true" />
             <span className="route-label">도착</span>
             <span className="route-value">{destinationStation || '목적지 선택'}</span>
-            <span className="route-badge subtle">변경</span>
+            <span className="route-badge subtle">선택</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
-          <p className="route-helper">환승역이나 방면을 몰라도 괜찮아요.</p>
+          <p className="route-helper">모르면 비워도 돼요. 추천할 때 필요한 것만 볼게요.</p>
         </div>
 
-        <section className="preference-card fixed-cool-card" aria-label="추천 기준">
-          <div className="section-row preference-head">
-            <div>
-              <div className="section-title">추천 기준</div>
-              <p>더위 많이 타는 사람 기준으로, 덜 덥고 덜 답답한 칸을 먼저 볼게요.</p>
-            </div>
-            <span>🧊</span>
+        <section className="cool-mode-strip fixed-cool-card" aria-label="추천 기준">
+          <span aria-hidden="true">🧊</span>
+          <div>
+            <b>시원한 칸 기준</b>
+            <p>{preferenceMessage}</p>
           </div>
-          <p className="preference-save-copy">{preferenceMessage}</p>
         </section>
 
         {error && <p className="error">{error}</p>}
@@ -320,12 +322,12 @@ export default function HomePage() {
       </form>
 
       <section className="card recent-route-card">
-        <div className="section-row"><div><div className="section-title">최근·추천 경로</div><p>자주 쓰는 길은 한 번에 불러올 수 있어요.</p></div></div>
+        <div className="section-row"><div><div className="section-title">바로 불러오기</div><p>자주 쓰는 길은 한 번에 시작해요.</p></div></div>
         <div className="recent-route-list">
           {recentRoutes.map((route) => (
             <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
               <span><b>{route.label}</b><small>{route.line} · 시원한 칸 기준</small></span>
-              <em>불러오기</em>
+              <em>바로 선택</em>
             </button>
           ))}
         </div>
@@ -370,7 +372,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <nav className="tabbar"><Link className="active" href="/">홈</Link><Link href="/saved">저장</Link><Link href="/tips">팁</Link><Link href="/settings">내 정보</Link></nav>
+      <nav className="tabbar"><Link className="active" href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
     </main>
   );
 }
