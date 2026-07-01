@@ -11,8 +11,10 @@ function mockFetch(payload: unknown, ok = true) {
 
 async function main() {
   const originalKey = process.env.SEOUL_OPENAPI_KEY;
+  const originalLiveEnabled = process.env.SEOUL_OPENAPI_LIVE_ENABLED;
   try {
     delete process.env.SEOUL_OPENAPI_KEY;
+    process.env.SEOUL_OPENAPI_LIVE_ENABLED = 'true';
     const disabled = await fetchPublicDoorGuideRecords({ line: '1호선', toStation: '서울역', direction: '시청', goal: 'FINAL_EXIT' }, mockFetch({ getFstExit: { row: [] } }));
     assert(disabled.length === 0, 'env key missing should disable public fetch records');
 
@@ -48,6 +50,8 @@ async function main() {
   } finally {
     if (originalKey === undefined) delete process.env.SEOUL_OPENAPI_KEY;
     else process.env.SEOUL_OPENAPI_KEY = originalKey;
+    if (originalLiveEnabled === undefined) delete process.env.SEOUL_OPENAPI_LIVE_ENABLED;
+    else process.env.SEOUL_OPENAPI_LIVE_ENABLED = originalLiveEnabled;
   }
 
 }
