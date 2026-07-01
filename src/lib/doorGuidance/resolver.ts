@@ -72,7 +72,10 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
   }
 
   const matched = directionKey
-    ? candidates.filter((record) => directionMatches(input, record, directionKey))
+    ? (() => {
+        const exact = candidates.filter((record) => record.directionKey === directionKey);
+        return exact.length > 0 ? exact : candidates.filter((record) => directionMatches(input, record, directionKey));
+      })()
     : candidates;
 
   if (matched.length === 0) {

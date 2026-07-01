@@ -28,6 +28,7 @@ const MAJOR_TRANSFER_SEEDS = [
   { name: '건대입구역', lines: ['2호선', '7호선'], priority: 'P0' },
   { name: '합정역', lines: ['2호선', '6호선'], priority: 'P0' },
   { name: '김포공항역', lines: ['5호선', '9호선', '공항철도', '김포골드라인', '서해선'], priority: 'P0' },
+  { name: '대곡역', lines: ['3호선', '경의중앙선'], priority: 'P1' },
   { name: '노량진역', lines: ['1호선', '9호선'], priority: 'P1' },
   { name: '동작역', lines: ['4호선', '9호선'], priority: 'P1' },
   { name: '충무로역', lines: ['3호선', '4호선'], priority: 'P1' },

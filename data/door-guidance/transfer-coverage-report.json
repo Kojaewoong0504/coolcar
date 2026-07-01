@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T01:03:13.212Z",
-  "sourceInventoryGeneratedAt": "2026-06-30T00:36:41.507Z",
+  "generatedAt": "2026-07-01T05:19:25.321Z",
+  "sourceInventoryGeneratedAt": "2026-07-01T05:17:50.670Z",
   "policy": {
     "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
     "safety": "Missing coverage is acceptable; fake or unverified car/door anchors are release blockers.",
@@ -11,17 +11,17 @@
     ]
   },
   "summary": {
-    "totalStations": 69,
-    "totalDirectedTransferPairs": 206,
-    "verifiedNextTransferPairs": 157,
-    "missingNextTransferPairs": 49,
-    "coverageRatio": 0.7621,
+    "totalStations": 71,
+    "totalDirectedTransferPairs": 210,
+    "verifiedNextTransferPairs": 180,
+    "missingNextTransferPairs": 30,
+    "coverageRatio": 0.8571,
     "p0Stations": 16,
-    "p1Stations": 17,
-    "p2Stations": 36,
+    "p1Stations": 18,
+    "p2Stations": 37,
     "needsMasterData": 0,
     "finalExitStaticRecords": 4,
-    "nextTransferStaticRecords": 456
+    "nextTransferStaticRecords": 1209
   },
   "blockers": [],
   "stations": [
@@ -37,9 +37,9 @@
         "서해선"
       ],
       "totalPairs": 20,
-      "verifiedNextTransferPairs": 5,
-      "missingNextTransferPairs": 15,
-      "coverageRatio": 0.25,
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 14,
+      "coverageRatio": 0.3,
       "missingPairs": [
         {
           "fromLine": "5호선",
@@ -56,10 +56,6 @@
         {
           "fromLine": "9호선",
           "toLine": "서해선"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "5호선"
         },
         {
           "fromLine": "공항철도",
@@ -132,18 +128,10 @@
         "공항철도"
       ],
       "totalPairs": 12,
-      "verifiedNextTransferPairs": 6,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0.5,
+      "verifiedNextTransferPairs": 9,
+      "missingNextTransferPairs": 3,
+      "coverageRatio": 0.75,
       "missingPairs": [
-        {
-          "fromLine": "1호선",
-          "toLine": "경의중앙선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "경의중앙선"
-        },
         {
           "fromLine": "경의중앙선",
           "toLine": "1호선"
@@ -155,10 +143,6 @@
         {
           "fromLine": "경의중앙선",
           "toLine": "공항철도"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "경의중앙선"
         }
       ],
       "notes": []
@@ -206,35 +190,10 @@
         "5호선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 6,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "4호선"
-        },
-        {
-          "fromLine": "2호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "4호선",
-          "toLine": "5호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        },
-        {
-          "fromLine": "5호선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -308,15 +267,10 @@
         "3호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -328,15 +282,10 @@
         "4호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "4호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -471,15 +420,10 @@
         "7호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "7호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -489,6 +433,21 @@
       "lines": [
         "1호선",
         "9호선"
+      ],
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
+      "notes": []
+    },
+    {
+      "stationName": "대곡역",
+      "priority": "P1",
+      "status": "candidate",
+      "lines": [
+        "3호선",
+        "경의중앙선"
       ],
       "totalPairs": 2,
       "verifiedNextTransferPairs": 2,
@@ -566,19 +525,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "2호선",
-          "toLine": "수인분당선"
-        },
-        {
-          "fromLine": "수인분당선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -635,15 +585,10 @@
         "3호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "3호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -790,15 +735,10 @@
         "수인분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "수인분당선",
-          "toLine": "3호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -823,6 +763,21 @@
       "lines": [
         "1호선",
         "4호선"
+      ],
+      "totalPairs": 2,
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
+      "notes": []
+    },
+    {
+      "stationName": "디지털미디어시티역",
+      "priority": "P2",
+      "status": "candidate",
+      "lines": [
+        "6호선",
+        "경의중앙선"
       ],
       "totalPairs": 2,
       "verifiedNextTransferPairs": 2,
@@ -894,15 +849,10 @@
         "6호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "6호선",
-          "toLine": "4호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1073,15 +1023,10 @@
         "5호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 1,
-      "missingNextTransferPairs": 1,
-      "coverageRatio": 0.5,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {

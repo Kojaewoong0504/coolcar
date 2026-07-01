@@ -97,6 +97,22 @@ async function main() {
   assert(daegokReverseTransfer.status === 'available', '대곡역 경의중앙선→3호선 용산 방향 transfer anchor should be available');
   assert(daegokReverseTransfer.record.carNo === 5 && daegokReverseTransfer.record.doorNo === 3, '대곡역 용산 방향 transfer anchor should map to 5-3');
 
+  const sadangDirection = inferLineDirection({
+    line: '4호선',
+    originStation: '남태령역',
+    targetStation: '사당역',
+  });
+  assert(sadangDirection?.doorGuideDirection === '총신대입구', '남태령→사당 inferred local direction should be 총신대입구');
+  const sadangTransfer = await lookupDoorGuide({
+    line: '4호선',
+    toStation: '사당역',
+    direction: sadangDirection.doorGuideDirection,
+    goal: 'NEXT_TRANSFER',
+    targetLine: '2호선',
+  });
+  assert(sadangTransfer.status === 'available', '사당역 4호선→2호선 총신대입구 방향 transfer anchor should be available');
+  assert(sadangTransfer.record.carNo === 4 && sadangTransfer.record.doorNo === 2, '사당역 총신대입구 방향 transfer anchor should map to 4-2');
+
   const hongdaeToAirportSinchon = await lookupDoorGuide({
     line: '2호선',
     toStation: '홍대입구역',

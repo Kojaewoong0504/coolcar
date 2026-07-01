@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T00:36:41.507Z",
+  "generatedAt": "2026-07-01T05:17:50.670Z",
   "policy": {
     "purpose": "Inventory of Seoul metro transfer station/line pairs that need NEXT_TRANSFER anchor verification.",
     "safety": "This file is not a production door guide. Do not use inventory rows to create carNo/doorNo anchors without official source evidence or manual field verification.",
     "productionRule": "Only verified DoorGuideRecord rows may be used by lookupDoorGuide() for NEXT_TRANSFER ANCHOR_WINDOW recommendations."
   },
   "stats": {
-    "totalStations": 69,
+    "totalStations": 71,
     "p0": 16,
-    "p1": 17,
-    "p2": 36,
+    "p1": 18,
+    "p2": 37,
     "needsMasterData": 0,
-    "totalDirectedTransferPairs": 206
+    "totalDirectedTransferPairs": 210
   },
   "inventory": [
     {
@@ -869,6 +869,33 @@
       "notes": []
     },
     {
+      "stationName": "대곡역",
+      "normalizedName": "대곡",
+      "lines": [
+        "3호선",
+        "경의중앙선"
+      ],
+      "linePairs": [
+        {
+          "fromLine": "3호선",
+          "toLine": "경의중앙선"
+        },
+        {
+          "fromLine": "경의중앙선",
+          "toLine": "3호선"
+        }
+      ],
+      "priority": "P1",
+      "status": "candidate",
+      "source": [
+        "STATION_MASTER_DERIVED",
+        "MAJOR_TRANSFER_SEED"
+      ],
+      "lat": 37.63165,
+      "lng": 126.81105,
+      "notes": []
+    },
+    {
       "stationName": "대림역",
       "normalizedName": "대림",
       "lines": [
@@ -1424,6 +1451,32 @@
       ],
       "lat": 37.57142,
       "lng": 127.0094,
+      "notes": []
+    },
+    {
+      "stationName": "디지털미디어시티역",
+      "normalizedName": "디지털미디어시티",
+      "lines": [
+        "6호선",
+        "경의중앙선"
+      ],
+      "linePairs": [
+        {
+          "fromLine": "6호선",
+          "toLine": "경의중앙선"
+        },
+        {
+          "fromLine": "경의중앙선",
+          "toLine": "6호선"
+        }
+      ],
+      "priority": "P2",
+      "status": "candidate",
+      "source": [
+        "STATION_MASTER_DERIVED"
+      ],
+      "lat": 37.5766,
+      "lng": 126.9006,
       "notes": []
     },
     {
