@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { TabBar } from '@/components/TabBar';
+import { UserProfilePill } from '@/components/auth/UserProfilePill';
 import { COOLCAR_TIPS } from '@/lib/tips';
 
 export default function TipsPage() {
   return (
     <main className="shell with-tabbar tips-page">
-      <header className="topbar"><div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />시원칸</div><Link className="ghost" href="/saved">저장</Link></header>
+      <header className="topbar"><div className="logo"><img className="logo-mark logo-image" src="/icons/icon-192.png" alt="시원칸 앱 아이콘" />시원칸</div><UserProfilePill /></header>
 
       <section className="hero-card compact tips-hero">
         <p className="eyebrow">상황별 팁</p>
@@ -15,8 +17,8 @@ export default function TipsPage() {
       <section className="tips-today-card" aria-label="오늘의 한 줄 팁">
         <span aria-hidden="true">🌬️</span>
         <div>
-          <b>문 앞보다 한 발 안쪽</b>
-          <p>더 답답하면 중앙 쪽으로 이동</p>
+          <b>덥다면 중앙보다 양끝 쪽</b>
+          <p>공식 냉방 안내를 바탕으로 짧게 정리했어요</p>
         </div>
       </section>
 
@@ -31,15 +33,15 @@ export default function TipsPage() {
         ))}
       </section>
 
-      <Link className="tips-check-card" href="/tips/routine">
+      <Link className="tips-check-card" href="/tips/heatwave">
         <div>
-          <b>체크리스트</b>
-          <p>타기 전 10초만 확인</p>
+          <b>폭염 체크</b>
+          <p>타기 전 물과 컨디션 확인</p>
         </div>
         <span aria-hidden="true">›</span>
       </Link>
 
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link className="active" href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="tips" />
     </main>
   );
 }

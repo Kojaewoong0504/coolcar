@@ -3,7 +3,9 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TabBar } from '@/components/TabBar';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
+import { lineColorClass, lineShortLabel } from '@/lib/metro-lines';
 import { MAJOR_STATIONS_BY_LINE, SUPPORTED_LINES } from '@/lib/stations';
 import type { Station } from '@/lib/stations';
 import type { ComfortType } from '@/lib/types';
@@ -193,6 +195,8 @@ export default function HomePage() {
     Boolean(direction.trim()),
     !avoidPrioritySeatArea,
   ].filter(Boolean).length;
+  const originLineClass = lineColorClass(line);
+  const destinationLineClass = lineColorClass(destinationLine || line);
 
   async function runRecommendation() {
     setError('');
@@ -292,18 +296,35 @@ export default function HomePage() {
         </div>
 
         <div className="route-summary-card primary-route-card">
+          <div className="metro-mini-map" aria-label="선택한 지하철 경로">
+            <div className="metro-rail" aria-hidden="true">
+              <span className={`metro-rail-dot ${originLineClass}`} />
+              <span className="metro-rail-line" />
+              <span className={`metro-rail-dot ${destinationLineClass}`} />
+            </div>
+            <div className="metro-mini-copy">
+              <div className="metro-mini-row">
+                <span className={`line-badge ${originLineClass}`}>{lineShortLabel(line)}</span>
+                <strong>{originStation || '출발역 선택'}</strong>
+              </div>
+              <div className="metro-mini-row">
+                <span className={`line-badge ${destinationLineClass}`}>{destinationStation ? lineShortLabel(destinationLine || line) : '도착'}</span>
+                <strong>{destinationStation || '목적지 선택'}</strong>
+              </div>
+            </div>
+          </div>
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('origin')} aria-label="출발역 선택">
-            <span className="route-dot origin-dot" aria-hidden="true" />
+            <span className={`route-dot origin-dot ${originLineClass}`} aria-hidden="true" />
             <span className="route-label">출발</span>
             <span className="route-value">{originStation || '출발역 선택'}</span>
-            <span className="route-badge">{originStation ? line : '노선 선택'}</span>
+            <span className={`route-badge ${originLineClass}`}>{originStation ? line : '노선 선택'}</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
           <button className="route-row route-select-row" type="button" onClick={() => openStationPicker('destination')} aria-label="도착역 선택">
-            <span className="route-dot destination-dot" aria-hidden="true" />
+            <span className={`route-dot destination-dot ${destinationLineClass}`} aria-hidden="true" />
             <span className="route-label">도착</span>
             <span className="route-value">{destinationStation || '목적지 선택'}</span>
-            <span className="route-badge subtle">선택</span>
+            <span className={`route-badge subtle ${destinationLineClass}`}>{destinationStation ? lineShortLabel(destinationLine || line) : '선택'}</span>
             <span className="chevron" aria-hidden="true">›</span>
           </button>
           <p className="route-helper">노선색과 환승 흐름을 함께 보여드려요.</p>
@@ -326,7 +347,14 @@ export default function HomePage() {
         <div className="recent-route-list">
           {recentRoutes.map((route) => (
             <button key={route.label} type="button" onClick={() => applyRecentRoute(route)}>
-              <span><b>{route.label}</b><small>{route.line} · 시원한 칸 기준</small></span>
+              <span>
+                <b>{route.label}</b>
+                <small className="saved-line-flow">
+                  <span className={`line-badge ${lineColorClass(route.line)}`}>{lineShortLabel(route.line)}</span>
+                  {route.destinationLine && route.destinationLine !== route.line ? <><em>→</em><span className={`line-badge ${lineColorClass(route.destinationLine)}`}>{lineShortLabel(route.destinationLine)}</span></> : null}
+                  <em>시원칸</em>
+                </small>
+              </span>
               <em>바로 선택</em>
             </button>
           ))}
@@ -372,7 +400,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <nav className="tabbar"><Link className="active" href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="home" />
     </main>
   );
 }

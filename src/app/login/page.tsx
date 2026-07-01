@@ -1,4 +1,5 @@
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { TabBar } from '@/components/TabBar';
 import Link from 'next/link';
 
 export default async function LoginPage({ searchParams }: { searchParams?: Promise<{ error?: string; next?: string }> }) {
@@ -21,7 +22,7 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
         <div className="section-title">기존 루틴 이어보기</div>
         <p className="notice">이 기기에 저장해 둔 루틴은 로그인 후 계정에서 이어서 볼 수 있어요.</p>
       </section>
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="settings" />
     </main>
   );
 }

@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { TabBar } from '@/components/TabBar';
 import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { UserProfilePill } from '@/components/auth/UserProfilePill';
+import { lineColorClass, lineShortLabel } from '@/lib/metro-lines';
 import type { NormalizedAuthProfile } from '@/lib/auth/profile';
 import type { RecommendRequest } from '@/lib/types';
 
@@ -68,6 +70,11 @@ function routeMeta(route: SavedRoute) {
   const lineCopy = destinationLine && destinationLine !== route.line ? `${route.line} → ${destinationLine}` : route.line;
   const transferCopy = transfers.length > 0 ? ` · ${transfers.join(', ')} 환승` : '';
   return `${lineCopy}${transferCopy} · 시원한 칸 기준`;
+}
+
+function routeLines(route: SavedRoute) {
+  const destinationLine = route.recent_request?.destinationLine ?? route.recent_context?.destinationLine;
+  return destinationLine && destinationLine !== route.line ? [route.line, destinationLine] : [route.line];
 }
 
 export default function SavedPage() {
@@ -161,9 +168,9 @@ export default function SavedPage() {
       </header>
 
       <section className="hero-card compact saved-hero">
-        <p className="eyebrow">매일 타는 길</p>
-        <h1>{isLoggedIn ? `${firstName}님의 루틴` : '오늘도 이 경로?'}<br />한 번에 시작해요.</h1>
-        <p>{isLoggedIn ? '저장한 경로를 바로 불러왔어요.' : '자주 타는 길을 저장하면 다음부터 바로 추천받아요.'}</p>
+        <p className="eyebrow">저장 루틴</p>
+        <h1>{isLoggedIn ? `${firstName}님의 경로` : '내 경로를'}<br />바로 불러와요.</h1>
+        <p>{isLoggedIn ? '자주 타는 길을 노선색으로 정리했어요.' : '자주 타는 길을 저장하면 다음부터 바로 볼 수 있어요.'}</p>
       </section>
 
       {isLoggedIn && <AuthMergeOnLoad />}
@@ -181,8 +188,8 @@ export default function SavedPage() {
       {!loading && routes.length > 0 && (
         <section className="card summary-card">
           <span className="summary-kicker">저장 루틴 {routes.length}개</span>
-          <h2>{defaultRoute ? `오늘도 ${defaultRoute.origin_station}에서 출발하나요?` : '오늘도 자주 타는 경로로 가나요?'}</h2>
-          <p>출발 전 바로 눌러서 지금 타기 좋은 칸을 보세요.</p>
+          <h2>{defaultRoute ? `${defaultRoute.origin_station} 출발 루틴` : '자주 타는 경로'}</h2>
+          <p>출발 전 한 번 눌러 오늘 탈 칸을 바로 봐요.</p>
         </section>
       )}
 
@@ -197,9 +204,17 @@ export default function SavedPage() {
                 <span>{route.commute_type === 'WORK' ? '출근' : route.commute_type === 'HOME' ? '퇴근' : '매일'}</span>
               </div>
               <h2>{route.label && route.label !== routeTitle(route) ? route.label : routeTitle(route)}</h2>
+              <div className="saved-line-flow" aria-label="저장 루틴 노선">
+                {routeLines(route).map((item, lineIndex) => (
+                  <span className="saved-line-flow" key={`${route.id}-${item}`}>
+                    {lineIndex > 0 && <em>→</em>}
+                    <span className={`line-badge ${lineColorClass(item)}`}>{lineShortLabel(item)}</span>
+                  </span>
+                ))}
+              </div>
               <p className="saved-route-meta">{routeMeta(route)}</p>
               <div className="saved-card-actions">
-                <button className="primary saved-recommend-button" disabled={isDeleting} type="button" onClick={() => startRecommendation(route)}>지금 추천받기</button>
+                <button className="primary saved-recommend-button" disabled={isDeleting} type="button" onClick={() => startRecommendation(route)}>추천받기</button>
                 <button className="ghost saved-delete-button" disabled={isDeleting} type="button" onClick={() => deleteRoute(route)}>{isDeleting ? '삭제 중' : '삭제'}</button>
               </div>
             </article>
@@ -224,7 +239,7 @@ export default function SavedPage() {
         </section>
       )}
 
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link className="active" href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="saved" />
     </main>
   );
 }

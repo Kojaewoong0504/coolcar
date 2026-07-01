@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TabBar } from '@/components/TabBar';
+import { lineColorClass } from '@/lib/metro-lines';
 import type { EgressPreference, RecommendRequest, RoutePlanCandidate, RoutePlansResponse } from '@/lib/types';
 
 const fixedComfortType = 'HOT_SENSITIVE' as const;
@@ -16,20 +18,6 @@ function routeStops(candidate: RoutePlanCandidate) {
   return [candidate.originStation, ...candidate.transferStations, candidate.destinationStation];
 }
 
-function lineColorClass(line?: string) {
-  if (!line) return 'line-default';
-  if (line.includes('1호선')) return 'line-1';
-  if (line.includes('2호선')) return 'line-2';
-  if (line.includes('3호선')) return 'line-3';
-  if (line.includes('4호선')) return 'line-4';
-  if (line.includes('5호선')) return 'line-5';
-  if (line.includes('6호선')) return 'line-6';
-  if (line.includes('7호선')) return 'line-7';
-  if (line.includes('8호선')) return 'line-8';
-  if (line.includes('9호선')) return 'line-9';
-  if (line.includes('공항')) return 'line-airport';
-  return 'line-default';
-}
 
 function coverageCopy(candidate: RoutePlanCandidate) {
   if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 반영';
@@ -329,7 +317,7 @@ export default function RoutePlansPage() {
         </section>
       ) : null}
 
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="home" />
     </main>
   );
 }

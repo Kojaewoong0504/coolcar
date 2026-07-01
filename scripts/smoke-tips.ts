@@ -19,7 +19,7 @@ const appFiles = [
 
 for (const file of appFiles) {
   const text = readFileSync(file, 'utf8');
-  assert(text.includes('href="/tips"'), `${file} should expose the tips tab or back link`);
+  assert(text.includes('href="/tips"') || text.includes('TabBar') || text.includes('href={`/tips/${tip.slug}`}'), `${file} should expose the tips tab, back link, or shared TabBar`);
 }
 
 const tipsPage = readFileSync('src/app/tips/page.tsx', 'utf8');

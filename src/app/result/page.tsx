@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { TabBar } from '@/components/TabBar';
 import type { RecommendRequest, RecommendationResponse } from '@/lib/types';
 
 type StoredResult = {
@@ -454,7 +455,7 @@ export default function ResultPage() {
         </button>
       </div>
 
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="home" />
     </main>
   );
 }

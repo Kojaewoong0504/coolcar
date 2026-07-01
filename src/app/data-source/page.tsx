@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { TabBar } from '@/components/TabBar';
 
 export default function DataSourcePage() {
   return (
@@ -12,7 +13,7 @@ export default function DataSourcePage() {
         <div><b>피드백 반영</b><p>추천이 달랐다면 결과 화면에서 알려 주세요. 다음 개선에 참고해요.</p></div>
       </section>
       <section className="card"><div className="section-title">알고 타면 좋아요</div><ul className="reasons"><li>실시간 정보가 있는 구간은 공개된 혼잡·운행 정보를 먼저 참고해요.</li><li>정보가 부족한 구간은 실시간처럼 말하지 않고 참고 추천으로 안내해요.</li><li>열차 편성, 냉방 상태, 승객 흐름에 따라 실제 체감은 달라질 수 있어요.</li></ul><p className="notice">추천은 참고용이에요. 플랫폼과 열차 안 안내를 함께 확인해 주세요.</p></section>
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="settings" />
     </main>
   );
 }

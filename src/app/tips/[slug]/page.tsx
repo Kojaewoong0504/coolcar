@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { TabBar } from '@/components/TabBar';
 import { COOLCAR_TIPS, getTip } from '@/lib/tips';
 
 export function generateStaticParams() {
@@ -33,12 +34,19 @@ export default async function TipDetailPage({ params }: { params: Promise<{ slug
         ))}
       </section>
 
+      <section className="card tip-source-card" aria-label="팁 근거">
+        <div className="section-title">근거</div>
+        <b>{tip.source.label}</b>
+        <p className="notice">{tip.source.note}</p>
+        <Link className="ghost" href={tip.source.url}>자료 보기</Link>
+      </section>
+
       <Link className="tip-route-cta" href="/">
         <b>내 경로로 바로 추천받기</b>
         <span aria-hidden="true">›</span>
       </Link>
 
-      <nav className="tabbar"><Link href="/"><span>⌂</span>홈</Link><Link href="/saved"><span>★</span>저장</Link><Link className="active" href="/tips"><span>✦</span>팁</Link><Link href="/settings"><span>◌</span>내 정보</Link></nav>
+      <TabBar active="tips" />
     </main>
   );
 }
