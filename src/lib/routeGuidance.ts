@@ -322,7 +322,9 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0
         ? '이 환승 구간은 승강장 안내와 함께 확인해 주세요. 지금은 추천 칸을 기준으로 안내해요.'
-        : '도착역에서는 표지판을 보며 이동하면 돼요.',
+        : isLast
+          ? '도착역에서는 표지판을 보며 이동하면 돼요.'
+          : `${toStation} 환승 위치는 승강장에서 한 번 더 확인해 주세요. 이 구간은 쾌적칸 중심으로 안내해요.`,
     });
     return baseLeg({
       legNo: index + 1,

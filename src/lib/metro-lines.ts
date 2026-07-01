@@ -11,6 +11,7 @@ export function lineColorClass(line?: string | null) {
   if (line.includes('9호선')) return 'line-9';
   if (line.includes('공항')) return 'line-airport';
   if (line.includes('신분당')) return 'line-shinbundang';
+  if (line.includes('경의중앙') || line.includes('경의·중앙') || (line.includes('경의') && line.includes('중앙'))) return 'line-gyeongui-jungang';
   if (line.includes('수인') || line.includes('분당')) return 'line-suinbundang';
   return 'line-default';
 }
@@ -33,6 +34,7 @@ export function lineColorValue(line?: string | null) {
   if (className === 'line-9') return 'var(--line-9)';
   if (className === 'line-airport') return 'var(--airport)';
   if (className === 'line-shinbundang') return 'var(--shinbundang)';
+  if (className === 'line-gyeongui-jungang') return 'var(--gyeongui-jungang)';
   if (className === 'line-suinbundang') return 'var(--suinbundang)';
   return '#cbd5e1';
 }

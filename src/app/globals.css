@@ -21,6 +21,7 @@
   --line-9: #bdb092;
   --airport: #0090d2;
   --shinbundang: #d4003b;
+  --gyeongui-jungang: #77c4a3;
   --suinbundang: #f5a200;
   --shadow: 0 10px 28px rgba(15, 23, 42, 0.10);
 }
@@ -106,6 +107,7 @@ h1 { font-size: clamp(30px, 7.4vw, 36px); line-height: 1.12; letter-spacing: -0.
 .line-badge.line-neutral, .route-badge.line-neutral { background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; }
 .line-badge.line-9 { color:#111827; }
 .line-badge.line-shinbundang, .metro-line-pill.line-shinbundang { background:var(--shinbundang); color:#fff; }
+.line-badge.line-gyeongui-jungang, .metro-line-pill.line-gyeongui-jungang { background:var(--gyeongui-jungang); color:#063f35; }
 .line-badge.line-suinbundang, .metro-line-pill.line-suinbundang { background:var(--suinbundang); color:#111827; }
 .line-badge.line-1 { background:var(--line-1); }
 .line-badge.line-2 { background:var(--line-2); }
@@ -128,6 +130,7 @@ h1 { font-size: clamp(30px, 7.4vw, 36px); line-height: 1.12; letter-spacing: -0.
 .route-dot.line-9, .metro-rail-dot.line-9, .route-badge.line-9 { background:var(--line-9); color:#111827; }
 .route-dot.line-airport, .metro-rail-dot.line-airport, .route-badge.line-airport { background:var(--airport); color:#fff; }
 .route-dot.line-shinbundang, .metro-rail-dot.line-shinbundang, .route-badge.line-shinbundang { background:var(--shinbundang); color:#fff; }
+.route-dot.line-gyeongui-jungang, .metro-rail-dot.line-gyeongui-jungang, .route-badge.line-gyeongui-jungang { background:var(--gyeongui-jungang); color:#063f35; }
 .route-dot.line-suinbundang, .metro-rail-dot.line-suinbundang, .route-badge.line-suinbundang { background:var(--suinbundang); color:#111827; }
 .route-dot.line-neutral, .metro-rail-dot.line-neutral { background:#cbd5e1; }
 .route-badge.subtle.line-9, .route-badge.subtle.line-suinbundang { color:#111827; }
@@ -192,7 +195,7 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 .badges span { border-radius: 999px; background: rgba(255,255,255,.14); color: inherit; border: 1px solid rgba(255,255,255,.22); padding: 7px 10px; font-size: 12px; font-weight: 900; }
 .badges .line-badge { border:0; color:#fff; padding:7px 10px; }
-.badges .line-badge.line-9, .badges .line-badge.line-suinbundang { color:#111827; }
+.badges .line-badge.line-9, .badges .line-badge.line-gyeongui-jungang, .badges .line-badge.line-suinbundang { color:#111827; }
 .result-card h2 { font-size: 42px; margin: 0 0 8px; letter-spacing: -0.08em; line-height:1.03; }
 .result-page-card h1 { color:#fff; font-size:clamp(32px,8vw,38px); margin:0 0 10px; letter-spacing:-.08em; line-height:1.08; }
 .result-command { display:flex; align-items:flex-end; gap:10px; margin:2px 0 10px; }
@@ -374,7 +377,7 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .door-tip.pending { background:#fff7ed; color:#9a3412; }
 .door-tip.neutral { background:linear-gradient(135deg,#f8fafc,#eef9ff); color:#0f172a; border:1px solid #dbeafe; }
 .route-proof-compact { grid-template-columns:1fr; }
-.route-proof-compact div { grid-template-columns:48px 1fr; }
+.route-proof-compact div { grid-template-columns:68px 1fr; }
 .compact-tip { display:inline-flex; width:max-content; max-width:100%; margin-top:12px; padding:9px 11px; border-radius:999px; line-height:1.25; }
 .personalization-strip { margin-top:12px; padding:10px 12px; border-radius:18px; background:rgba(236,254,255,.13); border:1px solid rgba(103,232,249,.22); display:flex; align-items:center; gap:8px; color:#dff7ff; }
 .personalization-strip span { flex:0 0 auto; font-size:12px; font-weight:950; }
@@ -423,6 +426,7 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .metro-line-pill.line-9 { background:var(--line-9); color:#111827; }
 .metro-line-pill.line-airport { background:var(--airport); color:#fff; }
 .metro-line-pill.line-shinbundang { background:var(--shinbundang); color:#fff; }
+.metro-line-pill.line-gyeongui-jungang { background:var(--gyeongui-jungang); color:#063f35; }
 .metro-line-pill.line-suinbundang { background:var(--suinbundang); color:#111827; }
 .metro-line-pill.line-default { background:#111827; color:#fff; }
 .metro-route-strip { display:flex; overflow:hidden; height:9px; border-radius:999px; background:#e5e7eb; }
@@ -438,6 +442,7 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .metro-route-strip .line-9 { background:var(--line-9); }
 .metro-route-strip .line-airport { background:var(--airport); }
 .metro-route-strip .line-shinbundang { background:var(--shinbundang); }
+.metro-route-strip .line-gyeongui-jungang { background:var(--gyeongui-jungang); }
 .metro-route-strip .line-suinbundang { background:var(--suinbundang); }
 .metro-route-strip .line-default { background:#111827; }
 .route-plan-legs { display:grid; gap:8px; }

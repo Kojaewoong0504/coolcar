@@ -86,11 +86,11 @@ function routePathCopy(result: RecommendationResponse) {
 type RouteLeg = RecommendationResponse['routeGuidance']['legs'][number];
 
 function legStatusCopy(status: RouteLeg['status'], leg?: RouteLeg) {
-  if (status === 'available') return '위치 안내 가능';
+  if (status === 'available') return leg?.goal === 'FINAL_EXIT' ? '하차 위치 반영' : '환승 위치 반영';
   if (status === 'needs_direction') return '쾌적칸 중심';
   if (status === 'needs_route') return '쾌적칸 중심';
-  if (leg?.goal === 'FINAL_EXIT') return '쾌적칸 중심';
-  return '승강장 참고';
+  if (leg?.goal === 'NEXT_TRANSFER') return '환승 위치 확인 전';
+  return '쾌적칸 중심';
 }
 
 function facilityLabel(facilityType?: RecommendationResponse['routeGuidance']['legs'][number]['facilityType'], facility?: string) {
@@ -106,6 +106,38 @@ function egressResultCopy(leg?: RecommendationResponse['routeGuidance']['legs'][
   const label = facilityLabel(leg.facilityType, leg.facility);
   if (leg.status === 'available' && label) return `${label} 가까운 쪽`;
   return '쾌적도 기준';
+}
+
+function nextTransferCopy(leg?: RouteLeg, nextLeg?: RouteLeg) {
+  if (!leg || leg.goal !== 'NEXT_TRANSFER') return undefined;
+  const nextLine = nextLeg?.line ? ` · ${lineShortLabel(nextLeg.line)}` : '';
+  return `${leg.toStation}${nextLine}`;
+}
+
+function legBasisCopy(leg: RouteLeg) {
+  if (leg.status === 'available') return leg.goal === 'FINAL_EXIT' ? '하차 위치 반영' : '환승 위치 반영';
+  if (leg.status === 'needs_direction') return '방면 확인 전 · 쾌적칸 중심';
+  if (leg.status === 'needs_route') return '경로 선택 전 · 쾌적칸 중심';
+  if (leg.goal === 'NEXT_TRANSFER') return '환승 위치 확인 전 · 쾌적칸 중심';
+  return '하차 위치 확인 전 · 쾌적칸 중심';
+}
+
+function legReasonCopy(leg: RouteLeg, nextLeg?: RouteLeg) {
+  if (leg.status === 'available') {
+    return leg.goal === 'FINAL_EXIT'
+      ? [leg.message, `${leg.positionLabel} 주변에서 내리기 편한 위치를 봤어요.`]
+      : [leg.message, `${leg.toStation}${nextLeg?.line ? `에서 ${lineShortLabel(nextLeg.line)} 환승` : ' 환승'} 동선을 참고했어요.`];
+  }
+  if (leg.goal === 'NEXT_TRANSFER') {
+    return [
+      leg.message,
+      `${nextTransferCopy(leg, nextLeg) ?? leg.toStation} 환승 전, 이 구간은 쾌적칸 중심으로 안내해요.`,
+    ];
+  }
+  return [
+    leg.message,
+    '도착하면 출구 표지판을 보며 이동하면 돼요.',
+  ];
 }
 
 export default function ResultPage() {
@@ -245,25 +277,26 @@ export default function ResultPage() {
       ? '쾌적도 픽'
       : undefined;
   const isFinalExitComfortFallback = activeLeg?.goal === 'FINAL_EXIT' && activeLeg.status !== 'available';
+  const isLegComfortFallback = Boolean(activeLeg && !isPrimaryLeg && activeLeg.status !== 'available');
+  const activeCommandText = isLegComfortFallback
+    ? '번째 칸이 무난해요'
+    : isFinalExitComfortFallback
+      ? '쾌적도 기준 칸으로 가세요'
+      : '번째 칸으로 가세요';
   const activeHeading = activeRecommendedCarNo
-    ? isFinalExitComfortFallback
-      ? `쾌적도 기준 ${activeRecommendedCarNo}번째 칸으로 가세요`
-      : `${activeRecommendedCarNo}번째 칸으로 가세요`
+    ? isLegComfortFallback
+      ? `${activeRecommendedCarNo}번째 칸이 무난해요`
+      : isFinalExitComfortFallback
+        ? `쾌적도 기준 ${activeRecommendedCarNo}번째 칸으로 가세요`
+        : `${activeRecommendedCarNo}번째 칸으로 가세요`
     : activeLeg
       ? `${activeLeg.line} 탑승 위치를 확인해 주세요`
       : `${result.recommendedCar.carNo}번째 칸으로 가세요`;
-  const activeEyebrow = activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 구간 안내') : '지금 타기 좋은 위치';
-  const activeRouteNote = activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legStatusCopy(activeLeg.status, activeLeg) : comfortCopy(result);
-  const positionParticle = activeLeg?.positionLabel.endsWith('근처') ? '가' : '이';
+  const activeEyebrow = activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 환승 구간 안내') : '지금 타기 좋은 위치';
+  const activeRouteNote = activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legBasisCopy(activeLeg) : comfortCopy(result);
+  const activeNextTransfer = nextTransferCopy(activeLeg, nextLeg);
   const displayReasons = activeLeg && !isPrimaryLeg
-    ? [
-        activeLeg.status === 'available'
-          ? `${activeLeg.positionLabel} 쪽이 동선이 짧아요.`
-          : `${activeLeg.line}에서는 ${activeLeg.positionLabel}${positionParticle} 가장 무난해요.`,
-        activeLeg.goal === 'FINAL_EXIT'
-          ? '도착하면 출구 표지판 기준으로 이동하세요.'
-          : '환승 동선과 쾌적도를 같이 봤어요.',
-      ]
+    ? legReasonCopy(activeLeg, nextLeg)
     : result.reasons.slice(0, 2);
   const saveNudgeCopy = '이 경로를 저장하면 다음엔 바로 추천받아요.';
   const activeLine = activeLeg?.line ?? result.request.line;
@@ -342,7 +375,7 @@ export default function ResultPage() {
         {activeRecommendedCarNo ? (
           <div className="result-command" aria-label={activeHeading}>
             <span>{activeRecommendedCarNo}</span>
-            <h1>{isFinalExitComfortFallback ? '쾌적도 기준 칸으로 가세요' : '번째 칸으로 가세요'}</h1>
+            <h1>{activeCommandText}</h1>
           </div>
         ) : (
           <h1>{activeHeading}</h1>
@@ -354,14 +387,20 @@ export default function ResultPage() {
           </div>
           <div>
             <span>기준</span>
-            <strong>{activeHasAnchor ? `환승 + ${comfortShortCopy(result)}` : isFinalExitComfortFallback ? '쾌적도' : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
+            <strong>{activeHasAnchor ? `환승 + ${comfortShortCopy(result)}` : isPrimaryLeg ? comfortCopy(result) : activeRouteNote}</strong>
           </div>
+          {activeNextTransfer && (
+            <div>
+              <span>다음 환승</span>
+              <strong>{activeNextTransfer}</strong>
+            </div>
+          )}
         </div>
         {showTrainMap ? (
           <div className="train-map" aria-label="지하철 칸별 추천 위치">
             <div className="train-map-head">
               <span>칸 위치 보기</span>
-              <small>추천 칸만 확인하세요</small>
+              <small>{activeLeg && !isPrimaryLeg ? (activeLeg.status === 'available' ? '환승 동선도 확인했어요' : '쾌적칸 기준으로 보세요') : '추천 칸만 확인하세요'}</small>
             </div>
             <div className="cars result-cars">
               {activeMapCars.map((car) => {
@@ -407,9 +446,13 @@ export default function ResultPage() {
           <h2>{activeLeg.fromStation} → {activeLeg.toStation}</h2>
           <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ' · 이동 방향 자동 계산' : ''}</p>
           <div className={activeLeg.status === 'available' ? 'door-tip available' : activeLeg.goal === 'FINAL_EXIT' ? 'door-tip neutral' : 'door-tip pending'}>
-            <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 구간' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
+            <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
             <strong>{activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
-            {!activeLeg.facilityType && activeLeg.goal === 'FINAL_EXIT' && <small>내리면 출구 표지판 따라 이동하면 돼요.</small>}
+            {activeLeg.goal === 'NEXT_TRANSFER' ? (
+              <small>{activeLeg.status === 'available'
+                ? `${activeLeg.toStation}${nextLeg?.line ? ` · ${lineShortLabel(nextLeg.line)}` : ''} 환승 동선을 참고했어요.`
+                : `${activeLeg.toStation}${nextLeg?.line ? ` · ${lineShortLabel(nextLeg.line)}` : ''} 환승 전, 이 구간은 쾌적칸 중심이에요.`}</small>
+            ) : !activeLeg.facilityType && <small>내리면 출구 표지판 따라 이동하면 돼요.</small>}
           </div>
           {nextLeg ? (
             <div className="next-leg-preview">
