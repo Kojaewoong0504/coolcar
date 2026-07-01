@@ -92,6 +92,38 @@ const VERIFIED_NEXT_TRANSFER_GUIDES = GENERATED_NEXT_TRANSFER_GUIDES.filter((rec
   return !SUPPRESSED_CONFLICTING_RECORD_IDS.has(`${record.source}:${sourceId}`);
 });
 
+// Official quick-transfer records from 국토교통부_철도역 빠른 환승 정보_20250923
+// (data.go.kr 15151816). The generated JSON predates/omits 대곡역 경의중앙선→3호선,
+// so keep these auditable static records instead of falling back to comfort-only.
+const MOLIT_DAEGOK_NEXT_TRANSFER_GUIDES: DoorGuideRecord[] = [
+  {
+    line: '경의중앙선',
+    stationName: '대곡역',
+    directionKey: normalizeDirection('문산'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '3호선',
+    carNo: 4,
+    doorNo: 2,
+    facility: '환승통로',
+    source: 'MOLIT_QUICK_TRANSFER_CSV',
+    confidence: 'MEDIUM',
+    updatedAt: '2025-09-23',
+  },
+  {
+    line: '경의중앙선',
+    stationName: '대곡역',
+    directionKey: normalizeDirection('용산'),
+    goal: 'NEXT_TRANSFER',
+    targetLine: '3호선',
+    carNo: 5,
+    doorNo: 3,
+    facility: '환승통로',
+    source: 'MOLIT_QUICK_TRANSFER_CSV',
+    confidence: 'MEDIUM',
+    updatedAt: '2025-09-23',
+  },
+];
+
 // Field-verified override after user report: official/public Hongdae 2호선→공항철도 rows are
 // directionally inconsistent with observed platform stairs. Keep them suppressed above and expose
 // these separately so the conflict is auditable instead of silently pretending the generated source is correct.
@@ -161,5 +193,6 @@ function withFacilityType(record: DoorGuideRecord): DoorGuideRecord {
 export const STATIC_DOOR_GUIDES: DoorGuideRecord[] = [
   ...FINAL_EXIT_GUIDES,
   ...VERIFIED_NEXT_TRANSFER_GUIDES,
+  ...MOLIT_DAEGOK_NEXT_TRANSFER_GUIDES,
   ...FIELD_VERIFIED_NEXT_TRANSFER_GUIDES,
 ].map(withFacilityType);

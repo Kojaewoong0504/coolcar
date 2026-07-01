@@ -25,6 +25,11 @@ async function main() {
   assert(result.routeGuidance.legs[1].fromStation === '홍대입구역', '2구간 출발은 홍대입구역이어야 합니다.');
   assert(result.routeGuidance.legs[1].toStation === '대곡역', '두 번째 환승 목표는 대곡역이어야 합니다.');
   assert(result.routeGuidance.legs[1].goal === 'NEXT_TRANSFER', '2구간은 대곡역 다음 환승 안내여야 합니다.');
+  assert(result.routeGuidance.legs[1].status === 'available', '2구간 대곡역 경의중앙선→3호선 환승 기준이 적용되어야 합니다.');
+  assert(result.routeGuidance.legs[1].recommendedCarNo === 4, '2구간 환승 기준칸은 4번째 칸이어야 합니다.');
+  assert(result.routeGuidance.legs[1].recommendedDoorNo === 2, '2구간 환승 기준 문은 2번 문이어야 합니다.');
+  assert(result.routeGuidance.legs[1].anchorCarNo === 4, '2구간 anchorCarNo는 4번째 칸이어야 합니다.');
+  assert(JSON.stringify(result.routeGuidance.legs[1].candidateCarNos) === JSON.stringify([3, 4, 5]), '2구간 anchor±1 후보는 3,4,5번째 칸이어야 합니다.');
   assert(result.routeGuidance.legs[2].fromStation === '대곡역', '3구간 출발은 대곡역이어야 합니다.');
   assert(result.routeGuidance.legs[2].toStation === '대화역', '3구간 도착은 대화역이어야 합니다.');
   const secondLeg = result.routeGuidance.legs[1];
@@ -40,10 +45,9 @@ async function main() {
       '2구간 fallback 문구는 다음 환승역과 쾌적/승강장 기준을 설명해야 합니다.',
     );
   }
-  assert(result.routeChoice.mode === 'ANCHOR_WINDOW' || result.routeChoice.mode === 'COMFORT_ONLY', '추천은 검증된 환승 위치 또는 쾌적칸 기준 중 하나여야 합니다.');
-  if (result.routeChoice.mode === 'ANCHOR_WINDOW') {
-    assert(result.routeChoice.goal === 'NEXT_TRANSFER', '환승 위치가 검증된 경우 첫 탑승 추천은 첫 환승 기준이어야 합니다.');
-  }
+  assert(result.routeChoice.mode === 'ANCHOR_WINDOW', '첫 환승 구간은 routeLines[1] 기준으로 환승 anchor를 적용해야 합니다.');
+  assert(result.routeChoice.goal === 'NEXT_TRANSFER', '환승 위치가 검증된 경우 첫 탑승 추천은 첫 환승 기준이어야 합니다.');
+  assert(result.routeChoice.station === '홍대입구역', '전체 routeChoice는 첫 환승역 홍대입구역 기준이어야 합니다.');
   assert(result.request.routeLines?.join('>') === '2호선>경의중앙선>3호선', '요청 routeLines가 응답에 보존되어야 합니다.');
 
   console.log(JSON.stringify({

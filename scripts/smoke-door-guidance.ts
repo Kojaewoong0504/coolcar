@@ -71,6 +71,32 @@ async function main() {
   assert(sportsTransfer.status === 'available', '종합운동장역 2호선→9호선 자동 추론 방향 transfer anchor should be available');
   assert(sportsTransfer.record.carNo === 3 && sportsTransfer.record.doorNo === 1, '종합운동장 건대입구 방면 side should map to 3-1');
 
+  const daegokDirection = inferLineDirection({
+    line: '경의중앙선',
+    originStation: '홍대입구역',
+    targetStation: '대곡역',
+  });
+  assert(daegokDirection?.doorGuideDirection === '곡산', '홍대입구→대곡 inferred local direction should be 곡산');
+  const daegokTransfer = await lookupDoorGuide({
+    line: '경의중앙선',
+    toStation: '대곡역',
+    direction: daegokDirection.doorGuideDirection,
+    goal: 'NEXT_TRANSFER',
+    targetLine: '3호선',
+  });
+  assert(daegokTransfer.status === 'available', '대곡역 경의중앙선→3호선 문산 방향 transfer anchor should be available');
+  assert(daegokTransfer.record.carNo === 4 && daegokTransfer.record.doorNo === 2, '대곡역 문산 방향 transfer anchor should map to 4-2');
+
+  const daegokReverseTransfer = await lookupDoorGuide({
+    line: '경의중앙선',
+    toStation: '대곡역',
+    direction: '능곡',
+    goal: 'NEXT_TRANSFER',
+    targetLine: '3호선',
+  });
+  assert(daegokReverseTransfer.status === 'available', '대곡역 경의중앙선→3호선 용산 방향 transfer anchor should be available');
+  assert(daegokReverseTransfer.record.carNo === 5 && daegokReverseTransfer.record.doorNo === 3, '대곡역 용산 방향 transfer anchor should map to 5-3');
+
   const hongdaeToAirportSinchon = await lookupDoorGuide({
     line: '2호선',
     toStation: '홍대입구역',
@@ -123,8 +149,8 @@ async function main() {
     comfortType: 'BALANCED',
   };
   const ambiguousGuidance = await buildRouteGuidance(ambiguousRequest, car);
-  assert(ambiguousGuidance.legs[0].status === 'needs_direction', 'missing direction should not expose door');
-  assert(!ambiguousGuidance.legs[0].recommendedDoorNo, 'missing direction should hide door number');
+  assert(ambiguousGuidance.legs[0].status === 'available', '역 순서로 방면 추론 가능한 직통 구간은 빠른하차 기준을 적용해야 합니다.');
+  assert(ambiguousGuidance.legs[0].recommendedDoorNo === 3, '자동 방면 추론 후 문 번호를 유지해야 합니다.');
 
   console.log(JSON.stringify({
     ok: true,

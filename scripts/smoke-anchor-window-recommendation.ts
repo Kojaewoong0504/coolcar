@@ -31,8 +31,8 @@ async function main() {
     comfortType: 'BALANCED',
   });
 
-  assert(noDirection.routeChoice.mode === 'COMFORT_ONLY', '방향이 없어 anchor가 불확실하면 전체 쾌적도 모드여야 합니다.');
-  assert(noDirection.routeGuidance.legs[0]?.status === 'needs_direction', '방향 누락은 needs_direction으로 표시해야 합니다.');
+  assert(noDirection.routeChoice.mode === 'ANCHOR_WINDOW', '역 순서로 방면 추론 가능한 직통 구간은 anchor window 모드여야 합니다.');
+  assert(noDirection.routeGuidance.legs[0]?.status === 'available', '자동 방면 추론 후 위치 안내가 가능해야 합니다.');
 
   const gangnamTransfer = await recommend({
     line: '2호선',

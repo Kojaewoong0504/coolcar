@@ -126,7 +126,7 @@ function legReasonCopy(leg: RouteLeg, nextLeg?: RouteLeg) {
   if (leg.status === 'available') {
     return leg.goal === 'FINAL_EXIT'
       ? [leg.message, `${leg.positionLabel} 주변에서 내리기 편한 위치를 봤어요.`]
-      : [leg.message, `${leg.toStation}${nextLeg?.line ? `에서 ${lineShortLabel(nextLeg.line)} 환승` : ' 환승'} 동선을 참고했어요.`];
+      : [`${leg.positionLabel} 기준으로 환승통로 위치를 봤어요.`, `${leg.toStation}${nextLeg?.line ? `에서 ${lineShortLabel(nextLeg.line)} 환승` : ' 환승'} 동선을 참고했어요.`];
   }
   if (leg.goal === 'NEXT_TRANSFER') {
     return [
@@ -447,7 +447,7 @@ export default function ResultPage() {
           <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ' · 이동 방향 자동 계산' : ''}</p>
           <div className={activeLeg.status === 'available' ? 'door-tip available' : activeLeg.goal === 'FINAL_EXIT' ? 'door-tip neutral' : 'door-tip pending'}>
             <span>{activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
-            <strong>{activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
+            <strong>{activeLeg.status === 'available' ? activeLeg.positionLabel : activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
             {activeLeg.goal === 'NEXT_TRANSFER' ? (
               <small>{activeLeg.status === 'available'
                 ? `${activeLeg.toStation}${nextLeg?.line ? ` · ${lineShortLabel(nextLeg.line)}` : ''} 환승 동선을 참고했어요.`

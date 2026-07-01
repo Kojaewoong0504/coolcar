@@ -66,6 +66,24 @@ function fallbackCarForLeg(params: {
   })[0];
 }
 
+function carCountForLine(line: string) {
+  return line === '9호선' || line === '신분당선' ? 6 : 10;
+}
+
+function candidateCarsAroundAnchor(line: string, anchorCarNo?: number) {
+  if (!anchorCarNo) return undefined;
+  const maxCarNo = carCountForLine(line);
+  return [anchorCarNo - 1, anchorCarNo, anchorCarNo + 1].filter((carNo) => carNo >= 1 && carNo <= maxCarNo);
+}
+
+function availableAnchorCar(status: RouteLegGuidance['status'], carNo?: number) {
+  return status === 'available' ? carNo : undefined;
+}
+
+function availableCandidateCars(line: string, status: RouteLegGuidance['status'], carNo?: number) {
+  return status === 'available' ? candidateCarsAroundAnchor(line, carNo) : undefined;
+}
+
 function baseLeg(params: {
   legNo: number;
   fromStation: string;
@@ -187,11 +205,12 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
   const destination = cleanStationName(request.destinationStation) || '목적지';
   const transfers = uniqueStations(request.transferStations, origin, destination);
 
+  const routeLines = request.routeLines?.filter(Boolean) ?? [];
   const anchorTarget = transfers.length > 0
     ? {
         station: transfers[0],
         goal: 'NEXT_TRANSFER' as const,
-        targetLine: transfers.length === 1 ? request.destinationLine : undefined,
+        targetLine: routeLines[1] ?? (transfers.length === 1 ? request.destinationLine : undefined),
       }
     : sameLine(request)
       ? {
@@ -262,9 +281,13 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
           status: doorGuide.status,
           recommendedCarNo: routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
           recommendedDoorNo: doorGuide.recommendedDoorNo,
-          anchorCarNo: routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available' ? doorGuide.recommendedCarNo : undefined,
+          anchorCarNo: routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available'
+            ? doorGuide.recommendedCarNo
+            : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo),
           anchorDoorNo: doorGuide.recommendedDoorNo,
-          candidateCarNos: routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.candidateCarNos : undefined,
+          candidateCarNos: routeChoice?.mode === 'ANCHOR_WINDOW'
+            ? routeChoice.candidateCarNos
+            : availableCandidateCars(request.line, doorGuide.status, doorGuide.recommendedCarNo),
           positionLabel: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
             : doorGuide.positionLabel,
@@ -336,9 +359,13 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
       status: doorGuide.status,
       recommendedCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? recommendedCar.carNo : doorGuide.recommendedCarNo,
       recommendedDoorNo: doorGuide.recommendedDoorNo,
-      anchorCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available' ? doorGuide.recommendedCarNo : undefined,
+      anchorCarNo: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' && doorGuide.status === 'available'
+        ? doorGuide.recommendedCarNo
+        : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo),
       anchorDoorNo: doorGuide.status === 'available' ? doorGuide.recommendedDoorNo : undefined,
-      candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.candidateCarNos : undefined,
+      candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
+        ? routeChoice.candidateCarNos
+        : availableCandidateCars(line, doorGuide.status, doorGuide.recommendedCarNo),
       positionLabel: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
         ? `${recommendedCar.carNo}번째 칸 추천 · ${routeChoice.anchorCarNo}번째 칸 주변`
         : doorGuide.positionLabel,
