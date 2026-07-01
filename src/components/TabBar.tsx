@@ -28,8 +28,8 @@ function UserIcon() {
 
 const tabs: Tab[] = [
   { key: 'home', href: '/', label: '홈', icon: <HomeIcon /> },
-  { key: 'saved', href: '/saved', label: '저장', icon: <BookmarkIcon /> },
-  { key: 'tips', href: '/tips', label: '팁', icon: <TipIcon /> },
+  { key: 'saved', href: '/saved', label: '내 경로', icon: <BookmarkIcon /> },
+  { key: 'tips', href: '/tips', label: '이용 팁', icon: <TipIcon /> },
   { key: 'settings', href: '/settings', label: '내 정보', icon: <UserIcon /> },
 ];
 

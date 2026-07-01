@@ -8,6 +8,8 @@ const productFiles = [
   'src/app/settings/page.tsx',
   'src/app/data-source/page.tsx',
   'src/app/login/page.tsx',
+  'src/app/privacy/page.tsx',
+  'src/components/TabBar.tsx',
   'src/components/auth/AuthMergeOnLoad.tsx',
 ];
 
@@ -27,6 +29,9 @@ const forbiddenProductCopy = [
   'Personalization',
   'Trust & Source',
   '데이터 출처',
+  'OPTIONAL LOGIN',
+  '익명 기록',
+  'API 캐싱',
 ];
 
 for (const file of productFiles) {

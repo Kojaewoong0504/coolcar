@@ -3,7 +3,6 @@ import { TabBar } from '@/components/TabBar';
 import { AuthMergeOnLoad } from '@/components/auth/AuthMergeOnLoad';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 import { ProfileAvatar } from '@/components/auth/ProfileAvatar';
-import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { providerLabel } from '@/lib/auth/profile';
 import { getCurrentAuthProfile } from '@/lib/supabase/server';
 
@@ -18,12 +17,12 @@ export default async function SettingsPage() {
       </header>
 
       <section className="hero-card compact settings-hero">
-        <p className="eyebrow">계정 · 개인정보 · 앱 설정</p>
-        <h1>내 경로와 설정을<br />한 곳에서 봐요.</h1>
-        <p>추천은 로그인 없이도 쓸 수 있고, 로그인하면 저장 루틴을 다른 기기에서도 이어볼 수 있어요.</p>
+        <p className="eyebrow">내 정보</p>
+        <h1>저장한 경로와<br />계정을 관리해요.</h1>
+        <p>시원칸 추천은 로그인 없이도 바로 사용할 수 있어요. 로그인하면 저장 루틴을 다른 기기에서도 이어볼 수 있습니다.</p>
       </section>
 
-      <section className="card settings-section-card">
+      <section className="card settings-section-card account-section-card">
         <div className="section-title">계정</div>
         {profile ? (
           <div className="account-card rich">
@@ -36,36 +35,61 @@ export default async function SettingsPage() {
             <LogoutButton />
           </div>
         ) : (
-          <>
-            <p className="notice">로그인 없이도 추천은 사용할 수 있어요. 저장 루틴을 여러 기기에서 보려면 소셜 로그인을 사용해 주세요.</p>
-            <SocialLoginButtons next="/settings" />
-          </>
+          <div className="account-card anonymous-account-card">
+            <div className="settings-row-icon" aria-hidden="true">👤</div>
+            <div>
+              <b>로그인 없이 이용 중</b>
+              <p className="microcopy">지금도 시원한 칸 추천과 이 기기 저장 루틴을 사용할 수 있어요.</p>
+            </div>
+            <Link className="primary account-login-link" href="/login?next=/settings">로그인하기</Link>
+            <p className="microcopy account-login-note">다른 기기에서도 저장 루틴을 보려면 로그인해 주세요.</p>
+          </div>
         )}
       </section>
 
       <section className="card settings-section-card">
-        <div className="section-title">개인정보 안내</div>
-        <div className="settings-list compact-settings-list">
-          <div><b>저장되는 정보</b><span>저장 루틴, 추천 기준, 피드백을 추천 개선에 참고해요.</span></div>
-          <div><b>소셜 로그인</b><span>로그인 시 이름, 이메일, 프로필 이미지를 계정 표시에 사용해요.</span></div>
-          <div><b>기기 저장</b><span>비로그인 상태에서는 이 기기에 저장된 정보로 루틴을 이어가요.</span></div>
-        </div>
-        <div className="result-actions"><Link href="/privacy">개인정보 안내 보기</Link></div>
+        <div className="section-title">내 경로</div>
+        <Link className="settings-link-row" href="/saved">
+          <span className="settings-row-icon" aria-hidden="true">📍</span>
+          <span><b>저장한 경로</b><small>자주 타는 경로를 바로 다시 추천받아요.</small></span>
+          <em aria-hidden="true">›</em>
+        </Link>
       </section>
 
       <section className="card settings-section-card">
-        <div className="section-title">앱 설정</div>
-        <div className="settings-list compact-settings-list">
-          <div><b>추천 기준</b><span>더운 날 타기 좋은 칸을 우선으로 안내해요.</span></div>
-          <div><b>배려 안내</b><span>교통약자석 주변은 착석 유도가 아닌 위치 참고로만 다뤄요.</span></div>
-          <div><b>저장 루틴</b><span>자주 타는 경로는 저장 탭에서 바로 다시 추천받을 수 있어요.</span></div>
+        <div className="section-title">시원칸 안내</div>
+        <div className="settings-menu-list">
+          <Link className="settings-link-row" href="/data-source">
+            <span className="settings-row-icon" aria-hidden="true">🧊</span>
+            <span><b>추천 기준</b><small>더운 날 타기 좋은 칸을 고르는 방식을 확인해요.</small></span>
+            <em aria-hidden="true">›</em>
+          </Link>
+          <Link className="settings-link-row" href="/tips">
+            <span className="settings-row-icon" aria-hidden="true">💡</span>
+            <span><b>이용 팁</b><small>여름철 지하철을 조금 더 시원하게 타는 방법을 모았어요.</small></span>
+            <em aria-hidden="true">›</em>
+          </Link>
+          <div className="settings-info-row">
+            <span className="settings-row-icon" aria-hidden="true">🤝</span>
+            <span><b>배려 안내</b><small>교통약자석 주변 정보는 착석 유도가 아닌 위치 참고로만 안내해요.</small></span>
+          </div>
         </div>
       </section>
 
       <section className="card settings-section-card">
-        <div className="section-title">앱 정보</div>
-        <p className="notice">시원칸은 공개 자료와 시간대 패턴을 참고해 덜 더운 칸을 안내해요. 실제 객실 상황은 열차와 시간대에 따라 달라질 수 있어요.</p>
-        <div className="result-actions"><Link href="/data-source">추천 기준 보기</Link><Link href="/tips">이용 팁 보기</Link></div>
+        <div className="section-title">고객 지원 및 정보</div>
+        <div className="settings-menu-list">
+          <Link className="settings-link-row" href="/privacy">
+            <span className="settings-row-icon" aria-hidden="true">🔒</span>
+            <span><b>개인정보 안내</b><small>로그인 정보와 기기 저장 정보를 어떻게 쓰는지 확인해요.</small></span>
+            <em aria-hidden="true">›</em>
+          </Link>
+          <Link className="settings-link-row" href="/data-source">
+            <span className="settings-row-icon" aria-hidden="true">ℹ️</span>
+            <span><b>앱 정보</b><small>시원칸은 공개 자료와 시간대 패턴을 참고해 안내해요.</small></span>
+            <em aria-hidden="true">›</em>
+          </Link>
+        </div>
       </section>
 
       <TabBar active="settings" />
