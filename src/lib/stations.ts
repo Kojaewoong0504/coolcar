@@ -743,6 +743,22 @@ export const STATIONS: Station[] = [
   { name: "사당역", line: "4호선", operator: "서울교통공사", lat: 37.4765, lng: 126.9816 },
   { name: "신설동역", line: "우이신설선", operator: "우이신설경전철", lat: 37.5761, lng: 127.0245 },
   { name: "선릉역", line: "수인분당선", operator: "코레일", lat: 37.5045, lng: 127.049 },
+  // Supplemental 수인분당선 rows missing from the broad source.
+  // Keep as station-search inventory only; car/door guidance still requires DoorGuideRecord evidence.
+  { name: "압구정로데오역", line: "수인분당선", operator: "코레일", lat: 37.5275, lng: 127.0406 },
+  { name: "선정릉역", line: "수인분당선", operator: "코레일", lat: 37.5109, lng: 127.0436 },
+  { name: "청명역", line: "수인분당선", operator: "코레일", lat: 37.2595, lng: 127.0789 },
+  { name: "영통역", line: "수인분당선", operator: "코레일", lat: 37.2516, lng: 127.0714 },
+  { name: "망포역", line: "수인분당선", operator: "코레일", lat: 37.2457, lng: 127.0574 },
+  { name: "매탄권선역", line: "수인분당선", operator: "코레일", lat: 37.2528, lng: 127.0407 },
+  { name: "수원시청역", line: "수인분당선", operator: "코레일", lat: 37.2619, lng: 127.0307 },
+  { name: "매교역", line: "수인분당선", operator: "코레일", lat: 37.2655, lng: 127.0157 },
+  { name: "수원역", line: "수인분당선", operator: "코레일", lat: 37.2657, lng: 126.9994 },
+  { name: "고색역", line: "수인분당선", operator: "코레일", lat: 37.2496, lng: 126.9803 },
+  { name: "오목천역", line: "수인분당선", operator: "코레일", lat: 37.2430, lng: 126.9637 },
+  { name: "어천역", line: "수인분당선", operator: "코레일", lat: 37.2501, lng: 126.9088 },
+  { name: "야목역", line: "수인분당선", operator: "코레일", lat: 37.2642, lng: 126.8835 },
+  { name: "원인재역", line: "수인분당선", operator: "코레일", lat: 37.4128, lng: 126.6878 },
   // Supplemental 수도권 전철 1호선 rows missing from the broad source.
   // Keep as station-search inventory only; car/door guidance still requires DoorGuideRecord evidence.
   { name: "영등포역", line: "1호선", operator: "코레일", lat: 37.5157, lng: 126.9075 },
@@ -783,6 +799,7 @@ export const MAJOR_STATIONS_BY_LINE: Record<string, string[]> = {
   '공항철도': ['서울역', '공덕역', '홍대입구역', '김포공항역', '계양역', '검암역', '운서역', '인천공항1터미널역', '인천공항2터미널역'],
   '1호선': ['연천역', '의정부역', '광운대역', '청량리역', '서울역', '용산역', '영등포역', '구로역', '인천역', '수원역', '평택역', '천안역', '아산역', '배방역', '신창역'],
   '신분당선': ['강남역', '양재역', '판교역', '정자역', '광교중앙역', '광교역'],
+  '수인분당선': ['청량리역', '왕십리역', '선릉역', '수서역', '정자역', '죽전역', '기흥역', '영통역', '망포역', '수원시청역', '수원역', '오이도역', '인천역'],
   '3호선': ['구파발역', '연신내역', '종로3가역', '고속터미널역', '교대역', '양재역', '수서역'],
   '5호선': ['김포공항역', '여의도역', '광화문역', '왕십리역', '천호역', '올림픽공원역'],
 };

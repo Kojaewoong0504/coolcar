@@ -1,4 +1,5 @@
 import { STATIONS, isSearchableMetroStation, searchStations } from '../src/lib/stations';
+import { LINE_ORDERS } from '../src/lib/routeDirection';
 
 const requiredQueries = ['역삼', '삼성', '시청', '잠실', '여의도', '강남'];
 const airportResults = searchStations('인천공항', { limit: 10 });
@@ -18,6 +19,10 @@ const requiredExactRows = [
   { query: '구의', name: '구의역', line: '2호선' },
   { query: '국회의사당', name: '국회의사당역', line: '9호선' },
   { query: '수원', name: '수원역', line: '1호선' },
+  { query: '수원', name: '수원역', line: '수인분당선' },
+  { query: '수원시청', name: '수원시청역', line: '수인분당선' },
+  { query: '망포', name: '망포역', line: '수인분당선' },
+  { query: '원인재', name: '원인재역', line: '수인분당선' },
   { query: '천안', name: '천안역', line: '1호선' },
   { query: '배방', name: '배방역', line: '1호선' },
   { query: '신창', name: '신창역', line: '1호선' },
@@ -59,6 +64,16 @@ if (pollutedSearchableRows.length > 0) {
 const lineBrowse = searchStations('', { line: '2호선', limit: 50 });
 if (lineBrowse.length < 30) failures.push(`2호선 browse returned too few rows: ${lineBrowse.length}`);
 if (lineBrowse.some((station) => station.name === '구남역')) failures.push('2호선 browse returned polluted 구남역');
+
+const suinBundangBrowse = searchStations('', { line: '수인분당선', limit: 50 });
+if (!suinBundangBrowse.some((station) => station.name === '수원역' && station.line === '수인분당선')) failures.push('수인분당선 browse missing 수원역');
+if (!suinBundangBrowse.some((station) => station.name === '수원시청역' && station.line === '수인분당선')) failures.push('수인분당선 browse missing 수원시청역');
+
+const stationKeys = new Set(STATIONS.map((station) => `${station.line}:${station.name}`));
+const missingSuinBundangOrderRows = (LINE_ORDERS['수인분당선']?.stations ?? []).filter((stationName) => !stationKeys.has(`수인분당선:${stationName}`));
+if (missingSuinBundangOrderRows.length > 0) {
+  failures.push(`수인분당선 line order rows missing from station search master: ${missingSuinBundangOrderRows.join(', ')}`);
+}
 
 const stationLineRows = STATIONS.length;
 if (stationLineRows < 500) failures.push(`station master too small: ${stationLineRows}`);
