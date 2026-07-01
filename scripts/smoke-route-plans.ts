@@ -67,6 +67,32 @@ async function main() {
   assert((baebangToGuroDigital.candidates[0]?.estimatedStationCount ?? 999) < (cityHallDetour.estimatedStationCount ?? 0), '대표 경로는 역 수 기준으로 더 짧은 후보여야 합니다.');
   assertNoForbiddenText(baebangToGuroDigital);
 
+  const guroToDaehwa = await buildRoutePlanCandidates({
+    line: '2호선',
+    originStation: '구로디지털단지역',
+    destinationStation: '대화역',
+    destinationLine: '3호선',
+    comfortType: 'HOT_SENSITIVE',
+    maxCandidates: 6,
+  });
+  const gyeonguiCandidate = guroToDaehwa.candidates.find((candidate) =>
+    candidate.type === 'TWO_TRANSFER'
+    && candidate.lines.join('>') === '2호선>경의중앙선>3호선'
+    && candidate.transferStations.join('>') === '홍대입구역>대곡역',
+  );
+  assert(gyeonguiCandidate, '구로디지털단지역→대화역은 홍대입구역→대곡역 2회 환승 후보를 포함해야 합니다.');
+  const sixLineCandidate = guroToDaehwa.candidates.find((candidate) =>
+    candidate.type === 'TWO_TRANSFER'
+    && candidate.lines.join('>') === '2호선>6호선>3호선'
+    && candidate.transferStations[0] === '합정역'
+    && ['연신내역', '불광역', '약수역'].includes(candidate.transferStations[1]),
+  );
+  assert(sixLineCandidate, '구로디지털단지역→대화역은 합정역→6호선→3호선 2회 환승 후보를 포함해야 합니다.');
+  assert(guroToDaehwa.candidates.some((candidate) => candidate.type === 'TWO_TRANSFER'), '대화역 경로에는 2회 환승 후보가 있어야 합니다.');
+  assert(guroToDaehwa.candidates[0]?.type === 'TWO_TRANSFER', `긴 1회 환승보다 역 수가 짧은 2회 환승 후보를 먼저 보여줘야 합니다. got=${guroToDaehwa.candidates[0]?.title}`);
+  assert(gyeonguiCandidate.recommendRequestPatch.routeLines?.join('>') === '2호선>경의중앙선>3호선', '2회 환승 후보는 추천 요청에 routeLines를 보존해야 합니다.');
+  assertNoForbiddenText(guroToDaehwa);
+
   const direct = await buildRoutePlanCandidates({
     line: '2호선',
     originStation: '역삼역',
@@ -98,6 +124,7 @@ async function main() {
     ok: true,
     guroToOlympic: guroToOlympic.candidates.map((candidate) => ({ type: candidate.type, title: candidate.title, transfers: candidate.transferStations, lines: candidate.lines })),
     baebangToGuroDigital: baebangToGuroDigital.candidates.map((candidate) => ({ title: candidate.title, transfers: candidate.transferStations, distance: candidate.estimatedStationCount })),
+    guroToDaehwa: guroToDaehwa.candidates.map((candidate) => ({ type: candidate.type, title: candidate.title, transfers: candidate.transferStations, lines: candidate.lines, distance: candidate.estimatedStationCount })),
     manual: { type: manualCandidate.type, transfers: manualCandidate.transferStations, lines: manualCandidate.lines },
     direct: { type: directCandidate?.type, lines: directCandidate?.lines },
     directionAware: { type: directionCandidate.type, direction: directionCandidate.recommendRequestPatch.direction, coverage: directionCandidate.coverage.nextTransferDoorGuide },

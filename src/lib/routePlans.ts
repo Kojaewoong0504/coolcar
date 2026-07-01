@@ -1,6 +1,6 @@
 import { STATIONS, isSearchableMetroStation, normalizeStationName } from './stations';
 import { lookupDoorGuide } from './doorGuidance/resolver';
-import { inferLineDirection, estimateStationDistance } from './routeDirection';
+import { inferLineDirection, estimateStationDistance, LINE_ORDERS } from './routeDirection';
 import type { ComfortType, EgressPreference, RoutePlanCandidate, RoutePlanCoverageStatus, RoutePlansResponse, RoutePlanWarning } from './types';
 
 type BuildRoutePlansRequest = {
@@ -13,6 +13,7 @@ type BuildRoutePlansRequest = {
   comfortType?: ComfortType;
   egressPreference?: EgressPreference;
   transferStations?: string[];
+  routeLines?: string[];
   maxCandidates?: number;
 };
 
@@ -69,17 +70,16 @@ function candidateId(parts: string[]) {
 }
 
 function rankCandidate(candidate: RoutePlanCandidate) {
-  let score = 0;
-  if (candidate.type === 'USER_SPECIFIED') score += 100000;
-  if (candidate.type === 'DIRECT') score += 90000;
-  if (candidate.type === 'ONE_TRANSFER') score += 80000;
-  if (candidate.type === 'UNRESOLVED') score -= 10000;
-
+  if (candidate.type === 'UNRESOLVED') return -100000;
+  let score = 100000;
+  if (candidate.type === 'USER_SPECIFIED') score += 20000;
   if (typeof candidate.estimatedStationCount === 'number') score -= candidate.estimatedStationCount * 100;
   else score -= 50000;
-  if (candidate.coverage.nextTransferDoorGuide === 'available') score += 25;
-  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') score += 8;
-  if (candidate.coverage.finalExitDoorGuide === 'available') score += 8;
+  score -= candidate.transferStations.length * 850;
+  if (candidate.type === 'DIRECT') score += 500;
+  if (candidate.coverage.nextTransferDoorGuide === 'available') score += 250;
+  if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') score += 80;
+  if (candidate.coverage.finalExitDoorGuide === 'available') score += 80;
   return score;
 }
 
@@ -116,7 +116,7 @@ async function buildDirectCandidate(params: {
     estimatedStationCount,
     legs: [{ legNo: 1, fromStation: params.originStation, toStation: params.destinationStation, line: params.line, goal: 'FINAL_EXIT' }],
     coverage: { nextTransferDoorGuide: 'not_applicable', finalExitDoorGuide: finalStatus },
-    recommendRequestPatch: { line: params.line, destinationLine: params.line, transferStations: [], direction: effectiveDirection, egressPreference: params.egressPreference },
+    recommendRequestPatch: { line: params.line, destinationLine: params.line, transferStations: [], routeLines: [params.line], direction: effectiveDirection, egressPreference: params.egressPreference },
     reasonCodes: ['DIRECT_LINE', finalStatus === 'available' ? 'FINAL_EXIT_AVAILABLE' : 'FINAL_EXIT_LIMITED'],
     safetyNote: '환승 없이 가는 후보입니다. 실제 열차 운행과 승강장 안내는 현장에서 한 번 더 확인해 주세요.',
   };
@@ -175,9 +175,73 @@ async function buildTransferCandidate(params: {
       { legNo: 2, fromStation: params.transferStation, toStation: params.destinationStation, line: params.toLine, goal: 'FINAL_EXIT' },
     ],
     coverage: { nextTransferDoorGuide: transferStatus, finalExitDoorGuide: finalStatus },
-    recommendRequestPatch: { line: params.fromLine, destinationLine: params.toLine, transferStations: [params.transferStation], direction: effectiveDirection, egressPreference: params.egressPreference },
+    recommendRequestPatch: { line: params.fromLine, destinationLine: params.toLine, transferStations: [params.transferStation], routeLines: [params.fromLine, params.toLine], direction: effectiveDirection, egressPreference: params.egressPreference },
     reasonCodes: [type, transferStatus === 'available' ? 'NEXT_TRANSFER_AVAILABLE' : transferStatus === 'needs_direction' ? 'DIRECTION_REQUIRED_FOR_TRANSFER' : 'TRANSFER_DOOR_LIMITED'],
     safetyNote: '가능한 환승 후보입니다. 실제 최단 경로나 소요시간은 지도 앱에서 함께 확인해 주세요.',
+  };
+}
+
+async function buildTwoTransferCandidate(params: {
+  originStation: string;
+  destinationStation: string;
+  firstLine: string;
+  middleLine: string;
+  finalLine: string;
+  firstTransferStation: string;
+  secondTransferStation: string;
+  direction?: string;
+  egressPreference?: EgressPreference;
+  userSpecified?: boolean;
+}): Promise<RoutePlanCandidate | null> {
+  const firstLegDistance = estimateStationDistance({ line: params.firstLine, originStation: params.originStation, targetStation: params.firstTransferStation });
+  const middleLegDistance = estimateStationDistance({ line: params.middleLine, originStation: params.firstTransferStation, targetStation: params.secondTransferStation });
+  const finalLegDistance = estimateStationDistance({ line: params.finalLine, originStation: params.secondTransferStation, targetStation: params.destinationStation });
+  if (typeof firstLegDistance !== 'number' || typeof middleLegDistance !== 'number' || typeof finalLegDistance !== 'number') return null;
+  if (firstLegDistance === 0 || middleLegDistance === 0 || finalLegDistance === 0) return null;
+
+  const inferred = params.direction ? undefined : inferLineDirection({ line: params.firstLine, originStation: params.originStation, targetStation: params.firstTransferStation });
+  const effectiveDirection = params.direction ?? inferred?.doorGuideDirection;
+  const firstTransferGuide = await lookupDoorGuide({
+    line: params.firstLine,
+    toStation: params.firstTransferStation,
+    direction: effectiveDirection,
+    goal: 'NEXT_TRANSFER',
+    targetLine: params.middleLine,
+  });
+  const transferStatus = doorCoverageStatus(firstTransferGuide.status);
+  const finalInferred = inferLineDirection({ line: params.finalLine, originStation: params.secondTransferStation, targetStation: params.destinationStation });
+  const finalExit = await lookupDoorGuide({
+    line: params.finalLine,
+    toStation: params.destinationStation,
+    direction: finalInferred?.doorGuideDirection,
+    egressPreference: params.egressPreference,
+    goal: 'FINAL_EXIT',
+  });
+  const finalStatus = doorCoverageStatus(finalExit.status);
+  const routeLines = [params.firstLine, params.middleLine, params.finalLine];
+  const transferStations = [params.firstTransferStation, params.secondTransferStation];
+  return {
+    id: candidateId(['two-transfer', ...routeLines, ...transferStations, params.originStation, params.destinationStation]),
+    type: params.userSpecified ? 'USER_SPECIFIED' : 'TWO_TRANSFER',
+    badge: params.userSpecified ? '직접 설정' : '2회 환승 후보',
+    title: `${params.firstTransferStation} · ${params.secondTransferStation} 경유`,
+    summary: transferStatus === 'available'
+      ? '첫 환승 위치와 구간별 쾌적도를 함께 볼 수 있어요. 실제 소요시간은 지도 앱도 함께 확인해 주세요.'
+      : '환승역 2곳을 거치는 후보예요. 확인된 위치가 없는 구간은 쾌적칸 중심으로 안내해요.',
+    originStation: params.originStation,
+    destinationStation: params.destinationStation,
+    transferStations,
+    lines: routeLines,
+    estimatedStationCount: firstLegDistance + middleLegDistance + finalLegDistance,
+    legs: [
+      { legNo: 1, fromStation: params.originStation, toStation: params.firstTransferStation, line: params.firstLine, goal: 'NEXT_TRANSFER', transferToLine: params.middleLine },
+      { legNo: 2, fromStation: params.firstTransferStation, toStation: params.secondTransferStation, line: params.middleLine, goal: 'NEXT_TRANSFER', transferToLine: params.finalLine },
+      { legNo: 3, fromStation: params.secondTransferStation, toStation: params.destinationStation, line: params.finalLine, goal: 'FINAL_EXIT' },
+    ],
+    coverage: { nextTransferDoorGuide: transferStatus, finalExitDoorGuide: finalStatus },
+    recommendRequestPatch: { line: params.firstLine, destinationLine: params.finalLine, transferStations, routeLines, direction: effectiveDirection, egressPreference: params.egressPreference },
+    reasonCodes: ['TWO_TRANSFER', transferStatus === 'available' ? 'FIRST_TRANSFER_AVAILABLE' : 'FIRST_TRANSFER_LIMITED'],
+    safetyNote: '가능한 2회 환승 후보입니다. 실제 최단 경로나 소요시간은 지도 앱에서 함께 확인해 주세요.',
   };
 }
 
@@ -201,7 +265,7 @@ function buildUnresolvedCandidate(params: {
     lines: unique([params.line, params.destinationLine].filter(Boolean) as string[]),
     legs: [{ legNo: 1, fromStation: params.originStation, toStation: params.destinationStation, line: params.line, goal: params.destinationLine && params.destinationLine !== params.line ? 'NEXT_TRANSFER' : 'FINAL_EXIT' }],
     coverage: { nextTransferDoorGuide: 'not_checked', finalExitDoorGuide: 'not_checked' },
-    recommendRequestPatch: { line: params.line, destinationLine: params.destinationLine, transferStations: [], direction: params.direction, egressPreference: params.egressPreference },
+    recommendRequestPatch: { line: params.line, destinationLine: params.destinationLine, transferStations: [], routeLines: unique([params.line, params.destinationLine].filter(Boolean) as string[]), direction: params.direction, egressPreference: params.egressPreference },
     reasonCodes: ['ROUTE_UNRESOLVED'],
     safetyNote: '환승 위치를 반영하지 않은 참고 추천입니다. 환승역을 선택하면 구간별 안내가 더 정확해져요.',
   };
@@ -226,7 +290,29 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
   const maxCandidates = Math.min(Math.max(request.maxCandidates ?? MAX_CANDIDATES, 1), 6);
   const cleanTransfers = unique((request.transferStations ?? []).map(cleanStationName).filter(Boolean)).filter((station) => station !== originStation && station !== destinationStation).slice(0, 5);
 
-  if (cleanTransfers.length > 1) warnings.push({ code: 'MULTI_TRANSFER_LIMITED', message: '여러 환승역은 선택 순서를 보존하지만, 현재 자동 후보 평가는 첫 환승역 중심으로 제한돼요.' });
+  if (cleanTransfers.length > 1) {
+    const routeLines = request.routeLines?.filter(Boolean) ?? [];
+    const firstLine = routeLines[0] ?? originLines[0];
+    const finalLine = routeLines[routeLines.length - 1] ?? destinationLines[0];
+    const middleLine = routeLines[1]
+      ?? linesForStation(cleanTransfers[0]).find((line) => line !== firstLine && linesForStation(cleanTransfers[1]).includes(line));
+    if (firstLine && middleLine && finalLine) {
+      const manualMulti = await buildTwoTransferCandidate({
+        originStation,
+        destinationStation,
+        firstLine,
+        middleLine,
+        finalLine,
+        firstTransferStation: cleanTransfers[0],
+        secondTransferStation: cleanTransfers[1],
+        direction: request.direction,
+        egressPreference: request.egressPreference,
+        userSpecified: true,
+      });
+      if (manualMulti) candidates.push(manualMulti);
+      else warnings.push({ code: 'MULTI_TRANSFER_LIMITED', message: '직접 입력한 환승 순서는 저장했지만 일부 구간은 쾌적칸 중심으로 안내할 수 있어요.' });
+    }
+  }
 
   if (cleanTransfers.length === 1) {
     const transferStation = cleanTransfers[0];
@@ -253,6 +339,39 @@ export async function buildRoutePlanCandidates(request: BuildRoutePlansRequest):
         .slice(0, 8);
       for (const transferStation of transfers) {
         candidates.push(await buildTransferCandidate({ originStation, destinationStation, fromLine, toLine, transferStation, direction: request.direction, egressPreference: request.egressPreference }));
+      }
+    }
+  }
+
+  const routableLines = Object.keys(LINE_ORDERS);
+  for (const firstLine of originLines) {
+    for (const finalLine of destinationLines) {
+      if (firstLine === finalLine) continue;
+      for (const middleLine of routableLines) {
+        if (middleLine === firstLine || middleLine === finalLine) continue;
+        const firstTransfers = transferStationsForLines(firstLine, middleLine)
+          .filter((station) => station !== originStation && station !== destinationStation)
+          .slice(0, 6);
+        const secondTransfers = transferStationsForLines(middleLine, finalLine)
+          .filter((station) => station !== originStation && station !== destinationStation)
+          .slice(0, 6);
+        for (const firstTransferStation of firstTransfers) {
+          for (const secondTransferStation of secondTransfers) {
+            if (firstTransferStation === secondTransferStation) continue;
+            const candidate = await buildTwoTransferCandidate({
+              originStation,
+              destinationStation,
+              firstLine,
+              middleLine,
+              finalLine,
+              firstTransferStation,
+              secondTransferStation,
+              direction: request.direction,
+              egressPreference: request.egressPreference,
+            });
+            if (candidate) candidates.push(candidate);
+          }
+        }
       }
     }
   }

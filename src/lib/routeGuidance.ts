@@ -302,20 +302,22 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
   }
 
   const waypoints = [origin, ...transfers, destination];
+  const routeLines = request.routeLines?.filter(Boolean) ?? [];
   const legs = await Promise.all(waypoints.slice(0, -1).map(async (fromStation, index) => {
     const toStation = waypoints[index + 1];
     const isLast = index === waypoints.length - 2;
-    const line = index === 0 ? request.line : (isLast ? request.destinationLine || '환승 후 노선' : '환승 후 노선');
+    const line = routeLines[index] ?? (index === 0 ? request.line : (isLast ? request.destinationLine || '환승 후 노선' : '환승 후 노선'));
     const goal = isLast ? 'FINAL_EXIT' : 'NEXT_TRANSFER';
     const inferredDirection = inferLineDirection({ line, originStation: fromStation, targetStation: toStation })?.doorGuideDirection;
     const effectiveDirection = index === 0 ? (request.direction ?? inferredDirection) : inferredDirection;
+    const nextLine = routeLines[index + 1] ?? (!isLast && transfers.length === 1 ? request.destinationLine : undefined);
     const legFallbackCar = index === 0 ? recommendedCar : fallbackCarForLeg({ request, line, fromStation, direction: effectiveDirection });
     const doorGuide = await applyDoorGuide({
       line,
       toStation,
       direction: effectiveDirection,
       goal,
-      targetLine: !isLast && transfers.length === 1 ? request.destinationLine : undefined,
+      targetLine: !isLast ? nextLine : undefined,
       egressPreference: isLast ? request.egressPreference : undefined,
       fallbackCarNo: legFallbackCar?.carNo,
       fallbackMessage: index === 0

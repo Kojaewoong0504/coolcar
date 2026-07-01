@@ -17,6 +17,7 @@ export const recommendRequestSchema = z.object({
   avoidPrioritySeatArea: z.boolean().default(true),
   anonymousId: z.string().uuid().optional(),
   transferStations: z.array(z.string().min(1)).max(5).optional(),
+  routeLines: z.array(z.string().min(1)).max(6).optional(),
 });
 
 export const preferenceSchema = z.object({
@@ -39,6 +40,7 @@ export const routePlansRequestSchema = z.object({
   avoidPrioritySeatArea: z.boolean().default(true),
   anonymousId: z.string().uuid().optional(),
   transferStations: z.array(z.string().min(1)).max(5).optional(),
+  routeLines: z.array(z.string().min(1)).max(6).optional(),
   maxCandidates: z.number().int().min(1).max(6).optional(),
 });
 
@@ -67,6 +69,7 @@ export const savedRouteSchema = z.object({
   waitToleranceMin: z.union([z.literal(0), z.literal(3), z.literal(5), z.literal(10)]).default(3),
   avoidPrioritySeatArea: z.boolean().default(true),
   transferStations: z.array(z.string().min(1)).max(5).optional(),
+  routeLines: z.array(z.string().min(1)).max(6).optional(),
   commuteType: commuteTypeSchema.default('CUSTOM'),
   isDefault: z.boolean().default(false),
 });

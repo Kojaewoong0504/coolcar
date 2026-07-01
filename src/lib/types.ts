@@ -18,6 +18,7 @@ export type RecommendRequest = {
   avoidPrioritySeatArea?: boolean;
   anonymousId?: string;
   transferStations?: string[];
+  routeLines?: string[];
 };
 
 export type CarComfort = {
@@ -104,7 +105,7 @@ export type RouteGuidance = {
   legs: RouteLegGuidance[];
 };
 
-export type RoutePlanCandidateType = 'DIRECT' | 'ONE_TRANSFER' | 'USER_SPECIFIED' | 'UNRESOLVED';
+export type RoutePlanCandidateType = 'DIRECT' | 'ONE_TRANSFER' | 'TWO_TRANSFER' | 'USER_SPECIFIED' | 'UNRESOLVED';
 export type RoutePlanCoverageStatus = 'available' | 'needs_direction' | 'needs_data' | 'not_applicable' | 'not_checked';
 
 export type RoutePlanLeg = {
@@ -136,6 +137,7 @@ export type RoutePlanCandidate = {
     line: string;
     destinationLine?: string;
     transferStations?: string[];
+    routeLines?: string[];
     direction?: string;
     egressPreference?: EgressPreference;
   };

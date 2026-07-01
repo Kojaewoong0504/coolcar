@@ -766,6 +766,14 @@ export const STATIONS: Station[] = [
   { name: "배방역", line: "1호선", operator: "코레일", lat: 36.7775, lng: 127.0528 },
   { name: "온양온천역", line: "1호선", operator: "코레일", lat: 36.7805, lng: 127.0032 },
   { name: "신창역", line: "1호선", operator: "코레일", lat: 36.7695, lng: 126.9511 },
+  { name: "가좌역", line: "경의중앙선", operator: "코레일", lat: 37.5686, lng: 126.9155 },
+  { name: "디지털미디어시티역", line: "경의중앙선", operator: "코레일", lat: 37.5766, lng: 126.9009 },
+  { name: "수색역", line: "경의중앙선", operator: "코레일", lat: 37.5808, lng: 126.8957 },
+  { name: "화전역", line: "경의중앙선", operator: "코레일", lat: 37.6029, lng: 126.8684 },
+  { name: "강매역", line: "경의중앙선", operator: "코레일", lat: 37.6123, lng: 126.8430 },
+  { name: "행신역", line: "경의중앙선", operator: "코레일", lat: 37.6121, lng: 126.8342 },
+  { name: "능곡역", line: "경의중앙선", operator: "코레일", lat: 37.6188, lng: 126.8208 },
+  { name: "대곡역", line: "경의중앙선", operator: "코레일", lat: 37.6316, lng: 126.8110 },
 ];
 
 export const SUPPORTED_LINES = ['2호선', '9호선', '신분당선', '수인분당선', '1호선', '3호선', '4호선', '5호선', '6호선', '7호선', '8호선', '공항철도', '경의중앙선', '김포골드라인', '서해선', '우이신설선'] as const;

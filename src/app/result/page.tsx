@@ -254,11 +254,12 @@ export default function ResultPage() {
       : `${result.recommendedCar.carNo}번째 칸으로 가세요`;
   const activeEyebrow = activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 구간 안내') : '지금 타기 좋은 위치';
   const activeRouteNote = activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legStatusCopy(activeLeg.status, activeLeg) : comfortCopy(result);
+  const positionParticle = activeLeg?.positionLabel.endsWith('근처') ? '가' : '이';
   const displayReasons = activeLeg && !isPrimaryLeg
     ? [
         activeLeg.status === 'available'
           ? `${activeLeg.positionLabel} 쪽이 동선이 짧아요.`
-          : `${activeLeg.line}에서는 ${activeLeg.positionLabel}이 가장 무난해요.`,
+          : `${activeLeg.line}에서는 ${activeLeg.positionLabel}${positionParticle} 가장 무난해요.`,
         activeLeg.goal === 'FINAL_EXIT'
           ? '도착하면 출구 표지판 기준으로 이동하세요.'
           : '환승 동선과 쾌적도를 같이 봤어요.',
@@ -308,6 +309,7 @@ export default function ResultPage() {
         waitToleranceMin: result.request.waitToleranceMin,
         avoidPrioritySeatArea: result.request.avoidPrioritySeatArea,
         transferStations: result.request.transferStations,
+        routeLines: result.request.routeLines,
         label: `${result.request.originStation} → ${result.request.destinationStation || '목적지'}`,
         isDefault: false,
       }),

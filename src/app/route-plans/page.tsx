@@ -20,6 +20,7 @@ function routeStops(candidate: RoutePlanCandidate) {
 
 
 function coverageCopy(candidate: RoutePlanCandidate) {
+  if (candidate.type === 'TWO_TRANSFER') return candidate.coverage.nextTransferDoorGuide === 'available' ? '위치 일부 반영' : '쾌적칸 중심';
   if (candidate.coverage.nextTransferDoorGuide === 'available') return '환승 위치 반영';
   if (candidate.coverage.nextTransferDoorGuide === 'needs_direction') return '쾌적칸 중심';
   if (candidate.type === 'DIRECT') return candidate.coverage.finalExitDoorGuide === 'available' ? '하차 위치 반영' : '쾌적칸 중심';
@@ -47,6 +48,7 @@ function buildRecommendRequest(base: RecommendRequest, candidate: RoutePlanCandi
     direction: candidate.recommendRequestPatch.direction ?? base.direction,
     egressPreference: candidate.recommendRequestPatch.egressPreference ?? base.egressPreference ?? 'ANY',
     transferStations: candidate.recommendRequestPatch.transferStations ?? [],
+    routeLines: candidate.recommendRequestPatch.routeLines ?? candidate.lines,
   };
 }
 
@@ -205,7 +207,7 @@ export default function RoutePlansPage() {
         <p className="eyebrow">경로 선택</p>
         <h1>노선 흐름을 보고<br />고르세요</h1>
         <p><b>{baseRequest.originStation}</b> → <b>{baseRequest.destinationStation || '목적지'}</b></p>
-        <p className="microcopy">추천 경로를 먼저 보여드려요. 필요하면 다른 환승역으로 바꿀 수 있어요.</p>
+        <p className="microcopy">역 수와 환승 위치를 함께 보고 후보를 보여드려요. 실제 소요시간은 지도 앱도 함께 확인해 주세요.</p>
       </section>
 
       {error && <p className="error">{error}</p>}
@@ -213,7 +215,7 @@ export default function RoutePlansPage() {
       {primaryCandidate && (
         <section className="card route-plan-card primary-plan-card" aria-label="추천 경로">
           <div className="route-plan-card-head">
-            <span>BEST 덜 더운 선택</span>
+            <span>{primaryCandidate.type === 'TWO_TRANSFER' ? '2회 환승 후보' : '먼저 볼 경로'}</span>
             <em>{coverageCopy(primaryCandidate)}</em>
           </div>
           <h2>{primaryCandidate.title}</h2>

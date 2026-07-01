@@ -406,9 +406,9 @@ input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgb
 .route-plan-path { margin:0; font-size:18px; line-height:1.28; font-weight:950; letter-spacing:-.05em; color:#0f172a; overflow-wrap:anywhere; }
 .route-plan-lines { margin:0; color:#0369a1; font-weight:950; }
 .route-timeline { display:grid; gap:0; border:1px solid var(--border); border-radius:20px; background:#fff; padding:10px 12px; }
-.route-timeline-stop { display:grid; grid-template-columns:54px 1fr; gap:10px; align-items:center; min-height:42px; position:relative; }
-.route-timeline-stop:not(:last-child)::after { content:''; position:absolute; left:26px; top:31px; bottom:-11px; width:2px; background:#d1d5db; }
-.route-timeline-stop span { width:52px; min-height:28px; border-radius:999px; display:grid; place-items:center; background:#0f172a; color:#fff; font-size:11px; font-weight:950; }
+.route-timeline-stop { display:grid; grid-template-columns:88px 1fr; gap:10px; align-items:center; min-height:42px; position:relative; }
+.route-timeline-stop:not(:last-child)::after { content:''; position:absolute; left:43px; top:31px; bottom:-11px; width:2px; background:#d1d5db; }
+.route-timeline-stop span { width:86px; min-height:28px; border-radius:999px; display:grid; place-items:center; background:#0f172a; color:#fff; font-size:11px; font-weight:950; white-space:nowrap; }
 .route-timeline-stop strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#0f172a; letter-spacing:-.03em; }
 .route-timeline.compact { padding:8px 10px; }
 .route-timeline.compact .route-timeline-stop { min-height:36px; }
