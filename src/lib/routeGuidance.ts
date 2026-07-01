@@ -96,6 +96,7 @@ function baseLeg(params: {
   recommendedDoorNo?: number;
   anchorCarNo?: number;
   anchorDoorNo?: number;
+  anchorCarNos?: number[];
   candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;
@@ -115,6 +116,7 @@ function baseLeg(params: {
     recommendedDoorNo: params.recommendedDoorNo,
     anchorCarNo: params.anchorCarNo,
     anchorDoorNo: params.anchorDoorNo,
+    anchorCarNos: params.anchorCarNos,
     candidateCarNos: params.candidateCarNos,
     positionLabel: params.positionLabel,
     facility: params.facility,
@@ -285,6 +287,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
             ? doorGuide.recommendedCarNo
             : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo),
           anchorDoorNo: doorGuide.recommendedDoorNo,
+          anchorCarNos: routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.anchorCarNos : undefined,
           candidateCarNos: routeChoice?.mode === 'ANCHOR_WINDOW'
             ? routeChoice.candidateCarNos
             : availableCandidateCars(request.line, doorGuide.status, doorGuide.recommendedCarNo),
@@ -363,6 +366,7 @@ export async function buildRouteGuidance(request: RecommendRequest, recommendedC
         ? doorGuide.recommendedCarNo
         : availableAnchorCar(doorGuide.status, doorGuide.recommendedCarNo),
       anchorDoorNo: doorGuide.status === 'available' ? doorGuide.recommendedDoorNo : undefined,
+      anchorCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW' ? routeChoice.anchorCarNos : undefined,
       candidateCarNos: index === 0 && routeChoice?.mode === 'ANCHOR_WINDOW'
         ? routeChoice.candidateCarNos
         : availableCandidateCars(line, doorGuide.status, doorGuide.recommendedCarNo),

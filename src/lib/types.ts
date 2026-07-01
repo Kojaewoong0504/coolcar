@@ -90,6 +90,7 @@ export type RouteLegGuidance = {
   recommendedDoorNo?: number;
   anchorCarNo?: number;
   anchorDoorNo?: number;
+  anchorCarNos?: number[];
   candidateCarNos?: number[];
   positionLabel: string;
   facility?: string;

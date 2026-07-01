@@ -161,7 +161,17 @@ function anchorRecordsForChoice(anchor: NonNullable<Awaited<ReturnType<typeof re
   const records = anchor.records?.length ? anchor.records : [{ carNo: anchor.carNo, doorNo: anchor.doorNo }];
   const unique = new Map<string, { carNo: number; doorNo?: number }>();
   for (const record of records) unique.set(`${record.carNo}-${record.doorNo ?? ''}`, { carNo: record.carNo, doorNo: record.doorNo });
-  return [...unique.values()].sort((a, b) => a.carNo - b.carNo || (a.doorNo ?? 0) - (b.doorNo ?? 0));
+  const sorted = [...unique.values()].sort((a, b) => a.carNo - b.carNo || (a.doorNo ?? 0) - (b.doorNo ?? 0));
+  const primary = sorted.find((record) => record.carNo === anchor.carNo && record.doorNo === anchor.doorNo)
+    ?? sorted.find((record) => record.carNo === anchor.carNo)
+    ?? sorted[0];
+  if (!primary) return [];
+
+  // If public data lists several far-apart doors for the same station/direction, unioning all of them
+  // creates a huge "nearby" window (e.g. 1,2,3,8,9,10). That sends users too far from the actual
+  // selected transfer/exit path. Keep only the representative anchor and immediately adjacent
+  // alternate anchors; distant anchors need separate UI choice, not one recommendation window.
+  return sorted.filter((record) => Math.abs(record.carNo - primary.carNo) <= 1);
 }
 
 function formatDoorLabels(records: Array<{ carNo: number; doorNo?: number }>) {
