@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T08:33:13.263293Z",
+  "generatedAt": "2026-07-01T13:36:09.752748Z",
   "policy": "Verified NEXT_TRANSFER anchors from public/official CSV sources only. Known field-verified conflicts are suppressed; broad same-direction anchor groups are recorded but recommendation uses a compact representative anchor window.",
   "sources": [
     {
@@ -21,14 +21,14 @@
     }
   ],
   "stats": {
-    "records": 1199,
-    "directedPairs": 179,
+    "records": 1209,
+    "directedPairs": 183,
     "sourceRowsWithValidCarDoor": 1871,
-    "outOfInventoryRowsSkipped": 672,
+    "outOfInventoryRowsSkipped": 662,
     "suppressedKnownConflicts": 16,
     "invalidRowsSkipped": 57,
     "duplicateRowsSkipped": 0,
-    "broadAnchorGroups": 44
+    "broadAnchorGroups": 45
   },
   "suppressedRows": [
     {
@@ -398,22 +398,6 @@
     },
     {
       "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "23",
-      "stationName": "신설동역",
-      "line": "1호선",
-      "targetLine": "우이신설경전철",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "25",
-      "stationName": "신설동역",
-      "line": "1호선",
-      "targetLine": "우이신설경전철",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "27",
       "stationName": "청량리역",
       "line": "1호선",
@@ -510,14 +494,6 @@
     },
     {
       "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "137",
-      "stationName": "신설동역",
-      "line": "2호선",
-      "targetLine": "우이신설경전철",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "166",
       "stationName": "옥수역",
       "line": "3호선",
@@ -585,7 +561,7 @@
       "sourceId": "208",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -593,7 +569,7 @@
       "sourceId": "209",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -601,7 +577,7 @@
       "sourceId": "210",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -1425,7 +1401,7 @@
       "sourceId": "641",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -1433,7 +1409,7 @@
       "sourceId": "642",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -1441,7 +1417,7 @@
       "sourceId": "643",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -1449,7 +1425,7 @@
       "sourceId": "644",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설경전철",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -2128,7 +2104,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "871",
       "stationName": "성신여대입구역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2136,7 +2112,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "869",
       "stationName": "성신여대입구역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2144,7 +2120,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "870",
       "stationName": "성신여대입구역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2152,7 +2128,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "872",
       "stationName": "성신여대입구역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2160,7 +2136,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "873",
       "stationName": "보문역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2168,7 +2144,7 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "874",
       "stationName": "보문역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -2176,24 +2152,8 @@
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "875",
       "stationName": "보문역",
-      "line": "우이신설경전철",
+      "line": "우이신설선",
       "targetLine": "6호선",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "877",
-      "stationName": "신설동역",
-      "line": "우이신설경전철",
-      "targetLine": "1호선",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "SEOUL_METRO_TRANSFER_CSV",
-      "sourceId": "876",
-      "stationName": "신설동역",
-      "line": "우이신설경전철",
-      "targetLine": "2호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5190,22 +5150,6 @@
     },
     {
       "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "549",
-      "stationName": "신설동역",
-      "line": "1호선",
-      "targetLine": "우이신설",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "550",
-      "stationName": "신설동역",
-      "line": "1호선",
-      "targetLine": "우이신설",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "559",
       "stationName": "청량리역",
       "line": "1호선",
@@ -5305,7 +5249,7 @@
       "sourceId": "764",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5313,7 +5257,7 @@
       "sourceId": "765",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5321,7 +5265,7 @@
       "sourceId": "766",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5329,7 +5273,7 @@
       "sourceId": "767",
       "stationName": "성신여대입구역",
       "line": "4호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5433,7 +5377,7 @@
       "sourceId": "888",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5441,7 +5385,7 @@
       "sourceId": "889",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5449,7 +5393,7 @@
       "sourceId": "890",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5457,7 +5401,7 @@
       "sourceId": "891",
       "stationName": "보문역",
       "line": "6호선",
-      "targetLine": "우이신설",
+      "targetLine": "우이신설선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -5656,7 +5600,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1038",
       "stationName": "보문역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5664,7 +5608,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1039",
       "stationName": "보문역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5672,7 +5616,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1040",
       "stationName": "보문역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5680,7 +5624,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1041",
       "stationName": "보문역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "6호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5688,7 +5632,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1042",
       "stationName": "성신여대입구역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5696,7 +5640,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1043",
       "stationName": "성신여대입구역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5704,7 +5648,7 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1044",
       "stationName": "성신여대입구역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "4호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
@@ -5712,32 +5656,8 @@
       "source": "MOLIT_QUICK_TRANSFER_CSV",
       "sourceId": "1045",
       "stationName": "성신여대입구역",
-      "line": "우이신설",
+      "line": "우이신설선",
       "targetLine": "4호선",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "1046",
-      "stationName": "신설동역",
-      "line": "우이신설",
-      "targetLine": "1호선",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "1047",
-      "stationName": "신설동역",
-      "line": "우이신설",
-      "targetLine": "1호선",
-      "reason": "OUT_OF_PRODUCT_INVENTORY"
-    },
-    {
-      "source": "MOLIT_QUICK_TRANSFER_CSV",
-      "sourceId": "1048",
-      "stationName": "신설동역",
-      "line": "우이신설",
-      "targetLine": "2호선",
       "reason": "OUT_OF_PRODUCT_INVENTORY"
     },
     {
@@ -6134,6 +6054,17 @@
       "carNos": [
         2,
         9
+      ],
+      "recordCount": 2
+    },
+    {
+      "stationName": "신설동역",
+      "line": "1호선",
+      "targetLine": "우이신설선",
+      "directionKey": "NO_DIRECTION",
+      "carNos": [
+        2,
+        10
       ],
       "recordCount": 2
     },
@@ -17118,6 +17049,62 @@
       "updatedAt": "2025-03-17"
     },
     {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "550",
+      "line": "1호선",
+      "stationName": "신설동역",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "우이신설선",
+      "carNo": 2,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-09-23"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "549",
+      "line": "1호선",
+      "stationName": "신설동역",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "우이신설선",
+      "carNo": 10,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-09-23"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "23",
+      "line": "1호선",
+      "stationName": "신설동역",
+      "stationCode": "0156",
+      "directionKey": "TOWARD_동묘앞",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "우이신설선",
+      "carNo": 2,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-03-17"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "25",
+      "line": "1호선",
+      "stationName": "신설동역",
+      "stationCode": "0156",
+      "directionKey": "TOWARD_제기동",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "우이신설선",
+      "carNo": 9,
+      "doorNo": 4,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-03-17"
+    },
+    {
       "source": "SEOUL_METRO_TRANSFER_CSV",
       "sourceId": "135",
       "line": "2호선",
@@ -17142,6 +17129,93 @@
       "goal": "NEXT_TRANSFER",
       "targetLine": "1호선",
       "carNo": 1,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-03-17"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "137",
+      "line": "2호선",
+      "stationName": "신설동역",
+      "stationCode": "0246",
+      "directionKey": "TOWARD_보문",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "우이신설선",
+      "carNo": 1,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-03-17"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "1046",
+      "line": "우이신설선",
+      "stationName": "신설동역",
+      "directionKey": "TOWARD_신설동",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "1호선",
+      "carNo": 1,
+      "doorNo": 2,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-09-23"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "1047",
+      "line": "우이신설선",
+      "stationName": "신설동역",
+      "directionKey": "TOWARD_신설동",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "1호선",
+      "carNo": 2,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-09-23"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "877",
+      "line": "우이신설선",
+      "stationName": "신설동역",
+      "stationCode": "4713",
+      "directionKey": "TOWARD_제기동",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "1호선",
+      "carNo": 2,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-03-17"
+    },
+    {
+      "source": "MOLIT_QUICK_TRANSFER_CSV",
+      "sourceId": "1048",
+      "line": "우이신설선",
+      "stationName": "신설동역",
+      "directionKey": "TOWARD_신설동",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "2호선",
+      "carNo": 2,
+      "doorNo": 1,
+      "facility": "환승통로",
+      "confidence": "MEDIUM",
+      "updatedAt": "2025-09-23"
+    },
+    {
+      "source": "SEOUL_METRO_TRANSFER_CSV",
+      "sourceId": "876",
+      "line": "우이신설선",
+      "stationName": "신설동역",
+      "stationCode": "4713",
+      "directionKey": "TOWARD_용두",
+      "goal": "NEXT_TRANSFER",
+      "targetLine": "2호선",
+      "carNo": 2,
       "doorNo": 1,
       "facility": "환승통로",
       "confidence": "MEDIUM",

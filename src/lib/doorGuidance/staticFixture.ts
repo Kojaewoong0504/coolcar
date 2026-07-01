@@ -239,6 +239,7 @@ function curatedRecord(params: {
   stationName: string;
   direction?: string;
   targetLine: string;
+  targetDirection?: string;
   carDoor: string;
   updatedAt?: string;
 }): DoorGuideRecord {
@@ -250,6 +251,7 @@ function curatedRecord(params: {
     directionKey: params.direction ? normalizeDirection(params.direction) : undefined,
     goal: 'NEXT_TRANSFER',
     targetLine: params.targetLine,
+    targetDirectionKey: params.targetDirection ? normalizeDirection(params.targetDirection) : undefined,
     carNo: parsed.carNo,
     doorNo: parsed.doorNo,
     facility: '환승통로',
@@ -301,6 +303,29 @@ const CURATED_MAJOR_TRANSFER_GUIDES: DoorGuideRecord[] = [
   curatedRecord({ line: '1호선', stationName: '청량리역', direction: '인천', targetLine: '수인분당선', carDoor: '10-4' }),
   curatedRecord({ line: '1호선', stationName: '청량리역', direction: '신창', targetLine: '수인분당선', carDoor: '10-4' }),
   curatedRecord({ line: '1호선', stationName: '청량리역', direction: '서동탄', targetLine: '수인분당선', carDoor: '10-4' }),
+  // 김포공항역: 공항철도 -> 김포골드라인/서해선. 수도권 전철 환승 정보 공항철도 표의 explicit 3-4 rows.
+  ...['김포골드라인', '서해선'].flatMap((targetLine) => [
+    curatedRecord({ line: '공항철도', stationName: '김포공항역', direction: '서울역', targetLine, carDoor: '3-4' }),
+    curatedRecord({ line: '공항철도', stationName: '김포공항역', direction: '인천공항2터미널', targetLine, carDoor: '3-4' }),
+    curatedRecord({ line: '공항철도', stationName: '김포공항역', direction: '인천공항1터미널', targetLine, carDoor: '3-4' }),
+  ]),
+  // 미금역: 수인분당선 -> 신분당선. Target-line direction is required because 신사/광교 방면 위치가 다르다.
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '인천', targetLine: '신분당선', targetDirection: '신사', carDoor: '5-1' }),
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '인천', targetLine: '신분당선', targetDirection: '광교', carDoor: '4-1' }),
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '왕십리', targetLine: '신분당선', targetDirection: '신사', carDoor: '4-1' }),
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '청량리', targetLine: '신분당선', targetDirection: '신사', carDoor: '4-1' }),
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '왕십리', targetLine: '신분당선', targetDirection: '광교', carDoor: '3-1' }),
+  curatedRecord({ line: '수인분당선', stationName: '미금역', direction: '청량리', targetLine: '신분당선', targetDirection: '광교', carDoor: '3-1' }),
+  // 석촌역: 8호선 -> 9호선, 9호선 -> 8호선. 9호선 출발은 8호선 방면별로 targetDirection이 필요하다.
+  curatedRecord({ line: '8호선', stationName: '석촌역', direction: '모란', targetLine: '9호선', carDoor: '1-1' }),
+  curatedRecord({ line: '8호선', stationName: '석촌역', direction: '별내', targetLine: '9호선', carDoor: '6-4' }),
+  curatedRecord({ line: '8호선', stationName: '석촌역', direction: '암사', targetLine: '9호선', carDoor: '6-4' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '개화', targetLine: '8호선', targetDirection: '모란', carDoor: '3-3' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '중앙보훈병원', targetLine: '8호선', targetDirection: '모란', carDoor: '4-2' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '개화', targetLine: '8호선', targetDirection: '별내', carDoor: '4-4' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '개화', targetLine: '8호선', targetDirection: '암사', carDoor: '4-4' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '중앙보훈병원', targetLine: '8호선', targetDirection: '별내', carDoor: '1-1' }),
+  curatedRecord({ line: '9호선', stationName: '석촌역', direction: '중앙보훈병원', targetLine: '8호선', targetDirection: '암사', carDoor: '1-1' }),
 ];
 
 function withFacilityType(record: DoorGuideRecord): DoorGuideRecord {

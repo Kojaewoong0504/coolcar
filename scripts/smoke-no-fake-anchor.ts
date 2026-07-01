@@ -94,7 +94,7 @@ async function main() {
     results.push(await assertNoFakeAnchorForStation(payload, stationName));
   }
   const checked = results.filter((result) => !('skipped' in result));
-  assert(checked.length >= 4, 'no-fake-anchor smoke should still probe at least 4 unverified transfer pairs from the inventory');
+  assert(checked.length >= Math.min(4, dynamicStations.length), 'no-fake-anchor smoke should probe every remaining unverified transfer station when fewer than 4 remain');
 
   console.log(JSON.stringify({ ok: true, checked: checked.length, skipped: results.length - checked.length, results }, null, 2));
 }

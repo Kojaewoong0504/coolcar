@@ -60,7 +60,7 @@ function routeStatusLabel(result: RecommendationResponse, needsTransfer: boolean
 }
 
 function lineCarCount(line?: string) {
-  return line === '9호선' || line === '신분당선' ? 6 : 10;
+  return line === '8호선' || line === '9호선' || line === '신분당선' || line === '수인분당선' || line === '공항철도' ? 6 : 10;
 }
 
 function carPositionLabel(carNo: number, count: number) {
@@ -131,6 +131,12 @@ function legReasonCopy(leg: RouteLeg, nextLeg?: RouteLeg) {
     return [
       leg.message,
       `${leg.toStation}${nextLeg?.line ? `에서 ${lineShortLabel(nextLeg.line)}` : ''}은 특정 문보다 같은 승강장 맞은편 환승이 핵심이에요.`,
+    ];
+  }
+  if (leg.transferKind === 'ALL_DOORS') {
+    return [
+      leg.message,
+      `${leg.toStation}${nextLeg?.line ? `에서 ${lineShortLabel(nextLeg.line)}` : ''}은 특정 문보다 방면 확인이 더 중요해요.`,
     ];
   }
   if (leg.status === 'available') {
@@ -274,7 +280,7 @@ export default function ResultPage() {
     ? (hasAnchorWindow ? result.routeChoice.anchorCarNos ?? (result.routeChoice.anchorCarNo ? [result.routeChoice.anchorCarNo] : []) : [])
     : (activeLeg?.anchorCarNo ? [activeLeg.anchorCarNo] : []);
   const activeHasAnchor = isPrimaryLeg && hasAnchorWindow;
-  const showTrainMap = Boolean(activeRecommendedCarNo || activeCandidateCarNos.length || activeAnchorCarNos.length);
+  const showTrainMap = Boolean(activeLeg?.transferKind !== 'CROSS_PLATFORM' && activeLeg?.transferKind !== 'ALL_DOORS' && (activeRecommendedCarNo || activeCandidateCarNos.length || activeAnchorCarNos.length));
   const activeMapCars = isPrimaryLeg
     ? result.cars.map((car) => ({ carNo: car.carNo, position: car.position === 'front' ? '앞쪽' : car.position === 'back' ? '뒤쪽' : '중앙' }))
     : mapCarsForLine(activeLeg?.line ?? result.request.line);
@@ -287,6 +293,8 @@ export default function ResultPage() {
       ? '쾌적도 픽'
       : undefined;
   const activeIsCrossPlatform = activeLeg?.transferKind === 'CROSS_PLATFORM';
+  const activeIsAllDoors = activeLeg?.transferKind === 'ALL_DOORS';
+  const activeIsFreeDoorTransfer = activeIsCrossPlatform || activeIsAllDoors;
   const isFinalExitComfortFallback = activeLeg?.goal === 'FINAL_EXIT' && activeLeg.status !== 'available';
   const isLegComfortFallback = Boolean(activeLeg && !isPrimaryLeg && activeLeg.status !== 'available');
   const activeCommandText = isLegComfortFallback
@@ -296,7 +304,9 @@ export default function ResultPage() {
       : '번째 칸으로 가세요';
   const activeHeading = activeIsCrossPlatform
     ? '같은 승강장 맞은편 열차로 갈아타세요'
-    : activeRecommendedCarNo
+    : activeIsAllDoors
+      ? '어느 문으로 내려도 환승할 수 있어요'
+      : activeRecommendedCarNo
       ? isLegComfortFallback
         ? `${activeRecommendedCarNo}번째 칸이 무난해요`
         : isFinalExitComfortFallback
@@ -305,8 +315,8 @@ export default function ResultPage() {
       : activeLeg
         ? `${activeLeg.line} 탑승 위치를 확인해 주세요`
         : `${result.recommendedCar.carNo}번째 칸으로 가세요`;
-  const activeEyebrow = activeIsCrossPlatform ? '평면환승 안내' : activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 환승 구간 안내') : '지금 타기 좋은 위치';
-  const activeRouteNote = activeIsCrossPlatform ? '같은 승강장 맞은편 환승' : activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legBasisCopy(activeLeg) : comfortCopy(result);
+  const activeEyebrow = activeIsCrossPlatform ? '평면환승 안내' : activeIsAllDoors ? '모든 문 환승 안내' : activeHasAnchor ? '추천 위치' : activeLeg && !isPrimaryLeg ? (activeLeg.goal === 'FINAL_EXIT' ? '마지막 구간 안내' : '다음 환승 구간 안내') : '지금 타기 좋은 위치';
+  const activeRouteNote = activeIsCrossPlatform ? '같은 승강장 맞은편 환승' : activeIsAllDoors ? '어느 문이든 환승 가능' : activeHasAnchor ? '가까운 칸 주변에서 선택' : activeLeg && !isPrimaryLeg ? legBasisCopy(activeLeg) : comfortCopy(result);
   const activeNextTransfer = nextTransferCopy(activeLeg, nextLeg);
   const displayReasons = activeIsCrossPlatform && activeLeg
     ? legReasonCopy(activeLeg, nextLeg)
@@ -383,11 +393,11 @@ export default function ResultPage() {
       <section className="card result-card hero-result result-page-card">
         <div className="badges consumer-badges compact-result-badges">
           <span className={`line-badge ${activeLineClass}`}>{lineShortLabel(activeLine)}</span>
-          <span>{activeIsCrossPlatform ? '평면환승' : isPrimaryLeg ? routeStatusLabel(result, needsTransfer) : legStatusCopy(activeLeg.status, activeLeg)}</span>
-          <span>{activeEgressBadge ?? (activeIsCrossPlatform ? '평면환승' : activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeRouteNote)}</span>
+          <span>{activeIsCrossPlatform ? '평면환승' : activeIsAllDoors ? '모든 문 환승' : isPrimaryLeg ? routeStatusLabel(result, needsTransfer) : legStatusCopy(activeLeg.status, activeLeg)}</span>
+          <span>{activeEgressBadge ?? (activeIsCrossPlatform ? '평면환승' : activeIsAllDoors ? '칸 선택 자유' : activeHasAnchor ? comfortShortCopy(result) : isPrimaryLeg ? result.routeGuidance.status === 'needs_route' ? '쾌적도 중심' : comfortCopy(result) : activeRouteNote)}</span>
         </div>
         <p className="eyebrow">{activeEyebrow}</p>
-        {activeRecommendedCarNo && !activeIsCrossPlatform ? (
+        {activeRecommendedCarNo && !activeIsFreeDoorTransfer ? (
           <div className="result-command" aria-label={activeHeading}>
             <span>{activeRecommendedCarNo}</span>
             <h1>{activeCommandText}</h1>
@@ -461,10 +471,10 @@ export default function ResultPage() {
           <h2>{activeLeg.fromStation} → {activeLeg.toStation}</h2>
           <p className="route-leg-meta">{activeLeg.line}{activeLeg.direction ? ' · 이동 방향 자동 계산' : ''}</p>
           <div className={activeLeg.status === 'available' ? 'door-tip available' : activeLeg.goal === 'FINAL_EXIT' ? 'door-tip neutral' : 'door-tip pending'}>
-            <span>{activeLeg.transferKind === 'CROSS_PLATFORM' ? '평면환승' : activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
-            <strong>{activeLeg.transferKind === 'CROSS_PLATFORM' ? activeLeg.positionLabel : activeLeg.status === 'available' ? activeLeg.positionLabel : activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
+            <span>{activeLeg.transferKind === 'CROSS_PLATFORM' ? '평면환승' : activeLeg.transferKind === 'ALL_DOORS' ? '모든 문 환승' : activeLeg.goal === 'NEXT_TRANSFER' ? '다음 환승' : activeLeg.status === 'available' ? '하차 위치' : '마지막 구간'}</span>
+            <strong>{activeLeg.transferKind === 'CROSS_PLATFORM' || activeLeg.transferKind === 'ALL_DOORS' ? activeLeg.positionLabel : activeLeg.status === 'available' ? activeLeg.positionLabel : activeLeg.recommendedCarNo ? `${activeLeg.recommendedCarNo}번째 칸` : activeLeg.positionLabel}</strong>
             {activeLeg.goal === 'NEXT_TRANSFER' ? (
-              <small>{activeLeg.transferKind === 'CROSS_PLATFORM'
+              <small>{activeLeg.transferKind === 'CROSS_PLATFORM' || activeLeg.transferKind === 'ALL_DOORS'
                 ? activeLeg.message
                 : activeLeg.status === 'available'
                   ? `${activeLeg.toStation}${nextLeg?.line ? ` · ${lineShortLabel(nextLeg.line)}` : ''} 환승 동선을 참고했어요.`

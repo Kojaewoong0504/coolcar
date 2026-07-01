@@ -19,7 +19,7 @@ const weakAcCars: Record<string, number[]> = {
   '8호선': [3, 4],
 };
 
-function lineCarCount(line: string) { return line === '9호선' || line === '신분당선' ? 6 : 10; }
+function lineCarCount(line: string) { return line === '8호선' || line === '9호선' || line === '신분당선' || line === '수인분당선' || line === '공항철도' ? 6 : 10; }
 function stableHash(s: string) { return [...s].reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) % 997, 7); }
 
 function congestionToTag(congestion: number) {

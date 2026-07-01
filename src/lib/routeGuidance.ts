@@ -67,7 +67,7 @@ function fallbackCarForLeg(params: {
 }
 
 function carCountForLine(line: string) {
-  return line === '9호선' || line === '신분당선' ? 6 : 10;
+  return line === '8호선' || line === '9호선' || line === '신분당선' || line === '수인분당선' || line === '공항철도' ? 6 : 10;
 }
 
 type PlatformTransferRule = {
@@ -121,6 +121,36 @@ const PLATFORM_TRANSFER_RULES: PlatformTransferRule[] = [
     kind: 'CROSS_PLATFORM',
     label: '같은 승강장 맞은편 열차',
     message: '같은 방향 평면환승 구간이에요. 내린 뒤 같은 승강장 맞은편 1호선 열차를 타면 돼요.',
+  },
+  {
+    station: '초지역',
+    line: '수인분당선',
+    targetLine: '4호선',
+    lineDirection: '왕십리',
+    targetDirection: '당고개',
+    kind: 'ALL_DOORS',
+    label: '모든 문 환승 가능',
+    message: '4호선과 같은 선로를 공유하는 구간이에요. 특정 문보다 방면을 확인하고 어느 문으로 내려도 환승할 수 있어요.',
+  },
+  {
+    station: '초지역',
+    line: '수인분당선',
+    targetLine: '4호선',
+    lineDirection: '청량리',
+    targetDirection: '당고개',
+    kind: 'ALL_DOORS',
+    label: '모든 문 환승 가능',
+    message: '4호선과 같은 선로를 공유하는 구간이에요. 특정 문보다 방면을 확인하고 어느 문으로 내려도 환승할 수 있어요.',
+  },
+  {
+    station: '초지역',
+    line: '수인분당선',
+    targetLine: '4호선',
+    lineDirection: '인천',
+    targetDirection: '오이도',
+    kind: 'ALL_DOORS',
+    label: '모든 문 환승 가능',
+    message: '4호선과 같은 선로를 공유하는 구간이에요. 특정 문보다 방면을 확인하고 어느 문으로 내려도 환승할 수 있어요.',
   },
 ];
 
@@ -259,6 +289,7 @@ async function applyDoorGuide(params: {
     direction: params.direction,
     goal: params.goal,
     targetLine: params.targetLine,
+    targetDirection: params.targetDirection,
     egressPreference: params.egressPreference,
   });
 
@@ -351,6 +382,7 @@ export async function resolveRouteAnchor(request: RecommendRequest): Promise<Rou
     direction: inferredDirection,
     goal: anchorTarget.goal,
     targetLine: anchorTarget.targetLine,
+    targetDirection: firstTargetDirection,
     egressPreference: anchorTarget.goal === 'FINAL_EXIT' ? request.egressPreference : undefined,
   });
 

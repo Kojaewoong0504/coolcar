@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T05:17:50.670Z",
+  "generatedAt": "2026-07-01T13:36:09.636Z",
   "policy": {
     "purpose": "Inventory of Seoul metro transfer station/line pairs that need NEXT_TRANSFER anchor verification.",
     "safety": "This file is not a production door guide. Do not use inventory rows to create carNo/doorNo anchors without official source evidence or manual field verification.",
     "productionRule": "Only verified DoorGuideRecord rows may be used by lookupDoorGuide() for NEXT_TRANSFER ANCHOR_WINDOW recommendations."
   },
   "stats": {
-    "totalStations": 71,
+    "totalStations": 70,
     "p0": 16,
     "p1": 18,
-    "p2": 37,
+    "p2": 36,
     "needsMasterData": 0,
-    "totalDirectedTransferPairs": 210
+    "totalDirectedTransferPairs": 208
   },
   "inventory": [
     {
@@ -1893,32 +1893,6 @@
       ],
       "lat": 37.486,
       "lng": 126.9816,
-      "notes": []
-    },
-    {
-      "stationName": "장한평역",
-      "normalizedName": "장한평",
-      "lines": [
-        "5호선",
-        "7호선"
-      ],
-      "linePairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "5호선"
-        }
-      ],
-      "priority": "P2",
-      "status": "candidate",
-      "source": [
-        "STATION_MASTER_DERIVED"
-      ],
-      "lat": 37.56137,
-      "lng": 127.064461,
       "notes": []
     },
     {

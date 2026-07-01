@@ -15,6 +15,7 @@ export type DoorGuideRecord = {
   directionKey?: string;
   goal: DoorGuideGoal;
   targetLine?: string;
+  targetDirectionKey?: string;
   carNo: number;
   doorNo: number;
   facility?: string;
@@ -30,6 +31,7 @@ export type DoorGuideLookupInput = {
   direction?: string;
   goal: DoorGuideGoal;
   targetLine?: string;
+  targetDirection?: string;
   egressPreference?: EgressPreference;
 };
 

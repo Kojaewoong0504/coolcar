@@ -51,6 +51,23 @@ function directionMatches(input: DoorGuideLookupInput, record: DoorGuideRecord, 
   });
 }
 
+function targetDirectionMatches(input: DoorGuideLookupInput, record: DoorGuideRecord, targetDirectionKey?: string) {
+  if (!record.targetDirectionKey) return true;
+  if (!targetDirectionKey || !record.targetLine) return false;
+  if (record.targetDirectionKey === targetDirectionKey) return true;
+
+  const inputDirectionStation = directionStationFromKey(targetDirectionKey);
+  const recordDirectionStation = directionStationFromKey(record.targetDirectionKey);
+  if (!inputDirectionStation || !recordDirectionStation) return false;
+
+  return isSameLineDirectionSide({
+    line: normalizeLine(record.targetLine),
+    atStation: normalizeStationName(input.toStation),
+    inputDirection: inputDirectionStation,
+    recordDirection: recordDirectionStation,
+  });
+}
+
 function recordFacilityType(record: DoorGuideRecord) {
   return record.facilityType ?? normalizeFacilityType(record.facility);
 }
@@ -75,7 +92,7 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
   const directionKey = normalizeDirection(input.direction);
   const directionalCandidates = candidates.filter((record) => record.directionKey);
 
-  if (directionalCandidates.length > 0 && !directionKey) {
+  if (directionalCandidates.length > 0 && !directionKey && directionalCandidates.length === candidates.length) {
     return { status: 'needs_direction', reason: '타는 방향에 따라 문 위치가 달라질 수 있어요.' };
   }
 
@@ -90,10 +107,28 @@ export function resolveDoorGuideRecords(input: DoorGuideLookupInput, records: Do
     return { status: 'needs_data', reason: '해당 방향의 문 위치 정보가 아직 없어요.' };
   }
 
+  const targetDirectionKey = normalizeDirection(input.targetDirection);
+  const targetDirectionalCandidates = matched.filter((record) => record.targetDirectionKey);
+
+  if (targetDirectionalCandidates.length > 0 && !targetDirectionKey && targetDirectionalCandidates.length === matched.length) {
+    return { status: 'needs_direction', reason: '환승 후 방면에 따라 가까운 문이 달라질 수 있어요.' };
+  }
+
+  const targetMatched = targetDirectionKey
+    ? (() => {
+        const exact = matched.filter((record) => record.targetDirectionKey === targetDirectionKey);
+        return exact.length > 0 ? exact : matched.filter((record) => targetDirectionMatches(input, record, targetDirectionKey));
+      })()
+    : matched;
+
+  if (targetMatched.length === 0) {
+    return { status: 'needs_data', reason: '환승 후 방면에 맞는 문 위치 정보가 아직 없어요.' };
+  }
+
   const preferredMatched = input.goal === 'FINAL_EXIT' && input.egressPreference && input.egressPreference !== 'ANY'
-    ? matched.filter((record) => facilityRank(input, record) === 0)
+    ? targetMatched.filter((record) => facilityRank(input, record) === 0)
     : [];
-  const rankedRecords = preferredMatched.length > 0 ? preferredMatched : matched;
+  const rankedRecords = preferredMatched.length > 0 ? preferredMatched : targetMatched;
   const sorted = [...rankedRecords].sort((a, b) => {
     return facilityRank(input, a) - facilityRank(input, b) || a.carNo - b.carNo || a.doorNo - b.doorNo;
   });

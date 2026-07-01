@@ -593,7 +593,6 @@ export const STATIONS: Station[] = [
   { name: "자양역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.5316, lng: 127.0667 },
   { name: "장승배기역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.5049, lng: 126.939 },
   { name: "장암역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.7001, lng: 127.0532 },
-  { name: "장한평역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.5613, lng: 127.0643 },
   { name: "중계역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.6451, lng: 127.0641 },
   { name: "중곡역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.5656, lng: 127.0842 },
   { name: "중화역", line: "7호선", operator: "서울교통공사·인천교통공사", lat: 37.6026, lng: 127.0793 },

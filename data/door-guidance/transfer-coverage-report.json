@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T12:49:34.033Z",
-  "sourceInventoryGeneratedAt": "2026-07-01T05:17:50.670Z",
+  "generatedAt": "2026-07-01T13:36:10.361Z",
+  "sourceInventoryGeneratedAt": "2026-07-01T13:36:09.636Z",
   "policy": {
     "purpose": "Operational coverage report for NEXT_TRANSFER anchors.",
     "safety": "Missing coverage is acceptable; fake or unverified car/door anchors are release blockers.",
@@ -11,17 +11,17 @@
     ]
   },
   "summary": {
-    "totalStations": 71,
-    "totalDirectedTransferPairs": 210,
-    "verifiedNextTransferPairs": 191,
-    "missingNextTransferPairs": 19,
-    "coverageRatio": 0.9095,
+    "totalStations": 70,
+    "totalDirectedTransferPairs": 208,
+    "verifiedNextTransferPairs": 198,
+    "missingNextTransferPairs": 10,
+    "coverageRatio": 0.9519,
     "p0Stations": 16,
     "p1Stations": 18,
-    "p2Stations": 37,
+    "p2Stations": 36,
     "needsMasterData": 0,
     "finalExitStaticRecords": 2149,
-    "nextTransferStaticRecords": 1238
+    "nextTransferStaticRecords": 1269
   },
   "blockers": [],
   "stations": [
@@ -37,18 +37,10 @@
         "서해선"
       ],
       "totalPairs": 20,
-      "verifiedNextTransferPairs": 10,
-      "missingNextTransferPairs": 10,
-      "coverageRatio": 0.5,
+      "verifiedNextTransferPairs": 12,
+      "missingNextTransferPairs": 8,
+      "coverageRatio": 0.6,
       "missingPairs": [
-        {
-          "fromLine": "공항철도",
-          "toLine": "김포골드라인"
-        },
-        {
-          "fromLine": "공항철도",
-          "toLine": "서해선"
-        },
         {
           "fromLine": "김포골드라인",
           "toLine": "5호선"
@@ -329,19 +321,10 @@
         "우이신설선"
       ],
       "totalPairs": 6,
-      "verifiedNextTransferPairs": 4,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0.6667,
-      "missingPairs": [
-        {
-          "fromLine": "우이신설선",
-          "toLine": "1호선"
-        },
-        {
-          "fromLine": "우이신설선",
-          "toLine": "2호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 6,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -773,14 +756,10 @@
         "신분당선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
+      "verifiedNextTransferPairs": 1,
+      "missingNextTransferPairs": 1,
+      "coverageRatio": 0.5,
       "missingPairs": [
-        {
-          "fromLine": "수인분당선",
-          "toLine": "신분당선"
-        },
         {
           "fromLine": "신분당선",
           "toLine": "수인분당선"
@@ -842,19 +821,10 @@
         "9호선"
       ],
       "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "8호선",
-          "toLine": "9호선"
-        },
-        {
-          "fromLine": "9호선",
-          "toLine": "8호선"
-        }
-      ],
+      "verifiedNextTransferPairs": 2,
+      "missingNextTransferPairs": 0,
+      "coverageRatio": 1,
+      "missingPairs": [],
       "notes": []
     },
     {
@@ -1005,30 +975,6 @@
       "missingNextTransferPairs": 0,
       "coverageRatio": 1,
       "missingPairs": [],
-      "notes": []
-    },
-    {
-      "stationName": "장한평역",
-      "priority": "P2",
-      "status": "candidate",
-      "lines": [
-        "5호선",
-        "7호선"
-      ],
-      "totalPairs": 2,
-      "verifiedNextTransferPairs": 0,
-      "missingNextTransferPairs": 2,
-      "coverageRatio": 0,
-      "missingPairs": [
-        {
-          "fromLine": "5호선",
-          "toLine": "7호선"
-        },
-        {
-          "fromLine": "7호선",
-          "toLine": "5호선"
-        }
-      ],
       "notes": []
     },
     {
